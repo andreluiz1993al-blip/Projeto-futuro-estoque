@@ -133,7 +133,7 @@
 
         <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-8 space-y-5">
           
-          <!-- PAINEL EXCLUSIVO DO ADMINISTRADOR -->
+          <!-- PAINEL EXCLUSIVO DO ADMINISTRADOR (SEM BOTÃO DE ZERAR ESTOQUE) -->
           <section id="admin-exclusive-panel" class="hidden bg-slate-900 text-white p-4 rounded-2xl shadow-md border border-slate-800">
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center gap-2">
@@ -143,14 +143,9 @@
               <i data-lucide="shield" class="w-4 h-4 text-teal-400"></i>
             </div>
             <p class="text-[11px] text-slate-300 mb-3">Gerenciamento de estoque e novos produtos de telecom.</p>
-            <div class="grid grid-cols-2 gap-2">
-              <button onclick="openProductModal()" class="bg-[#2563EB] hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo Equipamento
-              </button>
-              <button onclick="resetAppDatabase()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Zerar Estoque
-              </button>
-            </div>
+            <button onclick="openProductModal()" class="w-full bg-[#2563EB] hover:bg-blue-600 text-white text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition shadow">
+              <i data-lucide="plus" class="w-4 h-4"></i> Novo Equipamento
+            </button>
           </section>
 
           <!-- PAINEL PARA TÉCNICOS / AUXILIARES -->
@@ -543,7 +538,7 @@
 
         <input type="hidden" id="prod-edit-id" />
 
-        <!-- SELETOR RÁPIDO DE ÍCONES DE TELECOM (COLOCADO NO TOPO PARA FACILITAR) -->
+        <!-- SELETOR RÁPIDO DE ÍCONES DE TELECOM -->
         <div>
           <label class="block text-xs font-bold text-blue-700 mb-1.5">Escolha o Ícone do Equipamento:</label>
           <div class="grid grid-cols-5 gap-2 bg-blue-50/60 p-2.5 rounded-2xl border border-blue-100">
@@ -1078,17 +1073,6 @@
         return false;
       }
       return true;
-    }
-
-    function resetAppDatabase() {
-      if (!checkAdminPermission()) return;
-      if (confirm('Tem certeza que deseja ZERAR o estoque, histórico e relatórios? Esta ação limpa tudo para o zero.')) {
-        products = [];
-        movements = [];
-        requests = [];
-        saveState();
-        showToast('Estoque e relatórios zerados com sucesso!');
-      }
     }
 
     function switchTab(tabName, save = true) {
