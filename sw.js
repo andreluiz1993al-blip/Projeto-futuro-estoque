@@ -1,8 +1,10 @@
-const CACHE_NAME = "estoquepro-v2";
+const CACHE_NAME = "estoquepro-v4";
 const ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.json"
+  "/Projeto-futuro-estoque/",
+  "/Projeto-futuro-estoque/index.html",
+  "/Projeto-futuro-estoque/manifest.json",
+  "/Projeto-futuro-estoque/icon-192.png",
+  "/Projeto-futuro-estoque/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
