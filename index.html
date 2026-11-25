@@ -413,7 +413,7 @@
             </div>
           </div>
 
-          <!-- ABA EXCLUSIVA DO ADM PARA APROVAR CADASTROS DE TÉCNICOS/ADM (SEPARADA DE MATERIAIS) -->
+          <!-- ABA EXCLUSIVA DO ADM PARA APROVAR CADASTROS DE TÉCNICOS/ADM -->
           <div id="admin-user-approval-tab" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-4">
             <div>
               <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
@@ -531,7 +531,7 @@
       </div>
     </div>
 
-    <!-- MODAL PRODUTO / EQUIPAMENTO -->
+    <!-- MODAL PRODUTO / EQUIPAMENTO (COM SELETOR DE ÍCONES) -->
     <div id="product-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4">
       <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-3.5 max-h-[90%] overflow-y-auto">
         <div class="flex items-center justify-between">
@@ -551,6 +551,23 @@
           <div class="col-span-3">
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nome do Equipamento *</label>
             <input id="prod-name-input" type="text" placeholder="Ex: ONU XPON Gigabit" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm" />
+          </div>
+        </div>
+
+        <!-- SELETOR RÁPIDO DE ÍCONES DE TELECOM -->
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-500 mb-1">Ou escolha um ícone pronto de telecom:</label>
+          <div class="flex flex-wrap gap-1.5 bg-slate-50 p-2 rounded-xl border border-slate-200">
+            <button type="button" onclick="selectPresetIcon('🛜')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-base hover:bg-slate-100">🛜</button>
+            <button type="button" onclick="selectPresetIcon('📡')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-base hover:bg-slate-100">📡</button>
+            <button type="button" onclick="selectPresetIcon('🧵')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-base hover:bg-slate-100">🧵</button>
+            <button type="button" onclick="selectPresetIcon('🧶')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-base hover:bg-slate-100">🧶</button>
+            <button type="button" onclick="selectPresetIcon('🔌')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-base hover:bg-slate-100">🔌</button>
+            <button type="button" onclick="selectPresetIcon('📌')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-base hover:bg-slate-100">📌</button>
+            <button type="button" onclick="selectPresetIcon('📦')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-base hover:bg-slate-100">📦</button>
+            <button type="button" onclick="selectPresetIcon('🌐')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-base hover:bg-slate-100">🌐</button>
+            <button type="button" onclick="selectPresetIcon('⚡')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-base hover:bg-slate-100">⚡</button>
+            <button type="button" onclick="selectPresetIcon('🛠️')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-base hover:bg-slate-100">🛠️</button>
           </div>
         </div>
 
@@ -869,6 +886,11 @@
         const savedTab = localStorage.getItem('estoqueapp_current_tab') || 'inicio';
         switchTab(savedTab, false);
       }
+    }
+
+    // FUNÇÃO PARA SELECIONAR ÍCONE PRONTO NO MODAL DE PRODUTO
+    function selectPresetIcon(iconEmoji) {
+      document.getElementById('prod-icon-input').value = iconEmoji;
     }
 
     // SOLICITAÇÕES DE MATERIAIS (TÉCNICO -> ADM)
@@ -1478,7 +1500,7 @@
       renderCategoryTabs();
       renderEstoqueList();
       renderReports();
-      if (userRole === 'admin') renderAdminRequests();
+      if (userRole === 'admin') renderManagementLists();
       lucide.createIcons();
     }
 
