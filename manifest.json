@@ -1,25 +1,27 @@
 {
+  "id": "/Projeto-futuro-estoque/",
   "name": "EstoquePro - Gestão de Estoque",
   "short_name": "EstoquePro",
   "description": "Aplicativo completo para controle de estoque e leitura de código de barras.",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/Projeto-futuro-estoque/index.html",
+  "scope": "/Projeto-futuro-estoque/",
   "display": "standalone",
   "background_color": "#0B2241",
   "theme_color": "#0B2241",
   "orientation": "portrait",
+  "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "https://flaticon.com",
-      "sizes": "192x192",
-      "type": "image/png",
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='512' height='512' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230B2241'/><path d='M256 110 L390 185 L390 335 L256 410 L122 335 L122 185 Z' fill='none' stroke='%2360A5FA' stroke-width='28' stroke-linejoin='round'/><polyline points='122,185 256,260 390,185' fill='none' stroke='%2360A5FA' stroke-width='28' stroke-linejoin='round'/><line x1='256' y1='260' x2='256' y2='410' stroke='%2360A5FA' stroke-width='28' stroke-linecap='round'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "https://flaticon.com",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='192' height='192' viewBox='0 0 512 512'><rect width='512' height='512' fill='%230B2241'/><path d='M256 130 L370 195 L370 325 L256 390 L142 325 L142 195 Z' fill='none' stroke='%2360A5FA' stroke-width='28' stroke-linejoin='round'/><polyline points='142,195 256,260 370,195' fill='none' stroke='%2360A5FA' stroke-width='28' stroke-linejoin='round'/><line x1='256' y1='260' x2='256' y2='390' stroke='%2360A5FA' stroke-width='28' stroke-linecap='round'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
