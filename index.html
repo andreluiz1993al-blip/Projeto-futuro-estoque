@@ -1,192 +1,157 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#0B2241">
-  <title>EstoquePro</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
-    :root {
-      --navy: #0B2241;
-      --blue: #2563EB;
-      --blue-card: #2463EB;
-      --teal-card: #2A8C82;
-      --coral-card: #DC6B5A;
-      --bg: #F3F5F8;
-      --card: #FFFFFF;
-      --text: #111827;
-      --muted: #6B7280;
-      --border: #E5E7EB;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 82px; }
-
-    .app-header {
-      background: var(--navy);
-      color: #FFFFFF;
-      padding: 16px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-    .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; }
-
-    .screen { display: none; padding: 16px; }
-    .screen.active { display: block; }
-
-    .greeting { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .user-pill { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.98rem; color: var(--text); }
-    .avatar {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: #CBD5E1; display: flex; align-items: center; justify-content: center;
-    }
-
-    .search-wrap { position: relative; margin-bottom: 18px; }
-    .search-wrap svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
-    .search-input {
-      width: 100%; padding: 11px 14px 11px 38px; border-radius: 10px; border: 1px solid var(--border);
-      background: #FFFFFF; font-size: 0.9rem; color: var(--text); outline: none;
-    }
-
-    .section-label { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; color: #1F2937; }
-
-    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-    .kpi-card { padding: 12px 10px; border-radius: 12px; color: #FFFFFF; }
-    .kpi-card.teal { background: var(--teal-card); }
-    .kpi-card.coral { background: var(--coral-card); }
-    .kpi-card.blue { background: var(--blue-card); }
-    .kpi-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; opacity: 0.9; }
-    .kpi-card small { display: block; font-size: 0.72rem; opacity: 0.92; margin-bottom: 2px; }
-    .kpi-card strong { font-size: 1.15rem; font-weight: 700; display: block; line-height: 1.2; }
-    .kpi-card span { font-size: 0.64rem; opacity: 0.85; display: block; margin-top: 3px; }
-
-    .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 22px; }
-    .action-btn {
-      background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 14px 8px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
-      cursor: pointer; font-weight: 600; font-size: 0.82rem; color: #374151;
-    }
-    .action-btn svg { color: #2563EB; }
-
-    .history-list { background: #FFFFFF; border-radius: 14px; padding: 4px 14px; border: 1px solid var(--border); }
-    .history-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 0; border-bottom: 1px solid #F3F4F6;
-    }
-    .history-item:last-child { border-bottom: none; }
-    .hist-left { display: flex; align-items: center; gap: 12px; }
-    .hist-icon {
-      width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
-    }
-    .hist-icon.in { background: #EFF6FF; color: #2563EB; }
-    .hist-icon.out { background: #FEF2F2; color: #DC2626; }
-    .hist-info h4 { font-size: 0.88rem; font-weight: 600; color: #111827; }
-    .hist-info p { font-size: 0.78rem; color: var(--muted); }
-    .hist-right { text-align: right; }
-    .hist-qty { font-weight: 700; font-size: 0.88rem; display: block; }
-    .hist-qty.in { color: #16A34A; }
-    .hist-qty.out { color: #DC2626; }
-    .hist-time { font-size: 0.72rem; color: #9CA3AF; }
-
-    .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 6px; scrollbar-width: none; }
-    .chips::-webkit-scrollbar { display: none; }
-    .chip {
-      padding: 6px 14px; border-radius: 20px; border: none; background: transparent;
-      color: var(--muted); font-size: 0.84rem; font-weight: 600; white-space: nowrap; cursor: pointer;
-    }
-    .chip.active { background: #DBEAFE; color: #1D4ED8; }
-
-    .prod-card {
-      background: #FFFFFF; border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center;
-      border: 1px solid var(--border);
-    }
-    .prod-main { display: flex; gap: 12px; align-items: center; }
-    .prod-thumb {
-      width: 52px; height: 52px; border-radius: 10px; background: #F8FAFC; border: 1px solid #F1F5F9;
-      display: flex; align-items: center; justify-content: center; color: #334155;
-    }
-    .prod-details h4 { font-size: 0.9rem; font-weight: 700; color: #111827; margin-bottom: 2px; }
-    .prod-sku { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
-    .badges { display: flex; gap: 6px; align-items: center; }
-    .pill { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
-    .pill.ok { background: #CCFBF1; color: #0F766E; }
-    .pill.low { background: #FEE2E2; color: #B91C1C; }
-    .prod-price { font-weight: 700; font-size: 0.9rem; color: #111827; white-space: nowrap; }
-
-    .fab {
-      position: fixed; bottom: 82px; right: 18px; width: 52px; height: 52px;
-      border-radius: 50%; background: #2563EB; color: #FFFFFF; border: none;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 12px rgba(37,99,235,0.4); cursor: pointer; z-index: 40;
-    }
-
-    .scanner-viewport {
-      position: relative; width: 100%; height: 210px; border-radius: 16px; overflow: hidden;
-      background: #0F172A; margin-bottom: 14px; display: flex; align-items: center; justify-content: center;
-    }
-    .scanner-viewport video { width: 100%; height: 100%; object-fit: cover; }
-    .scan-frame {
-      position: absolute; width: 220px; height: 130px; border: 2px solid rgba(255,255,255,0.85);
-      border-radius: 14px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
-    }
-    .scanner-card { background: #FFFFFF; border-radius: 16px; padding: 16px; border: 1px solid var(--border); margin-bottom: 14px; }
-    .scan-prod-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
-    .qty-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
-    .qty-box {
-      border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-weight: 700;
-      font-size: 0.95rem; background: #F9FAFB; min-width: 85px; text-align: center;
-    }
-    .step-controls { display: flex; align-items: center; gap: 14px; }
-    .step-btn {
-      width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
-      background: #FFFFFF; font-weight: 700; font-size: 1.1rem; cursor: pointer; color: #374151;
-    }
-    .price-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; font-size: 0.92rem; }
-    .btn-save-scan {
-      width: 100%; padding: 14px; border-radius: 12px; border: none; background: #2563EB;
-      color: #FFFFFF; font-weight: 700; font-size: 0.95rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;
-    }
-
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; height: 66px; background: #FFFFFF;
-      border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr);
-      align-items: center; z-index: 60;
-    }
-    .nav-item {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      font-size: 0.7rem; color: #6B7280; cursor: pointer; gap: 4px; border: none; background: none; font-weight: 500;
-    }
-    .nav-item.active { color: #2563EB; font-weight: 700; }
-
-    .modal { display: none; position: fixed; inset: 0; background: rgba(11,34,65,0.65); align-items: center; justify-content: center; padding: 16px; z-index: 100; }
-    .modal.open { display: flex; }
-    .modal-box { background: #FFFFFF; width: 100%; max-width: 380px; border-radius: 16px; padding: 20px; }
-    .field { margin-bottom: 12px; }
-    .field label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
-    .field input, .field select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.92rem; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0B2241">
+<title>EstoquePro</title>
+<link rel="manifest" href="manifest.json">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{background:#F3F5F8;color:#111827;padding-bottom:80px}
+header{background:#0B2241;color:#fff;padding:16px 18px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.15rem;position:sticky;top:0;z-index:50}
+.scr{display:none;padding:16px}.scr.on{display:block}
+.top-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-weight:600}
+.user{display:flex;align-items:center;gap:10px}
+.av{width:36px;height:36px;border-radius:50%;background:#CBD5E1;display:flex;align-items:center;justify-content:center}
+.srch{width:100%;padding:11px 14px;border-radius:10px;border:1px solid #E5E7EB;background:#fff;font-size:.9rem;margin-bottom:16px;outline:none}
+.lbl{font-size:.95rem;font-weight:700;margin-bottom:10px;color:#1F2937}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+.kpi{padding:12px 10px;border-radius:12px;color:#fff}
+.kpi small{display:block;font-size:.7rem;opacity:.9;margin-bottom:4px}
+.kpi strong{font-size:1.1rem;display:block}
+.kpi span{font-size:.62rem;opacity:.85}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.act{background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:600;font-size:.82rem;color:#374151}
+.box{background:#fff;border-radius:14px;padding:6px 14px;border:1px solid #E5E7EB}
+.h-item{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #F3F4F6}
+.h-item:last-child{border:none}
+.chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px}
+.chip{padding:6px 14px;border-radius:20px;border:none;background:transparent;color:#6B7280;font-weight:600;font-size:.84rem}
+.chip.on{background:#DBEAFE;color:#1D4ED8}
+.p-card{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border:1px solid #E5E7EB}
+.p-left{display:flex;gap:12px;align-items:center}
+.thumb{width:48px;height:48px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.pill{padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700}
+.ok{background:#CCFBF1;color:#0F766E}.low{background:#FEE2E2;color:#B91C1C}
+.fab{position:fixed;bottom:80px;right:18px;width:52px;height:52px;border-radius:50%;background:#2563EB;color:#fff;border:none;font-size:1.7rem;box-shadow:0 4px 12px rgba(37,99,235,.4)}
+.cam{position:relative;width:100%;height:200px;border-radius:16px;overflow:hidden;background:#0F172A;margin-bottom:14px;display:flex;align-items:center;justify-content:center}
+.cam video{width:100%;height:100%;object-fit:cover}
+.frame{position:absolute;width:210px;height:120px;border:2px solid #fff;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
+.card{background:#fff;border-radius:16px;padding:16px;border:1px solid #E5E7EB;margin-bottom:12px}
+.btn{width:100%;padding:13px;border-radius:12px;border:none;background:#2563EB;color:#fff;font-weight:700;font-size:.95rem;margin-top:10px}
+nav{position:fixed;bottom:0;left:0;right:0;height:66px;background:#fff;border-top:1px solid #E5E7EB;display:grid;grid-template-columns:repeat(5,1fr);z-index:60}
+nav button{border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.7rem;color:#6B7280;gap:3px}
+nav button.on{color:#2563EB;font-weight:700}
+.modal{display:none;position:fixed;inset:0;background:rgba(11,34,65,.65);align-items:center;justify-content:center;padding:16px;z-index:100}
+.modal.on{display:flex}
+.m-box{background:#fff;width:100%;max-width:360px;border-radius:16px;padding:18px}
+.m-box input,.m-box select{width:100%;padding:10px;border-radius:10px;border:1px solid #E5E7EB;margin:6px 0 12px}
+</style>
 </head>
 <body>
 
-  <header class="app-header">
-    <div class="logo-area">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-        <line x1="12" y1="22.08" x2="12" y2="12"></line>
-      </svg>
-      <span id="headerTitle">EstoquePro</span>
-    </div>
-  </header>
+<header>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+  <span id="hTitle">EstoquePro</span>
+</header>
 
-  <section id="screen-home" class="screen active">
-    <div class="greeting">
-      <div class="user-pill">
-        <div class="avatar">
+<section id="s-home" class="scr on">
+  <div class="top-row">
+    <div class="user"><div class="av">👤</div><span>Olá, Amanda Silva</span></div>
+    <span>🔔</span>
+  </div>
+  <input class="srch" placeholder="🔍 Pesquisar produtos, SKU ou categoria..." onkeyup="if(this.value.length>1){go('stock');document.getElementById('qStock').value=this.value;drawStock()}">
+  <div class="lbl">Resumo Geral</div>
+  <div class="kpis">
+    <div class="kpi" style="background:#2A8C82"><small>Total de Itens</small><strong id="kTot">271</strong><span>+12% semana</span></div>
+    <div class="kpi" style="background:#DC6B5A"><small>Estoque Baixo</small><strong id="kLow">2 itens</strong><span>Atenção</span></div>
+    <div class="kpi" style="background:#2463EB"><small>Valor Estoque</small><strong id="kVal">R$ 86.631</strong><span>Ativo</span></div>
+  </div>
+  <div class="lbl">Ações Rápidas</div>
+  <div class="acts">
+    <button class="act" onclick="openM()"><span style="color:#2563EB;font-size:1.3rem">⊕</span>Entrada</button>
+    <button class="act" onclick="openM()"><span style="color:#2563EB;font-size:1.3rem">⊖</span>Saída</button>
+    <button class="act" onclick="go('scan')"><span style="color:#2563EB;font-size:1.3rem">📷</span>Ler Código</button>
+  </div>
+  <div class="lbl">Movimentações Recentes</div>
+  <div class="box" id="hList"></div>
+</section>
+
+<section id="s-stock" class="scr">
+  <input id="qStock" class="srch" placeholder="🔍 Pesquisar produtos, SKU..." oninput="drawStock()">
+  <div class="chips">
+    <button class="chip on" onclick="setCat('Todos',this)">Todos</button>
+    <button class="chip" onclick="setCat('Eletrônicos',this)">Eletrônicos</button>
+    <button class="chip" onclick="setCat('Acessórios',this)">Acessórios</button>
+    <button class="chip" onclick="setCat('Vestuário',this)">Vestuário</button>
+  </div>
+  <div id="pList"></div>
+  <button class="fab" onclick="openM()">+</button>
+</section>
+
+<section id="s-scan" class="scr">
+  <div class="cam"><video id="vid" autoplay playsinline></video><div class="frame"></div></div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+      <strong>Produto Identificado</strong>
+      <span onclick="simScan()" style="color:#2563EB;font-size:.82rem;font-weight:600;cursor:pointer">Simular ↻</span>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;padding-bottom:12px;border-bottom:1px solid #E5E7EB">
+      <div class="thumb" id="scIcon">⌨️</div>
+      <div><h4 id="scName">Teclado Mecânico RGB</h4><small id="scSku" style="color:#6B7280">SKU: TEC-2041</small></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #E5E7EB">
+      <div><small style="color:#6B7280;display:block">Em Estoque:</small><strong id="scQty">42 un.</strong></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button onclick="chgD(-1)" style="width:30px;height:30px;border-radius:50%;border:1px solid #E5E7EB;background:#fff">−</button>
+        <strong id="scDelta">15</strong>
+        <button onclick="chgD(1)" style="width:30px;height:30px;border-radius:50%;border:1px solid #E5E7EB;background:#fff">+</button>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding-top:12px">
+      <span style="color:#6B7280">Preço de Venda:</span><strong id="scPrice">R$ 349,90</strong>
+    </div>
+    <button class="btn" onclick="addScan()">✓ Salvar no Estoque</button>
+  </div>
+</section>
+
+<section id="s-rep" class="scr">
+  <div class="card">
+    <h4 style="margin-bottom:8px">Exportar Relatório</h4>
+    <p style="font-size:.85rem;color:#6B7280">Baixe todos os produtos e saldos em planilha CSV.</p>
+    <button class="btn" onclick="csvOut()">Baixar Planilha (CSV)</button>
+  </div>
+</section>
+
+<section id="s-prof" class="scr">
+  <div class="card">
+    <h4>Amanda Silva</h4>
+    <p style="font-size:.85rem;color:#6B7280;margin:4px 0 12px">Gestora de Estoque • EstoquePro</p>
+    <button class="btn" style="background:#DC2626" onclick="localStorage.clear();location.reload()">Restaurar Dados</button>
+  </div>
+</section>
+
+<nav>
+  <button id="n-home" class="on" onclick="go('home')"><span>🏠</span>Início</button>
+  <button id="n-stock" onclick="go('stock')"><span>📦</span>Estoque</button>
+  <button id="n-scan" onclick="go('scan')"><span>📷</span>Leitor</button>
+  <button id="n-rep" onclick="go('rep')"><span>📈</span>Relatórios</button>
+  <button id="n-prof" onclick="go('prof')"><span>👤</span>Perfil</button>
+</nav>
+
+<div class="modal" id="mod">
+  <div class="m-box">
+    <h4 style="margin-bottom:10px">Novo Produto</h4>
+    <input id="mN" placeholder="Nome do Produto">
+    <input id="mS" placeholder="SKU (Ex: ELE-0482)">
+    <select id="mC"><option>Eletrônicos</option><option>Acessórios</option><option>Vestuário</option></select>
+    <input id="mQ" type="number" value="10" placeholder="Quantidade">
+    <input id="mP" type="number" value="199.90" step="0.01" placeholder="Preço">
+    <button class="btn" onclick="saveM()">Salvar</button>
+    <button class="btn" style="background:#E5E7EB;color:#111" onclick="closeM()">Cancelar</button>
+  </div>
+</div>
+
+<script>
+let prods=JSON.parse(localStorage.getItem("ep_p"))||[
