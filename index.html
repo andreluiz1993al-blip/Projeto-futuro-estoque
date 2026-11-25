@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0B2241">
   <title>EstoquePro</title>
-  <link rel="manifest" href="/Projeto-futuro-estoque/manifest.json">
-  <script src="https://unpkg.com" type="text/javascript"></script>
+  <link rel="manifest" href="manifest.json">
   <style>
     :root {
       --navy: #0B2241;
@@ -24,7 +23,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background: var(--bg); color: var(--text); padding-bottom: 82px; }
 
-    /* Header Azul-Marinho */
     .app-header {
       background: var(--navy);
       color: #FFFFFF;
@@ -36,21 +34,18 @@
       top: 0;
       z-index: 50;
     }
-    .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; letter-spacing: -0.2px; }
+    .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; }
 
-    /* Telas */
     .screen { display: none; padding: 16px; }
     .screen.active { display: block; }
 
-    /* Saudação */
     .greeting { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .user-pill { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.98rem; color: var(--text); }
     .avatar {
-      width: 36px; height: 36px; border-radius: 50%; overflow: hidden;
+      width: 36px; height: 36px; border-radius: 50%;
       background: #CBD5E1; display: flex; align-items: center; justify-content: center;
     }
 
-    /* Barra de Pesquisa */
     .search-wrap { position: relative; margin-bottom: 18px; }
     .search-wrap svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
     .search-input {
@@ -58,12 +53,10 @@
       background: #FFFFFF; font-size: 0.9rem; color: var(--text); outline: none;
     }
 
-    /* Títulos de Seção */
     .section-label { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; color: #1F2937; }
 
-    /* Resumo Geral (3 Cards) */
     .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-    .kpi-card { padding: 12px 10px; border-radius: 12px; color: #FFFFFF; position: relative; }
+    .kpi-card { padding: 12px 10px; border-radius: 12px; color: #FFFFFF; }
     .kpi-card.teal { background: var(--teal-card); }
     .kpi-card.coral { background: var(--coral-card); }
     .kpi-card.blue { background: var(--blue-card); }
@@ -72,17 +65,14 @@
     .kpi-card strong { font-size: 1.15rem; font-weight: 700; display: block; line-height: 1.2; }
     .kpi-card span { font-size: 0.64rem; opacity: 0.85; display: block; margin-top: 3px; }
 
-    /* Ações Rápidas */
     .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 22px; }
     .action-btn {
       background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 14px 8px;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
       cursor: pointer; font-weight: 600; font-size: 0.82rem; color: #374151;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
     .action-btn svg { color: #2563EB; }
 
-    /* Movimentações Recentes */
     .history-list { background: #FFFFFF; border-radius: 14px; padding: 4px 14px; border: 1px solid var(--border); }
     .history-item {
       display: flex; justify-content: space-between; align-items: center;
@@ -103,7 +93,6 @@
     .hist-qty.out { color: #DC2626; }
     .hist-time { font-size: 0.72rem; color: #9CA3AF; }
 
-    /* Categorias */
     .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 6px; scrollbar-width: none; }
     .chips::-webkit-scrollbar { display: none; }
     .chip {
@@ -112,11 +101,10 @@
     }
     .chip.active { background: #DBEAFE; color: #1D4ED8; }
 
-    /* Cards de Produto */
     .prod-card {
       background: #FFFFFF; border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
       display: flex; justify-content: space-between; align-items: center;
-      border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      border: 1px solid var(--border);
     }
     .prod-main { display: flex; gap: 12px; align-items: center; }
     .prod-thumb {
@@ -131,7 +119,6 @@
     .pill.low { background: #FEE2E2; color: #B91C1C; }
     .prod-price { font-weight: 700; font-size: 0.9rem; color: #111827; white-space: nowrap; }
 
-    /* Botão + Flutuante */
     .fab {
       position: fixed; bottom: 82px; right: 18px; width: 52px; height: 52px;
       border-radius: 50%; background: #2563EB; color: #FFFFFF; border: none;
@@ -139,12 +126,11 @@
       box-shadow: 0 4px 12px rgba(37,99,235,0.4); cursor: pointer; z-index: 40;
     }
 
-    /* Leitor de Código */
     .scanner-viewport {
-      position: relative; width: 100%; height: 220px; border-radius: 16px; overflow: hidden;
-      background: #1E293B; margin-bottom: 14px; display: flex; align-items: center; justify-content: center;
+      position: relative; width: 100%; height: 210px; border-radius: 16px; overflow: hidden;
+      background: #0F172A; margin-bottom: 14px; display: flex; align-items: center; justify-content: center;
     }
-    #reader { width: 100%; height: 100%; }
+    .scanner-viewport video { width: 100%; height: 100%; object-fit: cover; }
     .scan-frame {
       position: absolute; width: 220px; height: 130px; border: 2px solid rgba(255,255,255,0.85);
       border-radius: 14px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
@@ -168,7 +154,6 @@
       display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;
     }
 
-    /* Barra Inferior */
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0; height: 66px; background: #FFFFFF;
       border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr);
@@ -180,7 +165,6 @@
     }
     .nav-item.active { color: #2563EB; font-weight: 700; }
 
-    /* Modal */
     .modal { display: none; position: fixed; inset: 0; background: rgba(11,34,65,0.65); align-items: center; justify-content: center; padding: 16px; z-index: 100; }
     .modal.open { display: flex; }
     .modal-box { background: #FFFFFF; width: 100%; max-width: 380px; border-radius: 16px; padding: 20px; }
@@ -194,3 +178,15 @@
   <header class="app-header">
     <div class="logo-area">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      </svg>
+      <span id="headerTitle">EstoquePro</span>
+    </div>
+  </header>
+
+  <section id="screen-home" class="screen active">
+    <div class="greeting">
+      <div class="user-pill">
+        <div class="avatar">
