@@ -29,7 +29,7 @@
 </head>
 <body class="flex justify-center items-center w-full h-full overflow-hidden">
 
-  <!-- APLICATIVO CONTÊINER PRINCIPAL (FIXO E TOLERANTE A TELA CHEIA) -->
+  <!-- APLICATIVO CONTÊINER PRINCIPAL -->
   <div id="app" class="w-full h-full max-w-[420px] sm:h-[844px] bg-[#F4F6F9] sm:rounded-[38px] sm:shadow-2xl sm:border-[8px] sm:border-[#1E293B] flex flex-col relative overflow-hidden">
 
     <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
@@ -39,7 +39,7 @@
           <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
         </div>
         <h1 class="text-2xl font-extrabold tracking-tight">Estoque APP</h1>
-        <p id="auth-subtitle" class="text-xs text-blue-200 mt-1">Cadastros entram como convidados</p>
+        <p id="auth-subtitle" class="text-xs text-blue-200 mt-1">Cadastros entram como convidados ou técnicos</p>
       </div>
 
       <div class="bg-white text-slate-800 p-6 rounded-3xl shadow-2xl space-y-4 my-auto">
@@ -52,6 +52,14 @@
           <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nome Completo</label>
             <input id="auth-name" type="text" placeholder="Seu Nome" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-600" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipo de Perfil</label>
+            <select id="auth-role-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-600">
+              <option value="tecnico">Técnico de Campo</option>
+              <option value="auxiliar">Auxiliar Técnico</option>
+              <option value="convidado">Convidado (Apenas Leitura)</option>
+            </select>
           </div>
         </div>
 
@@ -75,7 +83,7 @@
       </div>
     </div>
 
-    <!-- ÁREA DAS TELAS (LIMITADA ESTritamente ACIMA DA BARRA INFERIOR) -->
+    <!-- ÁREA DAS TELAS -->
     <div class="absolute inset-x-0 top-0 bottom-16 overflow-hidden flex flex-col">
 
       <!-- TELA 1: INÍCIO -->
@@ -88,10 +96,15 @@
               </div>
               <span class="text-xl font-bold tracking-tight">Estoque APP</span>
             </div>
-            <button onclick="openNotifications()" class="relative p-2 rounded-full hover:bg-white/10 transition">
-              <i data-lucide="bell" class="w-5 h-5 text-white"></i>
-              <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-[#0F294A]"></span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button onclick="manualRefreshData()" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition" title="Atualizar Dados">
+                <i data-lucide="rotate-cw" class="w-5 h-5 text-white"></i>
+              </button>
+              <button onclick="openNotifications()" class="relative p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+                <i data-lucide="bell" class="w-5 h-5 text-white"></i>
+                <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-[#0F294A] hidden"></span>
+              </button>
+            </div>
           </div>
 
           <div class="flex items-center justify-between mb-4">
@@ -138,6 +151,31 @@
                 <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Resetar Dados
               </button>
             </div>
+          </section>
+
+          <!-- PAINEL PARA TÉCNICOS / AUXILIARES -->
+          <section id="tech-exclusive-panel" class="hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-2xl shadow-md space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="wrench" class="w-5 h-5 text-blue-200"></i>
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-100">Área de Solicitação Externa</h3>
+              </div>
+              <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium">Modo Campo</span>
+            </div>
+            <p class="text-xs text-blue-100">Precisa de peças ou materiais para atendimento? Solicite diretamente ao almoxarifado.</p>
+            <button onclick="openRequestModal()" class="w-full bg-white text-blue-900 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow hover:bg-blue-50 transition">
+              <i data-lucide="send" class="w-4 h-4"></i> Solicitar Produtos ao ADM
+            </button>
+          </section>
+
+          <!-- SEÇÃO DE SOLICITAÇÕES PENDENTES (APENAS PARA ADM APROVAR) -->
+          <section id="admin-requests-section" class="hidden space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-[15px] font-bold text-slate-800 flex items-center gap-2">
+                🔔 Solicitações Pendentes <span id="pending-req-badge" class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full">0</span>
+              </h3>
+            </div>
+            <div id="admin-requests-list" class="space-y-2.5"></div>
           </section>
 
           <section>
@@ -213,7 +251,12 @@
         <header class="bg-[#0F294A] text-white px-5 pt-6 pb-4 shrink-0">
           <div class="flex items-center justify-between mb-4">
             <h1 class="text-xl font-bold">Estoque Compartilhado</h1>
-            <span id="estoque-count-badge" class="text-xs bg-white/15 px-3 py-1 rounded-full font-medium">0 produtos</span>
+            <div class="flex items-center gap-2">
+              <button onclick="manualRefreshData()" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition" title="Atualizar Dados">
+                <i data-lucide="rotate-cw" class="w-4 h-4 text-white"></i>
+              </button>
+              <span id="estoque-count-badge" class="text-xs bg-white/15 px-3 py-1 rounded-full font-medium">0 produtos</span>
+            </div>
           </div>
 
           <div class="flex gap-2">
@@ -247,6 +290,9 @@
         <header class="bg-[#0F294A] text-white px-5 pt-6 pb-4 flex items-center justify-between shrink-0 z-10">
           <h1 class="text-lg font-bold">Leitor / Consulta</h1>
           <div class="flex items-center gap-3">
+            <button onclick="manualRefreshData()" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition" title="Atualizar Dados">
+              <i data-lucide="rotate-cw" class="w-4 h-4 text-white"></i>
+            </button>
             <button onclick="toggleFlash()" id="flash-btn" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition" title="Lanterna">
               <i data-lucide="zap" class="w-4 h-4 text-white"></i>
             </button>
@@ -299,11 +345,16 @@
           <div class="flex items-center justify-between">
             <div>
               <h1 class="text-xl font-bold">Relatórios</h1>
-              <p class="text-xs text-blue-200 mt-0.5">Visão geral do inventário</p>
+              <p class="text-xs text-blue-200 mt-0.5">Visão geral e solicitações</p>
             </div>
-            <button onclick="exportCSV()" class="bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition">
-              <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
-            </button>
+            <div class="flex items-center gap-2">
+              <button onclick="manualRefreshData()" class="p-2 rounded-full bg-white/15 hover:bg-white/25 transition" title="Atualizar Dados">
+                <i data-lucide="rotate-cw" class="w-4 h-4 text-white"></i>
+              </button>
+              <button onclick="exportCSV()" class="bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
+              </button>
+            </div>
           </div>
         </header>
 
@@ -322,7 +373,7 @@
 
           <section>
             <div class="flex items-center justify-between mb-3">
-              <h3 class="text-sm font-bold text-slate-800">Histórico de Movimentações</h3>
+              <h3 class="text-sm font-bold text-slate-800">Histórico Completo de Movimentações</h3>
               <span id="total-mov-count" class="text-xs text-slate-500">0 registros</span>
             </div>
             <div id="full-movements-list" class="space-y-2.5"></div>
@@ -333,7 +384,12 @@
       <!-- TELA 5: PERFIL -->
       <div id="screen-perfil" class="screen hidden absolute inset-0 flex flex-col overflow-hidden">
         <header class="bg-[#0F294A] text-white px-5 pt-6 pb-6 rounded-b-[24px] shrink-0">
-          <h1 class="text-xl font-bold mb-4">Perfil & Conta</h1>
+          <div class="flex items-center justify-between mb-4">
+            <h1 class="text-xl font-bold">Perfil & Conta</h1>
+            <button onclick="manualRefreshData()" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition" title="Atualizar Dados">
+              <i data-lucide="rotate-cw" class="w-4 h-4 text-white"></i>
+            </button>
+          </div>
           <div class="flex items-center gap-3.5">
             <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-400 to-teal-300 text-[#0F294A] font-extrabold text-lg flex items-center justify-center shadow">
               <span id="profile-initials">AL</span>
@@ -359,19 +415,17 @@
 
           <div id="admin-approval-section" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-4">
             <div>
-              <h3 class="text-sm font-bold text-slate-800">🛡️ Aprovar Solicitações de ADM</h3>
-              <p class="text-xs text-slate-500 mb-2">Convidados solicitando acesso:</p>
+              <h3 class="text-sm font-bold text-slate-800">🛡️ Aprovar Solicitações de Usuários</h3>
+              <p class="text-xs text-slate-500 mb-2">Novos cadastros pendentes:</p>
               <div id="pending-users-list" class="space-y-2"></div>
             </div>
 
             <div class="pt-3 border-t border-slate-100">
               <h3 class="text-sm font-bold text-slate-800">👥 Gerenciamento de Usuários</h3>
-              <p class="text-xs text-slate-500 mb-2">Bloquear, suspender ou remover cadastros:</p>
               <div id="all-users-management-list" class="space-y-2"></div>
             </div>
           </div>
 
-          <!-- BOTÃO DE SAIR -->
           <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
             <h3 class="text-sm font-bold text-slate-800">Sessão</h3>
             <button onclick="logoutUser()" class="w-full py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs flex items-center justify-center gap-2 transition">
@@ -406,6 +460,42 @@
         <span class="text-[10px] font-semibold">Perfil</span>
       </button>
     </nav>
+
+    <!-- MODAL DE SOLICITAÇÃO (PARA TÉCNICOS / AUXILIARES) -->
+    <div id="request-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4">
+      <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </span>
+            <h3 class="text-base font-bold text-slate-800">Solicitar Material</h3>
+          </div>
+          <button onclick="closeModal('request-modal')" class="p-1.5 rounded-full bg-slate-100 text-slate-500">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Selecione o Produto</label>
+          <select id="req-product-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600"></select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade Desejada</label>
+          <input id="req-qty-input" type="number" min="1" value="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-600" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Observação / Motivo (Opcional)</label>
+          <input id="req-obs-input" type="text" placeholder="Ex: Atendimento cliente X" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600" />
+        </div>
+
+        <button onclick="submitTechnicianRequest()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow transition">
+          Enviar Solicitação ao ADM
+        </button>
+      </div>
+    </div>
 
     <!-- MODAL ENTRADA/SAÍDA -->
     <div id="movement-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4">
@@ -532,12 +622,13 @@
     ];
 
     const DEFAULT_MOVEMENTS = [
-      { id: 'm1', type: 'entrada', productName: 'Fone de Ouvido Bluetooth', qty: 50, date: 'Hoje, 10:30', icon: '🎧' },
-      { id: 'm2', type: 'saida', productName: 'Mochila Executiva Tech', qty: 5, date: 'Hoje, 09:15', icon: '🎒' }
+      { id: 'm1', type: 'entrada', productName: 'Fone de Ouvido Bluetooth', qty: 50, date: '25/11/2026 10:30', icon: '🎧' },
+      { id: 'm2', type: 'saida', productName: 'Mochila Executiva Tech', qty: 5, date: '25/11/2026 09:15', icon: '🎒' }
     ];
 
     let products = JSON.parse(localStorage.getItem('estoqueapp_products')) || DEFAULT_PRODUCTS;
     let movements = JSON.parse(localStorage.getItem('estoqueapp_movements')) || DEFAULT_MOVEMENTS;
+    let requests = JSON.parse(localStorage.getItem('estoqueapp_requests')) || [];
     let usersDb = JSON.parse(localStorage.getItem('estoqueapp_users_db')) || [];
     let userName = localStorage.getItem('estoqueapp_user') || 'André Luiz';
     let userEmail = localStorage.getItem('estoqueapp_user_email') || 'andre@email.com';
@@ -557,6 +648,7 @@
       if (data) {
         if (data.products) { products = data.products; localStorage.setItem('estoqueapp_products', JSON.stringify(products)); }
         if (data.movements) { movements = data.movements; localStorage.setItem('estoqueapp_movements', JSON.stringify(movements)); }
+        if (data.requests) { requests = data.requests; localStorage.setItem('estoqueapp_requests', JSON.stringify(requests)); }
         if (data.users) { usersDb = data.users; localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb)); }
         
         const session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
@@ -588,6 +680,7 @@
     function saveState() {
       localStorage.setItem('estoqueapp_products', JSON.stringify(products));
       localStorage.setItem('estoqueapp_movements', JSON.stringify(movements));
+      localStorage.setItem('estoqueapp_requests', JSON.stringify(requests));
       localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb));
       localStorage.setItem('estoqueapp_user', userName);
       localStorage.setItem('estoqueapp_user_email', userEmail);
@@ -596,10 +689,38 @@
       db.ref('estoque_compartilhado').set({
         products: products,
         movements: movements,
+        requests: requests,
         users: usersDb
       });
 
       refreshAllViews();
+    }
+
+    function manualRefreshData() {
+      db.ref('estoque_compartilhado').once('value').then((snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          if (data.products) { products = data.products; localStorage.setItem('estoqueapp_products', JSON.stringify(products)); }
+          if (data.movements) { movements = data.movements; localStorage.setItem('estoqueapp_movements', JSON.stringify(movements)); }
+          if (data.requests) { requests = data.requests; localStorage.setItem('estoqueapp_requests', JSON.stringify(requests)); }
+          if (data.users) { usersDb = data.users; localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb)); }
+        }
+        refreshAllViews();
+        showToast('Dados atualizados com sucesso!');
+      }).catch(() => {
+        refreshAllViews();
+        showToast('Dados locais atualizados!');
+      });
+    }
+
+    function getFormattedTimestamp() {
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      const hour = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      return `${day}/${month}/${year} ${hour}:${min}`;
     }
 
     function formatBRL(val) {
@@ -620,8 +741,8 @@
     function switchAuthMode(mode) {
       authMode = mode;
       const isReg = mode === 'register';
-      document.getElementById('auth-subtitle').textContent = isReg ? 'Novas contas começam como convidados' : 'Faça login com seu e-mail';
-      document.getElementById('auth-submit-btn').textContent = isReg ? 'Cadastrar Convidado' : 'Entrar na Conta';
+      document.getElementById('auth-subtitle').textContent = isReg ? 'Cadastre-se como Técnico, Auxiliar ou Convidado' : 'Faça login com seu e-mail';
+      document.getElementById('auth-submit-btn').textContent = isReg ? 'Cadastrar Conta' : 'Entrar na Conta';
       document.getElementById('register-fields').classList.toggle('hidden', !isReg);
       document.getElementById('tab-login-btn').className = `py-2 rounded-lg transition ${!isReg ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`;
       document.getElementById('tab-register-btn').className = `py-2 rounded-lg transition ${isReg ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`;
@@ -634,14 +755,15 @@
 
       if (authMode === 'register') {
         const name = document.getElementById('auth-name').value.trim();
+        const role = document.getElementById('auth-role-select').value;
         if (!name) { showToast('Informe seu nome!'); return; }
         if (usersDb.find(u => u.email === email)) { showToast('E-mail já cadastrado!'); return; }
 
-        const newUser = { name, email, pass, role: 'convidado', requestedAdmin: true, status: 'ativo' };
+        const newUser = { name, email, pass, role, requestedAdmin: role === 'convidado', status: 'ativo' };
         usersDb.push(newUser);
         loginActiveUser(newUser);
         saveState();
-        showToast('Cadastro realizado! Solicitação enviada.');
+        showToast('Cadastro realizado com sucesso!');
       } else {
         const found = usersDb.find(u => u.email === email && u.pass === pass);
         if (!found) {
@@ -687,8 +809,9 @@
       const bottomNav = document.querySelector('nav');
       const btnAddProd = document.getElementById('btn-add-product');
       const adminPanel = document.getElementById('admin-exclusive-panel');
+      const techPanel = document.getElementById('tech-exclusive-panel');
+      const adminReqSection = document.getElementById('admin-requests-section');
       const approvalSection = document.getElementById('admin-approval-section');
-      const guestRequestSection = document.getElementById('guest-request-section');
 
       if (!session) {
         authScreen.classList.remove('hidden');
@@ -700,25 +823,40 @@
         userEmail = session.email;
         userRole = session.role || 'convidado';
 
-        if (userRole === 'convidado') {
+        if (userRole === 'tecnico' || userRole === 'auxiliar') {
           if (btnAddProd) btnAddProd.classList.add('hidden');
           if (adminPanel) adminPanel.classList.add('hidden');
+          if (techPanel) techPanel.classList.remove('hidden');
+          if (adminReqSection) adminReqSection.classList.add('hidden');
           if (approvalSection) approvalSection.classList.add('hidden');
-          if (guestRequestSection) guestRequestSection.classList.remove('hidden');
+
+          const roleName = userRole === 'tecnico' ? '🔧 Técnico de Campo' : '🛠️ Auxiliar Técnico';
+          document.getElementById('user-role-badge').textContent = roleName;
+          document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-blue-200';
+          document.getElementById('profile-role-desc').textContent = `Você está logado como ${roleName}. Pode consultar o estoque e solicitar materiais para o ADM.`;
+        } else if (userRole === 'convidado') {
+          if (btnAddProd) btnAddProd.classList.add('hidden');
+          if (adminPanel) adminPanel.classList.add('hidden');
+          if (techPanel) techPanel.classList.add('hidden');
+          if (adminReqSection) adminReqSection.classList.add('hidden');
+          if (approvalSection) approvalSection.classList.add('hidden');
           
           document.getElementById('user-role-badge').textContent = '👀 Convidado (Leitura)';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-amber-300';
-          document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Clique no botão abaixo para solicitar permissão de ADM.';
+          document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO (apenas visualização).';
         } else {
+          // ADMIN
           if (btnAddProd) btnAddProd.classList.remove('hidden');
           if (adminPanel) adminPanel.classList.remove('hidden');
-          if (approvalSection) approvalSection.classList.remove('hidden');
-          if (guestRequestSection) guestRequestSection.classList.add('hidden');
+          if (techPanel) techPanel.classList.add('hidden');
+          if (adminReqSection) adminReqSection.classList.remove('hidden');
+          if (approvalSection) adminReqSection.classList.remove('hidden');
 
           document.getElementById('user-role-badge').textContent = '🛡️ Administrador';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-teal-300';
-          document.getElementById('profile-role-desc').textContent = 'Você está logado como ADMINISTRADOR. Controle total e gestão de cadastros.';
+          document.getElementById('profile-role-desc').textContent = 'Você está logado como ADMINISTRADOR. Controle total e aprovação de solicitações.';
           renderManagementLists();
+          renderAdminRequests();
         }
 
         const savedTab = localStorage.getItem('estoqueapp_current_tab') || 'inicio';
@@ -726,40 +864,140 @@
       }
     }
 
-    function requestAdminAccess() {
-      const user = usersDb.find(u => u.email === userEmail);
-      if (user) {
-        user.requestedAdmin = true;
-      } else {
-        usersDb.push({ name: userName, email: userEmail, role: 'convidado', requestedAdmin: true, status: 'ativo' });
-      }
-      
-      let session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
-      if (session) {
-        session.requestedAdmin = true;
-        localStorage.setItem('estoqueapp_logged_session', JSON.stringify(session));
-      }
+    // FUNÇÕES DE SOLICITAÇÃO TÉCNICA
+    function openRequestModal() {
+      document.getElementById('req-product-select').innerHTML = products.map(p => `<option value="${p.id}">${p.icon} ${p.name} (Estoque: ${p.qty})</option>`).join('');
+      document.getElementById('request-modal').classList.remove('hidden');
+    }
 
+    function submitTechnicianRequest() {
+      const prodId = document.getElementById('req-product-select').value;
+      const qty = parseInt(document.getElementById('req-qty-input').value, 10);
+      const obs = document.getElementById('req-obs-input').value.trim();
+      const prod = products.find(p => p.id === prodId);
+
+      if (!prod || qty <= 0) { showToast('Selecione uma quantidade válida!'); return; }
+
+      const newReq = {
+        id: 'req_' + Date.now(),
+        productId: prod.id,
+        productName: prod.name,
+        icon: prod.icon || '📦',
+        qty: qty,
+        requesterName: userName,
+        requesterEmail: userEmail,
+        requesterRole: userRole,
+        obs: obs || 'Nenhuma observação',
+        date: getFormattedTimestamp(),
+        status: 'pendente'
+      };
+
+      requests.unshift(newReq);
+      closeModal('request-modal');
       saveState();
       showToast('Solicitação enviada ao Administrador!');
-      checkAuthSession();
+    }
+
+    function renderAdminRequests() {
+      const container = document.getElementById('admin-requests-list');
+      const badge = document.getElementById('pending-req-badge');
+      const pending = requests.filter(r => r.status === 'pendente');
+
+      badge.textContent = pending.length;
+      document.getElementById('notif-dot').classList.toggle('hidden', pending.length === 0);
+
+      if (pending.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic bg-white p-3 rounded-2xl border border-slate-100">Nenhuma solicitação pendente no momento.</p>`;
+        return;
+      }
+
+      container.innerHTML = pending.map(r => `
+        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">${r.icon}</span>
+              <div>
+                <p class="text-xs font-bold text-slate-800">${r.productName} <span class="text-blue-600 font-extrabold">(+${r.qty} un.)</span></p>
+                <p class="text-[10px] text-slate-500">Solicitante: <span class="font-semibold text-slate-700">${r.requesterName}</span> (${r.requesterRole})</p>
+              </div>
+            </div>
+            <span class="text-[10px] bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded">Pendente</span>
+          </div>
+          <p class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-xl">Obs: ${r.obs}</p>
+          <p class="text-[10px] text-slate-400">Data/Hora: ${r.date}</p>
+          <div class="flex gap-2 pt-1 border-t border-slate-100">
+            <button onclick="approveRequest('${r.id}')" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center justify-center gap-1 transition">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i> Aprovar e Dar Baixa
+            </button>
+            <button onclick="rejectRequest('${r.id}')" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold transition">
+              Rejeitar
+            </button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function approveRequest(reqId) {
+      if (!checkAdminPermission()) return;
+      const req = requests.find(r => r.id === reqId);
+      if (!req) return;
+
+      const prod = products.find(p => p.id === req.productId);
+      if (!prod) { showToast('Produto não encontrado no estoque!'); return; }
+
+      if (prod.qty < req.qty) {
+        if (!confirm(`Atenção: O estoque atual (${prod.qty}) é menor que o solicitado (${req.qty}). Deseja aprovar mesmo assim?`)) return;
+      }
+
+      // Efetua a baixa no estoque
+      prod.qty = Math.max(0, prod.qty - req.qty);
+      req.status = 'aprovado';
+      req.approvedBy = userName;
+      req.approvedAt = getFormattedTimestamp();
+
+      // Adiciona ao histórico oficial de movimentações com data/hora e responsáveis
+      movements.unshift({
+        id: 'm_' + Date.now(),
+        type: 'saida',
+        productName: prod.name,
+        qty: req.qty,
+        date: req.approvedAt,
+        icon: prod.icon,
+        details: `Solicitado por ${req.requesterName} (${req.requesterRole}) • Aprovado por ${userName}`
+      });
+
+      saveState();
+      showToast('Solicitação aprovada e estoque atualizado!');
+    }
+
+    function rejectRequest(reqId) {
+      if (!checkAdminPermission()) return;
+      const req = requests.find(r => r.id === reqId);
+      if (req) {
+        req.status = 'rejeitado';
+        req.approvedBy = userName;
+        req.approvedAt = getFormattedTimestamp();
+        saveState();
+        showToast('Solicitação rejeitada.');
+      }
     }
 
     function renderManagementLists() {
       const pendingList = document.getElementById('pending-users-list');
-      const requesters = usersDb.filter(u => u.role === 'convidado' && u.requestedAdmin && u.status === 'ativo');
+      const requesters = usersDb.filter(u => u.requestedAdmin && u.status === 'ativo');
 
       if (requesters.length === 0) {
-        pendingList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhuma solicitação pendente.</p>`;
+        pendingList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhum cadastro pendente.</p>`;
       } else {
         pendingList.innerHTML = requesters.map(g => `
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
             <div class="min-w-0 pr-2">
-              <p class="text-xs font-bold text-slate-800 truncate">${g.name}</p>
+              <p class="text-xs font-bold text-slate-800 truncate">${g.name} (${g.role})</p>
               <p class="text-[10px] text-slate-500 truncate">${g.email}</p>
             </div>
-            <button onclick="promoteToAdmin('${g.email}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg shrink-0 transition">
-              Aprovar ADM
+            <button onclick="approveUser('${g.email}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg shrink-0 transition">
+              Liberar
             </button>
           </div>
         `).join('');
@@ -773,72 +1011,39 @@
         return;
       }
 
-      allUsersList.innerHTML = managedUsers.map(u => {
-        const isBlocked = u.status === 'bloqueado';
-        const isSuspended = u.status === 'suspenso';
-        
-        let statusBadge = `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded">Ativo (${u.role})</span>`;
-        if (isBlocked) statusBadge = `<span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded">Bloqueado</span>`;
-        if (isSuspended) statusBadge = `<span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded">Suspenso</span>`;
-
-        return `
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
-            <div class="flex items-center justify-between">
-              <div class="min-w-0 pr-2">
-                <p class="text-xs font-bold text-slate-800 truncate">${u.name}</p>
-                <p class="text-[10px] text-slate-500 truncate">${u.email}</p>
-              </div>
-              <div>${statusBadge}</div>
-            </div>
-            <div class="flex flex-wrap gap-1.5 pt-1 border-t border-slate-200/60">
-              ${isBlocked ? 
-                `<button onclick="setUserStatus('${u.email}', 'ativo')" class="bg-emerald-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg">Desbloquear</button>` :
-                `<button onclick="setUserStatus('${u.email}', 'bloqueado')" class="bg-slate-700 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg">Bloquear</button>`
-              }
-              ${isSuspended ? 
-                `<button onclick="setUserStatus('${u.email}', 'ativo')" class="bg-emerald-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg">Reativar</button>` :
-                `<button onclick="setUserStatus('${u.email}', 'suspenso')" class="bg-amber-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg">Suspender</button>`
-              }
-              <button onclick="removeUser('${u.email}')" class="bg-rose-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg ml-auto">Remover</button>
-            </div>
+      allUsersList.innerHTML = managedUsers.map(u => `
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+          <div class="min-w-0 pr-2">
+            <p class="text-xs font-bold text-slate-800 truncate">${u.name} <span class="text-[10px] font-normal text-blue-600">(${u.role})</span></p>
+            <p class="text-[10px] text-slate-500 truncate">${u.email}</p>
           </div>
-        `;
-      }).join('');
+          <button onclick="removeUser('${u.email}')" class="bg-rose-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg shrink-0">Remover</button>
+        </div>
+      `).join('');
     }
 
-    function promoteToAdmin(email) {
+    function approveUser(email) {
       const user = usersDb.find(u => u.email === email);
       if (user) {
-        user.role = 'admin';
         user.requestedAdmin = false;
         saveState();
-        showToast(`Usuário ${user.name} promovido a Administrador!`);
-        renderManagementLists();
-      }
-    }
-
-    function setUserStatus(email, status) {
-      const user = usersDb.find(u => u.email === email);
-      if (user) {
-        user.status = status;
-        saveState();
-        showToast(`Status do usuário alterado para: ${status}`);
+        showToast(`Usuário ${user.name} liberado!`);
         renderManagementLists();
       }
     }
 
     function removeUser(email) {
-      if (confirm(`Tem certeza que deseja remover o cadastro de ${email}?`)) {
+      if (confirm(`Remover usuário ${email}?`)) {
         usersDb = usersDb.filter(u => u.email !== email);
         saveState();
-        showToast('Usuário removido com sucesso!');
+        showToast('Usuário removido.');
         renderManagementLists();
       }
     }
 
     function checkAdminPermission() {
       if (userRole !== 'admin') {
-        showToast('Acesso negado: Apenas o Administrador pode alterar o estoque.');
+        showToast('Acesso negado: Apenas o Administrador.');
         return false;
       }
       return true;
@@ -846,18 +1051,17 @@
 
     function resetAppDatabase() {
       if (!checkAdminPermission()) return;
-      if (confirm('Tem certeza que deseja resetar os dados na nuvem para o padrão?')) {
+      if (confirm('Resetar banco de dados para o padrão?')) {
         products = [...DEFAULT_PRODUCTS];
         movements = [...DEFAULT_MOVEMENTS];
+        requests = [];
         saveState();
         showToast('Banco de dados resetado!');
       }
     }
 
     function switchTab(tabName, save = true) {
-      if (save) {
-        localStorage.setItem('estoqueapp_current_tab', tabName);
-      }
+      if (save) localStorage.setItem('estoqueapp_current_tab', tabName);
 
       document.querySelectorAll('.screen').forEach(s => {
         if(s.id !== 'screen-auth') s.classList.add('hidden');
@@ -875,15 +1079,10 @@
         }
       });
 
-      if (tabName === 'leitor') {
-        renderScannerCard();
-      } else if (tabName === 'relatorios') {
-        setTimeout(renderChart, 100);
-      } else if (tabName === 'perfil' && userRole === 'admin') {
-        renderManagementLists();
-      } else if (cameraStream) {
-        stopCamera();
-      }
+      if (tabName === 'leitor') renderScannerCard();
+      else if (tabName === 'relatorios') setTimeout(renderChart, 100);
+      else if (tabName === 'perfil' && userRole === 'admin') renderManagementLists();
+      else if (cameraStream) stopCamera();
       refreshAllViews();
     }
 
@@ -904,8 +1103,6 @@
         ? `R$ ${(totalValue / 1000).toFixed(1).replace('.', ',')} mil`
         : formatBRL(totalValue);
 
-      document.getElementById('notif-dot').style.display = lowStockItems > 0 ? 'block' : 'none';
-
       const recentContainer = document.getElementById('recent-movements-list');
       recentContainer.innerHTML = movements.slice(0, 4).map(m => {
         const isEntrada = m.type === 'entrada';
@@ -918,6 +1115,7 @@
               <div class="min-w-0">
                 <p class="text-xs font-bold ${isEntrada ? 'text-emerald-700' : 'text-rose-700'}">${isEntrada ? 'Entrada' : 'Saída'}</p>
                 <p class="text-sm font-semibold text-slate-800 truncate">${m.productName}</p>
+                ${m.details ? `<p class="text-[10px] text-slate-400 truncate">${m.details}</p>` : ''}
               </div>
             </div>
             <div class="text-right shrink-0 ml-2">
@@ -946,9 +1144,9 @@
     }
 
     function openNotifications() {
-      const low = products.filter(p => p.qty <= p.minQty);
-      if (low.length === 0) showToast('Nenhum alerta de estoque baixo!');
-      else filterLowStock();
+      const pending = requests.filter(r => r.status === 'pendente').length;
+      if (pending === 0) showToast('Nenhuma solicitação pendente!');
+      else showToast(`Você tem ${pending} solicitação(ões) pendente(s).`);
     }
 
     function renderCategoryTabs() {
@@ -1039,7 +1237,7 @@
       const prod = products.find(p => p.id === id);
       if (!prod || prod.qty + delta < 0) { showToast('Estoque inválido!'); return; }
       prod.qty += delta;
-      movements.unshift({ id: 'm' + Date.now(), type: delta > 0 ? 'entrada' : 'saida', productName: prod.name, qty: Math.abs(delta), date: 'Agora', icon: prod.icon });
+      movements.unshift({ id: 'm' + Date.now(), type: delta > 0 ? 'entrada' : 'saida', productName: prod.name, qty: Math.abs(delta), date: getFormattedTimestamp(), icon: prod.icon, details: `Ajuste rápido por ${userName}` });
       saveState();
       showToast(`${delta > 0 ? '+1 Entrada' : '-1 Saída'}`);
     }
@@ -1084,7 +1282,7 @@
       document.getElementById('scanner-placeholder').classList.remove('hidden');
     }
 
-    function toggleFlash() { showToast('Lanternas alternadas'); }
+    function toggleFlash() { showToast('Lanterna alternada'); }
 
     function openMovementModal(type) {
       if (!checkAdminPermission()) return;
@@ -1103,7 +1301,7 @@
       if (currentMovementType === 'saida' && prod.qty < qty) { showToast('Estoque insuficiente!'); return; }
 
       prod.qty += currentMovementType === 'entrada' ? qty : -qty;
-      movements.unshift({ id: 'm' + Date.now(), type: currentMovementType, productName: prod.name, qty, date: 'Agora', icon: prod.icon });
+      movements.unshift({ id: 'm' + Date.now(), type: currentMovementType, productName: prod.name, qty, date: getFormattedTimestamp(), icon: prod.icon, details: `Movimentação manual por ${userName}` });
       closeModal('movement-modal');
       saveState();
       showToast('Movimentação salva!');
@@ -1154,7 +1352,7 @@
         products[idx] = { ...products[idx], ...data };
       } else {
         products.unshift({ id: 'p' + Date.now(), ...data });
-        movements.unshift({ id: 'm' + Date.now(), type: 'entrada', productName: data.name, qty: data.qty, date: 'Cadastro', icon: data.icon });
+        movements.unshift({ id: 'm' + Date.now(), type: 'entrada', productName: data.name, qty: data.qty, date: getFormattedTimestamp(), icon: data.icon, details: `Cadastro inicial por ${userName}` });
       }
       closeModal('product-modal');
       saveState();
@@ -1181,9 +1379,7 @@
       const ctx = document.getElementById('categoryPieChart');
       if (!ctx) return;
 
-      if (myPieChart) {
-        myPieChart.destroy();
-      }
+      if (myPieChart) myPieChart.destroy();
 
       myPieChart = new Chart(ctx, {
         type: 'doughnut',
@@ -1202,10 +1398,7 @@
           plugins: {
             legend: {
               position: 'bottom',
-              labels: {
-                boxWidth: 12,
-                font: { size: 11, family: 'Inter' }
-              }
+              labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } }
             }
           }
         }
@@ -1239,7 +1432,8 @@
             <span class="text-lg">${m.icon || '📦'}</span>
             <div class="min-w-0">
               <p class="text-xs font-bold text-slate-800 truncate">${m.productName}</p>
-              <p class="text-[11px] text-slate-400">${m.date}</p>
+              ${m.details ? `<p class="text-[10px] text-slate-500 truncate">${m.details}</p>` : ''}
+              <p class="text-[10px] text-slate-400">${m.date}</p>
             </div>
           </div>
           <span class="text-xs font-extrabold ${m.type === 'entrada' ? 'text-emerald-600' : 'text-rose-600'}">${m.type === 'entrada' ? '+' : '-'}${m.qty} un.</span>
@@ -1250,14 +1444,14 @@
     }
 
     function exportCSV() {
-      const headers = ['SKU,Produto,Categoria,Quantidade,Preco_Unitario,Valor_Total'];
-      const rows = products.map(p => `"${p.sku}","${p.name}","${p.category}",${p.qty},${p.price.toFixed(2)},${(p.qty * p.price).toFixed(2)}`);
+      const headers = ['Data_Hora,Tipo,Produto,Quantidade,Detalhes'];
+      const rows = movements.map(m => `"${m.date}","${m.type}","${m.productName}",${m.qty},"${m.details || ''}"`);
       const blob = new Blob([headers.concat(rows).join('\n')], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'estoque.csv';
+      a.download = 'relatorio_movimentacoes.csv';
       a.click();
-      showToast('CSV exportado!');
+      showToast('Relatório CSV exportado!');
     }
 
     function refreshAllViews() {
@@ -1265,6 +1459,7 @@
       renderCategoryTabs();
       renderEstoqueList();
       renderReports();
+      if (userRole === 'admin') renderAdminRequests();
       lucide.createIcons();
     }
 
