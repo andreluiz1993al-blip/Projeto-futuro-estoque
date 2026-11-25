@@ -8,7 +8,6 @@
   <meta name="theme-color" content="#0F294A">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Biblioteca Chart.js para os gráficos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -37,14 +36,14 @@
 
   <div id="app" class="w-full max-w-[420px] min-h-screen sm:min-h-[844px] sm:h-[844px] bg-[#F4F6F9] sm:rounded-[38px] sm:shadow-2xl sm:border-[8px] sm:border-[#1E293B] overflow-hidden flex flex-col relative">
 
-    <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
+    <!-- TELA DE LOGIN / AUTENTICAÇÃO COM SELEÇÃO DE PERFIL -->
     <div id="screen-auth" class="screen hidden absolute inset-0 bg-[#0F294A] text-white p-6 justify-between overflow-hidden z-50 flex flex-col">
       <div class="pt-8 text-center">
         <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4 border border-white/20 shadow-lg">
-          <i data-lucide="lock" class="w-8 h-8 text-white"></i>
+          <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
         </div>
         <h1 class="text-2xl font-extrabold tracking-tight">Estoque APP</h1>
-        <p id="auth-subtitle" class="text-xs text-blue-200 mt-1">Faça login para gerenciar o seu estoque</p>
+        <p id="auth-subtitle" class="text-xs text-blue-200 mt-1">Acesse com seu perfil de Administrador ou Convidado</p>
       </div>
 
       <div class="bg-white text-slate-800 p-6 rounded-3xl shadow-2xl space-y-4">
@@ -56,7 +55,7 @@
         <div id="register-fields" class="hidden space-y-3">
           <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nome Completo</label>
-            <input id="auth-name" type="text" placeholder="André Luiz" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-600" />
+            <input id="auth-name" type="text" placeholder="Nome do usuário" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-600" />
           </div>
         </div>
 
@@ -70,13 +69,22 @@
           <input id="auth-pass" type="password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-600" />
         </div>
 
+        <!-- SELETOR DE PERFIL -->
+        <div id="role-select-box">
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipo de Acesso</label>
+          <select id="auth-role" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:border-blue-600">
+            <option value="convidado">👀 Convidado (Apenas Visualizar)</option>
+            <option value="admin">🛡️ Administrador (Controle Total)</option>
+          </select>
+        </div>
+
         <button id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full py-3 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:scale-[0.99] text-white font-semibold text-sm shadow-md shadow-blue-600/25 transition">
           Entrar na Conta
         </button>
       </div>
 
       <div class="text-center pb-4">
-        <p class="text-[11px] text-blue-300">Protegido por criptografia local • Estoque APP</p>
+        <p class="text-[11px] text-blue-300">Compartilhado em rede • Estoque APP</p>
       </div>
     </div>
 
@@ -102,7 +110,7 @@
               <span id="user-initials">AL</span>
             </div>
             <div>
-              <p class="text-xs text-blue-200">Bem-vindo de volta,</p>
+              <p id="user-role-badge" class="text-[10px] uppercase font-bold tracking-wider text-teal-300">Convidado</p>
               <h2 id="user-greeting" class="text-sm font-semibold text-white">André Luiz</h2>
             </div>
           </div>
@@ -153,17 +161,18 @@
           </div>
         </section>
 
-        <section>
+        <!-- AÇÕES RÁPIDAS (Bloqueadas para convidados) -->
+        <section id="quick-actions-section">
           <h3 class="text-[15px] font-bold text-slate-800 mb-3">Ações Rápidas</h3>
           <div class="grid grid-cols-3 gap-3">
-            <button onclick="openMovementModal('entrada')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
+            <button onclick="checkAdminPermission() && openMovementModal('entrada')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
               <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
                 <i data-lucide="plus-circle" class="w-5 h-5"></i>
               </div>
               <span class="text-xs font-semibold text-slate-700">Entrada</span>
             </button>
 
-            <button onclick="openMovementModal('saida')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
+            <button onclick="checkAdminPermission() && openMovementModal('saida')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
               <div class="w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
                 <i data-lucide="minus-circle" class="w-5 h-5"></i>
               </div>
@@ -174,7 +183,7 @@
               <div class="w-10 h-10 rounded-full bg-blue-50 text-[#0F294A] flex items-center justify-center">
                 <i data-lucide="scan-barcode" class="w-5 h-5"></i>
               </div>
-              <span class="text-xs font-semibold text-slate-700">Ler Código</span>
+              <span class="text-xs font-semibold text-slate-700">Ver Estoque</span>
             </button>
           </div>
         </section>
@@ -193,7 +202,7 @@
     <div id="screen-estoque" class="screen hidden flex-1 flex flex-col overflow-hidden">
       <header class="bg-[#0F294A] text-white px-5 pt-6 pb-4 shrink-0">
         <div class="flex items-center justify-between mb-4">
-          <h1 class="text-xl font-bold">Estoque</h1>
+          <h1 class="text-xl font-bold">Estoque Compartilhado</h1>
           <span id="estoque-count-badge" class="text-xs bg-white/15 px-3 py-1 rounded-full font-medium">0 produtos</span>
         </div>
 
@@ -218,7 +227,8 @@
 
       <main id="estoque-list" class="flex-1 overflow-y-auto no-scrollbar px-5 py-4 pb-24 space-y-3"></main>
 
-      <button onclick="openProductModal()" class="absolute bottom-20 right-5 w-14 h-14 rounded-full bg-[#2563EB] hover:bg-blue-700 active:scale-95 text-white shadow-lg shadow-blue-600/30 flex items-center justify-center transition z-20">
+      <!-- Botão de Novo Produto (Apenas Admin) -->
+      <button id="btn-add-product" onclick="openProductModal()" class="hidden absolute bottom-20 right-5 w-14 h-14 rounded-full bg-[#2563EB] hover:bg-blue-700 active:scale-95 text-white shadow-lg shadow-blue-600/30 flex items-center justify-center transition z-20">
         <i data-lucide="plus" class="w-7 h-7"></i>
       </button>
     </div>
@@ -226,7 +236,7 @@
     <!-- TELA 3: LEITOR -->
     <div id="screen-leitor" class="screen hidden flex-1 flex flex-col bg-slate-900 overflow-hidden relative">
       <header class="bg-[#0F294A] text-white px-5 pt-6 pb-4 flex items-center justify-between shrink-0 z-10">
-        <h1 class="text-lg font-bold">Leitor de Código</h1>
+        <h1 class="text-lg font-bold">Leitor / Consulta</h1>
         <div class="flex items-center gap-3">
           <button onclick="toggleFlash()" id="flash-btn" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition" title="Lanterna">
             <i data-lucide="zap" class="w-4 h-4 text-white"></i>
@@ -241,80 +251,46 @@
         <video id="camera-video" autoplay playsinline class="hidden w-full h-full object-cover opacity-80"></video>
         <div id="scanner-placeholder" class="absolute inset-0 bg-[radial-gradient(circle_at_center,#1e293b_0%,#090d16_100%)] flex flex-col items-center justify-center p-6 text-center">
           <button onclick="startCamera()" class="mb-4 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 border border-white/15 transition">
-            <i data-lucide="camera" class="w-3.5 h-3.5"></i> Ativar Câmera Real
+            <i data-lucide="camera" class="w-3.5 h-3.5"></i> Ativar Câmera
           </button>
-          <p class="text-[11px] text-slate-400 max-w-[240px]">Aponte para o código de barras ou selecione um SKU abaixo para simular:</p>
+          <p class="text-[11px] text-slate-400 max-w-[240px]">Selecione um SKU abaixo para consultar o item:</p>
           <div class="flex flex-wrap justify-center gap-1.5 mt-3" id="quick-sku-pills"></div>
-        </div>
-
-        <div class="relative w-64 h-40 pointer-events-none z-10 flex items-center justify-center">
-          <div class="absolute top-0 left-0 w-7 h-7 border-t-4 border-l-4 border-emerald-400 rounded-tl-xl"></div>
-          <div class="absolute top-0 right-0 w-7 h-7 border-t-4 border-r-4 border-emerald-400 rounded-tr-xl"></div>
-          <div class="absolute bottom-0 left-0 w-7 h-7 border-b-4 border-l-4 border-emerald-400 rounded-bl-xl"></div>
-          <div class="absolute bottom-0 right-0 w-7 h-7 border-b-4 border-r-4 border-emerald-400 rounded-br-xl"></div>
-          <div class="w-[90%] h-0.5 bg-rose-500 shadow-[0_0_10px_#f43f5e] absolute animate-scan"></div>
-          <div class="bg-white/95 px-4 py-2 rounded-lg shadow text-center">
-            <div class="flex gap-[2px] h-8 items-center justify-center">
-              <span class="w-[2px] h-full bg-slate-900"></span><span class="w-[1px] h-full bg-slate-900"></span>
-              <span class="w-[3px] h-full bg-slate-900"></span><span class="w-[1px] h-full bg-slate-900"></span>
-            </div>
-            <p id="scanner-code-label" class="text-[10px] font-mono font-bold text-slate-800 tracking-widest mt-1">8 004859 088855</p>
-          </div>
         </div>
       </div>
 
       <div class="bg-white rounded-t-[26px] p-5 pb-24 shadow-2xl z-20 shrink-0">
         <div class="flex items-center justify-between mb-3">
-          <span class="text-sm font-bold text-slate-800">Produto Identificado</span>
-          <button onclick="cycleScannedProduct()" class="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1">
-            <i data-lucide="refresh-cw" class="w-3 h-3"></i> Simular outro bip
-          </button>
+          <span class="text-sm font-bold text-slate-800">Produto Consultado</span>
         </div>
 
         <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100 mb-4">
           <div id="scanned-icon-box" class="w-12 h-12 rounded-xl bg-blue-100 text-[#0F294A] flex items-center justify-center text-2xl shrink-0">⌨️</div>
           <div class="flex-1 min-w-0">
-            <h4 id="scanned-name" class="text-sm font-bold text-slate-800 truncate">Teclado Mecânico RGB Wireless</h4>
+            <h4 id="scanned-name" class="text-sm font-bold text-slate-800 truncate">Teclado Mecânico</h4>
             <p id="scanned-sku" class="text-xs text-slate-500">SKU: TEC-2041</p>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3 mb-3">
           <div>
-            <label class="block text-[11px] font-medium text-slate-500 mb-1">Quantidade Atual:</label>
+            <label class="block text-[11px] font-medium text-slate-500 mb-1">Quantidade em Estoque:</label>
             <div class="bg-slate-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-800" id="scanned-current-qty">42 un.</div>
           </div>
           <div>
-            <label class="block text-[11px] font-medium text-slate-500 mb-1">Ajuste (+ / -):</label>
-            <div class="flex items-center justify-between bg-slate-100 rounded-xl p-1">
-              <button onclick="adjustScanDelta(-1)" class="w-8 h-8 rounded-lg bg-white text-slate-700 font-bold shadow-sm active:scale-90 transition">-</button>
-              <span id="scanned-delta" class="text-sm font-extrabold text-blue-600">+15</span>
-              <button onclick="adjustScanDelta(1)" class="w-8 h-8 rounded-lg bg-white text-slate-700 font-bold shadow-sm active:scale-90 transition">+</button>
-            </div>
+            <label class="block text-[11px] font-medium text-slate-500 mb-1">Preço:</label>
+            <div class="bg-slate-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-800" id="scanned-price-display">R$ 0,00</div>
           </div>
         </div>
-
-        <div class="flex items-center justify-between mb-4 px-1">
-          <span class="text-xs font-medium text-slate-500">Preço de Venda:</span>
-          <div class="flex items-center gap-1">
-            <span class="text-sm font-bold text-slate-700">R$</span>
-            <input id="scanned-price-input" type="number" step="0.01" class="w-24 text-right font-extrabold text-slate-900 text-base border-b border-slate-300 focus:border-blue-600 focus:outline-none bg-transparent" />
-          </div>
-        </div>
-
-        <button onclick="saveScannedChanges()" class="w-full py-3 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:scale-[0.99] text-white font-semibold text-sm shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 transition">
-          <i data-lucide="check" class="w-4 h-4"></i> Salvar no Estoque
-        </button>
       </div>
     </div>
 
-    <!-- TELA 4: RELATÓRIOS COM GRÁFICO DE PIZZA -->
+    <!-- TELA 4: RELATÓRIOS -->
     <div id="screen-relatorios" class="screen hidden flex-1 flex flex-col overflow-hidden">
       <header class="bg-[#0F294A] text-white px-5 pt-6 pb-5 rounded-b-[24px] shrink-0">
         <div class="flex items-center justify-between">
           <div>
             <h1 class="text-xl font-bold">Relatórios</h1>
-            <p class="text-xs text-blue-200 mt-0.5">Análise de inventário e histórico</p>
+            <p class="text-xs text-blue-200 mt-0.5">Visão geral do inventário</p>
           </div>
           <button onclick="exportCSV()" class="bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition">
             <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
@@ -323,8 +299,6 @@
       </header>
 
       <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-24 space-y-5">
-        
-        <!-- CARD DO GRÁFICO DE PIZZA / ROSCA -->
         <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
           <h3 class="text-sm font-bold text-slate-800 mb-3">Distribuição por Categoria (Valor R$)</h3>
           <div class="w-full h-64 flex items-center justify-center relative">
@@ -364,20 +338,14 @@
 
       <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-24 space-y-4">
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
-          <h3 class="text-sm font-bold text-slate-800">Dados do Operador</h3>
-          <div>
-            <label class="text-xs text-slate-500">Nome exibido no app</label>
-            <div class="flex gap-2 mt-1">
-              <input id="profile-name-input" type="text" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-600" />
-              <button onclick="saveUserName()" class="bg-[#0F294A] text-white text-xs font-semibold px-4 rounded-xl">Salvar</button>
-            </div>
-          </div>
+          <h3 class="text-sm font-bold text-slate-800">Seu Perfil Atual</h3>
+          <p id="profile-role-desc" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 font-medium"></p>
         </div>
 
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
           <h3 class="text-sm font-bold text-slate-800">Sessão</h3>
           <button onclick="logoutUser()" class="w-full py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs flex items-center justify-center gap-2 transition">
-            <i data-lucide="log-out" class="w-4 h-4"></i> Encerrar Sessão (Sair)
+            <i data-lucide="log-out" class="w-4 h-4"></i> Trocar de Conta / Sair
           </button>
         </div>
       </main>
@@ -395,7 +363,7 @@
       </button>
       <button onclick="switchTab('leitor')" data-tab="leitor" class="nav-btn flex flex-col items-center gap-1 py-1 px-3 text-slate-400">
         <i data-lucide="scan-line" class="w-5 h-5"></i>
-        <span class="text-[10px] font-semibold">Leitor</span>
+        <span class="text-[10px] font-semibold">Consultar</span>
       </button>
       <button onclick="switchTab('relatorios')" data-tab="relatorios" class="nav-btn flex flex-col items-center gap-1 py-1 px-3 text-slate-400">
         <i data-lucide="trending-up" class="w-5 h-5"></i>
@@ -407,7 +375,7 @@
       </button>
     </nav>
 
-    <!-- MODAL ENTRADA/SAÍDA -->
+    <!-- MODAL ENTRADA/SAÍDA (Apenas Admin) -->
     <div id="movement-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-4">
       <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-4">
         <div class="flex items-center justify-between">
@@ -438,7 +406,7 @@
       </div>
     </div>
 
-    <!-- MODAL PRODUTO -->
+    <!-- MODAL PRODUTO (Apenas Admin) -->
     <div id="product-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-4">
       <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-3.5 max-h-[90%] overflow-y-auto">
         <div class="flex items-center justify-between">
@@ -525,13 +493,13 @@
     let movements = JSON.parse(localStorage.getItem('estoqueapp_movements')) || DEFAULT_MOVEMENTS;
     let userName = localStorage.getItem('estoqueapp_user') || 'André Luiz';
     let userEmail = localStorage.getItem('estoqueapp_user_email') || 'andre@email.com';
+    let userRole = localStorage.getItem('estoqueapp_user_role') || 'admin'; // 'admin' ou 'convidado'
 
     let currentCategory = 'Todos';
     let onlyLowStock = false;
     let sortAsc = true;
     let currentMovementType = 'entrada';
     let scannedProductIndex = 4;
-    let scanDelta = 15;
     let cameraStream = null;
     let authMode = 'login';
     let myPieChart = null;
@@ -541,6 +509,7 @@
       localStorage.setItem('estoqueapp_movements', JSON.stringify(movements));
       localStorage.setItem('estoqueapp_user', userName);
       localStorage.setItem('estoqueapp_user_email', userEmail);
+      localStorage.setItem('estoqueapp_user_role', userRole);
       refreshAllViews();
     }
 
@@ -562,17 +531,17 @@
     function switchAuthMode(mode) {
       authMode = mode;
       const isReg = mode === 'register';
-      document.getElementById('auth-subtitle').textContent = isReg ? 'Crie sua conta para começar' : 'Faça login para gerenciar o seu estoque';
+      document.getElementById('auth-subtitle').textContent = isReg ? 'Crie sua conta escolhendo seu perfil' : 'Faça login com seu e-mail e perfil';
       document.getElementById('auth-submit-btn').textContent = isReg ? 'Criar Conta' : 'Entrar na Conta';
       document.getElementById('register-fields').classList.toggle('hidden', !isReg);
       document.getElementById('tab-login-btn').className = `py-2 rounded-lg transition ${!isReg ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`;
       document.getElementById('tab-register-btn').className = `py-2 rounded-lg transition ${isReg ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`;
     }
 
-    // LOGIN DIRETO SEM CÓDIGO POR E-MAIL
     function handleAuthSubmit() {
       const email = document.getElementById('auth-email').value.trim();
       const pass = document.getElementById('auth-pass').value.trim();
+      const role = document.getElementById('auth-role').value;
       if (!email || !pass) { showToast('Preencha e-mail e senha!'); return; }
 
       let users = JSON.parse(localStorage.getItem('estoqueapp_users_db')) || [];
@@ -582,14 +551,14 @@
         if (!name) { showToast('Informe seu nome!'); return; }
         if (users.find(u => u.email === email)) { showToast('E-mail já cadastrado!'); return; }
 
-        const newUser = { name, email, pass };
+        const newUser = { name, email, pass, role };
         users.push(newUser);
         localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
         loginActiveUser(newUser);
       } else {
         const found = users.find(u => u.email === email && u.pass === pass);
         if (!found && email === 'admin@estoque.com' && pass === '123456') {
-          loginActiveUser({ name: 'André Luiz', email, pass });
+          loginActiveUser({ name: 'André Luiz (Admin)', email, pass, role: 'admin' });
           return;
         }
         if (!found) { showToast('E-mail ou senha incorretos!'); return; }
@@ -601,9 +570,10 @@
       localStorage.setItem('estoqueapp_logged_session', JSON.stringify(user));
       userName = user.name;
       userEmail = user.email;
+      userRole = user.role || 'convidado';
       saveState();
       checkAuthSession();
-      showToast('Login efetuado com sucesso!');
+      showToast(`Bem-vindo, ${userName} (${userRole.toUpperCase()})!`);
     }
 
     function logoutUser() {
@@ -616,6 +586,7 @@
       const session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
       const authScreen = document.getElementById('screen-auth');
       const bottomNav = document.querySelector('nav');
+      const btnAddProd = document.getElementById('btn-add-product');
 
       if (!session) {
         authScreen.classList.remove('hidden');
@@ -625,8 +596,31 @@
         if (bottomNav) bottomNav.classList.remove('hidden');
         userName = session.name;
         userEmail = session.email;
+        userRole = session.role || 'convidado';
+
+        // Restringe botões de edição para convidados
+        if (userRole === 'convidado') {
+          if (btnAddProd) btnAddProd.classList.add('hidden');
+          document.getElementById('user-role-badge').textContent = '👀 Convidado (Leitura)';
+          document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-amber-300';
+          document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Você pode consultar o estoque em tempo real, relatórios e o leitor, mas não pode alterar ou cadastrar produtos.';
+        } else {
+          if (btnAddProd) btnAddProd.classList.remove('hidden');
+          document.getElementById('user-role-badge').textContent = '🛡️ Administrador';
+          document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-teal-300';
+          document.getElementById('profile-role-desc').textContent = 'Você está logado como ADMINISTRADOR. Você possui controle total sobre o estoque, cadastros, entradas e saídas.';
+        }
+
         switchTab('inicio');
       }
+    }
+
+    function checkAdminPermission() {
+      if (userRole !== 'admin') {
+        showToast('Acesso negado: Apenas o Administrador pode alterar o estoque.');
+        return false;
+      }
+      return true;
     }
 
     function switchTab(tabName) {
@@ -661,7 +655,6 @@
       document.getElementById('profile-name-display').textContent = userName;
       document.getElementById('profile-email-display').textContent = userEmail;
       document.getElementById('profile-initials').textContent = getInitials(userName);
-      document.getElementById('profile-name-input').value = userName;
 
       const totalItems = products.reduce((acc, p) => acc + Number(p.qty), 0);
       const lowStockItems = products.filter(p => p.qty <= p.minQty).length;
@@ -770,15 +763,17 @@
         return;
       }
 
+      const isAdmin = userRole === 'admin';
+
       list.innerHTML = filtered.map(p => {
         const badge = getStockBadge(p);
         return `
           <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3.5">
-            <div onclick="openProductModal('${p.id}')" class="cursor-pointer w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-2xl shrink-0">${p.icon || '📦'}</div>
+            <div onclick="${isAdmin ? `openProductModal('${p.id}')` : `showToast('Apenas administradores podem editar produtos.')`}" class="cursor-pointer w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-2xl shrink-0">${p.icon || '📦'}</div>
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between gap-2">
-                <h4 onclick="openProductModal('${p.id}')" class="cursor-pointer text-sm font-bold text-slate-800 truncate hover:text-blue-600">${p.name}</h4>
-                <button onclick="openProductModal('${p.id}')" class="text-slate-400 p-0.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                <h4 onclick="${isAdmin ? `openProductModal('${p.id}')` : `showToast('Apenas administradores podem editar produtos.')`}" class="cursor-pointer text-sm font-bold text-slate-800 truncate hover:text-blue-600">${p.name}</h4>
+                ${isAdmin ? `<button onclick="openProductModal('${p.id}')" class="text-slate-400 p-0.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>` : ''}
               </div>
               <p class="text-[11px] text-slate-400 font-medium mb-2">SKU: ${p.sku}</p>
               <div class="flex items-center justify-between gap-2">
@@ -788,10 +783,12 @@
                 </div>
                 <span class="text-xs font-extrabold text-slate-800">${formatBRL(p.price)}</span>
               </div>
-              <div class="flex items-center justify-end gap-1.5 mt-2.5 pt-2 border-t border-slate-100">
-                <button onclick="quickStockChange('${p.id}', -1)" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold">-1 Saída</button>
-                <button onclick="quickStockChange('${p.id}', 1)" class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-bold">+1 Entrada</button>
-              </div>
+              ${isAdmin ? `
+                <div class="flex items-center justify-end gap-1.5 mt-2.5 pt-2 border-t border-slate-100">
+                  <button onclick="quickStockChange('${p.id}', -1)" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold">-1 Saída</button>
+                  <button onclick="quickStockChange('${p.id}', 1)" class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-bold">+1 Entrada</button>
+                </div>
+              ` : ''}
             </div>
           </div>
         `;
@@ -800,6 +797,7 @@
     }
 
     function quickStockChange(id, delta) {
+      if (!checkAdminPermission()) return;
       const prod = products.find(p => p.id === id);
       if (!prod || prod.qty + delta < 0) { showToast('Estoque inválido!'); return; }
       prod.qty += delta;
@@ -816,8 +814,7 @@
       document.getElementById('scanned-name').textContent = p.name;
       document.getElementById('scanned-sku').textContent = `SKU: ${p.sku}`;
       document.getElementById('scanned-current-qty').textContent = `${p.qty} un.`;
-      document.getElementById('scanned-price-input').value = p.price.toFixed(2);
-      updateScanDeltaUI();
+      document.getElementById('scanned-price-display').textContent = formatBRL(p.price);
 
       const pills = document.getElementById('quick-sku-pills');
       pills.innerHTML = products.map((item, idx) => `
@@ -827,38 +824,7 @@
 
     function selectScannedIndex(idx) {
       scannedProductIndex = idx;
-      scanDelta = 1;
       renderScannerCard();
-    }
-
-    function cycleScannedProduct() {
-      scannedProductIndex = (scannedProductIndex + 1) % products.length;
-      scanDelta = 1;
-      renderScannerCard();
-    }
-
-    function adjustScanDelta(step) {
-      scanDelta += step;
-      updateScanDeltaUI();
-    }
-
-    function updateScanDeltaUI() {
-      const el = document.getElementById('scanned-delta');
-      el.textContent = scanDelta >= 0 ? `+${scanDelta}` : `${scanDelta}`;
-    }
-
-    function saveScannedChanges() {
-      const p = products[scannedProductIndex];
-      if (!p || p.qty + scanDelta < 0) { showToast('Quantidade inválida!'); return; }
-      p.qty += scanDelta;
-      p.price = parseFloat(document.getElementById('scanned-price-input').value) || p.price;
-      if (scanDelta !== 0) {
-        movements.unshift({ id: 'm' + Date.now(), type: scanDelta > 0 ? 'entrada' : 'saida', productName: p.name, qty: Math.abs(scanDelta), date: 'Agora', icon: p.icon });
-      }
-      scanDelta = 0;
-      saveState();
-      renderScannerCard();
-      showToast('Estoque atualizado!');
     }
 
     async function startCamera() {
@@ -883,6 +849,7 @@
     function toggleFlash() { showToast('Lanternas alternadas'); }
 
     function openMovementModal(type) {
+      if (!checkAdminPermission()) return;
       currentMovementType = type;
       const isEntrada = type === 'entrada';
       document.getElementById('mov-modal-title').textContent = isEntrada ? 'Registrar Entrada' : 'Registrar Saída';
@@ -891,6 +858,7 @@
     }
 
     function submitMovement() {
+      if (!checkAdminPermission()) return;
       const prodId = document.getElementById('mov-product-select').value;
       const qty = parseInt(document.getElementById('mov-qty-input').value, 10);
       const prod = products.find(p => p.id === prodId);
@@ -904,6 +872,7 @@
     }
 
     function openProductModal(id = null) {
+      if (!checkAdminPermission()) return;
       const deleteBtn = document.getElementById('prod-delete-btn');
       if (id) {
         const p = products.find(item => item.id === id);
@@ -927,6 +896,7 @@
     }
 
     function saveProduct() {
+      if (!checkAdminPermission()) return;
       const id = document.getElementById('prod-edit-id').value;
       const name = document.getElementById('prod-name-input').value.trim();
       const sku = document.getElementById('prod-sku-input').value.trim().toUpperCase();
@@ -954,6 +924,7 @@
     }
 
     function deleteCurrentProduct() {
+      if (!checkAdminPermission()) return;
       const id = document.getElementById('prod-edit-id').value;
       products = products.filter(p => p.id !== id);
       closeModal('product-modal');
@@ -1049,15 +1020,6 @@
       a.download = 'estoque.csv';
       a.click();
       showToast('CSV exportado!');
-    }
-
-    function saveUserName() {
-      const val = document.getElementById('profile-name-input').value.trim();
-      if (val) {
-        userName = val;
-        saveState();
-        showToast('Nome atualizado!');
-      }
     }
 
     function refreshAllViews() {
