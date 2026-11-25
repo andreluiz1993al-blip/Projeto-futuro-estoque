@@ -346,10 +346,10 @@
           <h3 class="text-sm font-bold text-slate-800">Permissões da Conta</h3>
           <p id="profile-role-desc" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 font-medium"></p>
           
-          <!-- BOTÃO PARA CONVIDADO SOLICITAR ACESSO -->
+          <!-- BOTÃO PARA CONVIDADO SOLICITAR ACESSO (SEMPRE VISÍVEL ATÉ APROVAR) -->
           <div id="guest-request-section" class="hidden pt-2">
             <button onclick="requestAdminAccess()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center justify-center gap-2 transition shadow-sm">
-              <i data-lucide="send" class="w-4 h-4"></i> Solicitar Acesso de Administrador
+              <i data-lucide="send" class="w-4 h-4"></i> Solicitar Acesso de Administrador (Enviar Novamente)
             </button>
           </div>
         </div>
@@ -494,7 +494,7 @@
   </div>
 
   <script>
-    // CONFIGURAÇÃO OFICIAL DO FIREBASE (EXTRAÍDA DO SEU PAINEL)[span_1](start_span)[span_1](end_span)
+    // CONFIGURAÇÃO DO FIREBASE[span_0](start_span)[span_0](end_span)
     const firebaseConfig = {
       apiKey: "AIzaSyAEDLmsOKOD3gK9oGiGy...",
       authDomain: "estoque-app-4f2c8.firebaseapp.com",
@@ -547,7 +547,6 @@
         if (data.movements) { movements = data.movements; localStorage.setItem('estoqueapp_movements', JSON.stringify(movements)); }
         if (data.users) { usersDb = data.users; localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb)); }
         
-        // Atualiza a sessão atual caso o usuário tenha sido aprovado como ADM na nuvem
         const session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
         if (session) {
           const updated = usersDb.find(u => u.email === session.email);
@@ -571,7 +570,6 @@
       localStorage.setItem('estoqueapp_user_email', userEmail);
       localStorage.setItem('estoqueapp_user_role', userRole);
 
-      // Envia os dados atualizados para a nuvem
       db.ref('estoque_compartilhado').set({
         products: products,
         movements: movements,
@@ -616,11 +614,11 @@
         if (!name) { showToast('Informe seu nome!'); return; }
         if (usersDb.find(u => u.email === email)) { showToast('E-mail já cadastrado!'); return; }
 
-        const newUser = { name, email, pass, role: 'convidado', requestedAdmin: false };
+        const newUser = { name, email, pass, role: 'convidado', requestedAdmin: true }; // Já entra solicitando para garantir visibilidade
         usersDb.push(newUser);
         loginActiveUser(newUser);
         saveState();
-        showToast('Cadastro realizado como Convidado!');
+        showToast('Cadastro realizado! Solicitação enviada.');
       } else {
         const found = usersDb.find(u => u.email === email && u.pass === pass);
         if (!found) {
@@ -676,17 +674,11 @@
           if (btnAddProd) btnAddProd.classList.add('hidden');
           if (adminPanel) adminPanel.classList.add('hidden');
           if (approvalSection) approvalSection.classList.add('hidden');
-          if (guestRequestSection) guestRequestSection.classList.remove('hidden');
+          if (guestRequestSection) guestRequestSection.classList.remove('hidden'); // SEMPRE VISÍVEL PARA O CONVIDADO
           
           document.getElementById('user-role-badge').textContent = '👀 Convidado (Leitura)';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-amber-300';
-          
-          if (session.requestedAdmin) {
-            document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Sua solicitação de Administrador foi enviada.';
-            guestRequestSection.classList.add('hidden');
-          } else {
-            document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Clique abaixo para solicitar permissão de ADM.';
-          }
+          document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Clique no botão abaixo quantas vezes quiser para solicitar permissão de ADM.';
         } else {
           if (btnAddProd) btnAddProd.classList.remove('hidden');
           if (adminPanel) adminPanel.classList.remove('hidden');
@@ -707,6 +699,8 @@
       const user = usersDb.find(u => u.email === userEmail);
       if (user) {
         user.requestedAdmin = true;
+      } else {
+        usersDb.push({ name: userName, email: userEmail, role: 'convidado', requestedAdmin: true });
       }
       
       let session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
