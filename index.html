@@ -705,12 +705,18 @@
       }
     }
 
-    // ESCUTA EM TEMPO REAL DO FIREBASE COM ATUALIZAÇÃO AUTOMÁTICA DA TELA
+    // LISTENER EM TEMPO REAL CORRIGIDO E FORÇANDO O RENDER DA TELA ATIVA
     db.ref('estoque_compartilhado').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        if (data.products) { products = data.products; localStorage.setItem('estoqueapp_products', JSON.stringify(products)); }
-        if (data.movements) { movements = data.movements; localStorage.setItem('estoqueapp_movements', JSON.stringify(movements)); }
+        if (data.products) { 
+          products = data.products; 
+          localStorage.setItem('estoqueapp_products', JSON.stringify(products)); 
+        }
+        if (data.movements) { 
+          movements = data.movements; 
+          localStorage.setItem('estoqueapp_movements', JSON.stringify(movements)); 
+        }
         
         if (data.requests) {
           const oldLen = requests.length;
@@ -726,7 +732,10 @@
           }
         }
 
-        if (data.users) { usersDb = data.users; localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb)); }
+        if (data.users) { 
+          usersDb = data.users; 
+          localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb)); 
+        }
         
         const session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
         if (session) {
@@ -746,6 +755,8 @@
             }
           }
         }
+        
+        // Executa a atualização de todas as views imediatamente
         refreshAllViews();
       }
     });
@@ -998,8 +1009,11 @@
       const badge = document.getElementById('pending-req-badge');
       const pending = requests.filter(r => r.status === 'pendente');
 
+      if (!badge || !container) return;
+
       badge.textContent = pending.length;
-      document.getElementById('notif-dot').classList.toggle('hidden', pending.length === 0);
+      const notifDot = document.getElementById('notif-dot');
+      if (notifDot) notifDot.classList.toggle('hidden', pending.length === 0);
 
       if (pending.length === 0) {
         container.innerHTML = `<p class="text-xs text-slate-400 italic bg-white p-3 rounded-2xl border border-slate-100">Nenhuma solicitação de material pendente.</p>`;
@@ -1033,7 +1047,7 @@
       lucide.createIcons();
     }
 
-    // APROVAÇÃO ULTRA RÁPIDA COM FEEDBACK VISUAL IMEDIATO
+    // APROVAÇÃO RÁPIDA COM ATUALIZAÇÃO IMEDIATA
     function approveRequest(reqId) {
       if (!checkAdminPermission()) return;
       
@@ -1095,6 +1109,8 @@
       const pendingList = document.getElementById('pending-users-list');
       const requesters = usersDb.filter(u => u.requestedAdmin && u.status === 'ativo');
 
+      if (!pendingList) return;
+
       if (requesters.length === 0) {
         pendingList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhum cadastro pendente de liberação.</p>`;
       } else {
@@ -1113,6 +1129,8 @@
 
       const allUsersList = document.getElementById('all-users-management-list');
       const managedUsers = usersDb.filter(u => u.email !== userEmail);
+
+      if (!allUsersList) return;
 
       if (managedUsers.length === 0) {
         allUsersList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhum outro profissional cadastrado.</p>`;
@@ -1187,11 +1205,15 @@
       else if (tabName === 'relatorios') setTimeout(renderChart, 100);
       else if (tabName === 'perfil' && userRole === 'admin') renderManagementLists();
       else if (cameraStream) stopCamera();
+      
       refreshAllViews();
     }
 
     function renderHome() {
-      document.getElementById('user-greeting').textContent = userName;
+      const greetingEl = document.getElementById('user-greeting');
+      if (!greetingEl) return;
+
+      greetingEl.textContent = userName;
       document.getElementById('user-initials').textContent = getInitials(userName);
       document.getElementById('profile-name-display').textContent = userName;
       document.getElementById('profile-email-display').textContent = userEmail;
@@ -1233,6 +1255,10 @@
           `;
         }).join('');
       }
+
+      if (userRole === 'admin') {
+        renderAdminRequests();
+      }
     }
 
     function handleHomeSearch(query) {
@@ -1260,6 +1286,7 @@
     function renderCategoryTabs() {
       const cats = ['Todos', 'Equipamentos ONU/ONT', 'Cabos e Fibras', 'Conectividade e Passivos'];
       const container = document.getElementById('category-tabs');
+      if (!container) return;
       container.innerHTML = cats.map(cat => {
         const active = currentCategory === cat && !onlyLowStock;
         return `
@@ -1290,7 +1317,13 @@
     }
 
     function renderEstoqueList() {
-      const query = (document.getElementById('estoque-search-input')?.value || '').toLowerCase();
+      const searchInput = document.getElementById('estoque-search-input');
+      const countBadge = document.getElementById('estoque-count-badge');
+      const list = document.getElementById('estoque-list');
+      
+      if (!list || !countBadge) return;
+
+      const query = (searchInput?.value || '').toLowerCase();
       let filtered = products.filter(p => {
         const matchesCat = currentCategory === 'Todos' || p.category === currentCategory;
         const matchesLow = !onlyLowStock || p.qty <= p.minQty;
@@ -1299,9 +1332,8 @@
       });
 
       filtered.sort((a, b) => sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
-      document.getElementById('estoque-count-badge').textContent = `${filtered.length} itens`;
+      countBadge.textContent = `${filtered.length} itens`;
 
-      const list = document.getElementById('estoque-list');
       if (filtered.length === 0) {
         list.innerHTML = `<div class="text-center py-12 text-slate-400"><p class="text-3xl mb-2">📡</p><p class="text-sm font-medium">Nenhum equipamento encontrado</p></div>`;
         return;
@@ -1518,7 +1550,10 @@
       const cats = ['Equipamentos ONU/ONT', 'Cabos e Fibras', 'Conectividade e Passivos'];
       const totalVal = products.reduce((acc, p) => acc + p.qty * p.price, 0) || 1;
 
-      document.getElementById('category-breakdown').innerHTML = cats.map(cat => {
+      const breakdownEl = document.getElementById('category-breakdown');
+      if (!breakdownEl) return;
+
+      breakdownEl.innerHTML = cats.map(cat => {
         const catVal = products.filter(p => p.category === cat).reduce((acc, p) => acc + (p.qty * p.price), 0);
         const pct = Math.round((catVal / totalVal) * 100);
         return `
@@ -1569,12 +1604,15 @@
       showToast('Relatório CSV exportado!');
     }
 
+    // FORÇA A ATUALIZAÇÃO SEGURA DE TODAS AS TELAS ATIVAS
     function refreshAllViews() {
       renderHome();
       renderCategoryTabs();
       renderEstoqueList();
       renderReports();
-      if (userRole === 'admin') renderManagementLists();
+      if (userRole === 'admin') {
+        renderManagementLists();
+      }
       lucide.createIcons();
     }
 
