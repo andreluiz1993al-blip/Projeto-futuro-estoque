@@ -9,20 +9,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Scripts do Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: #E2E8F0; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    @keyframes scanline {
-      0% { top: 12%; }
-      50% { top: 85%; }
-      100% { top: 12%; }
-    }
-    .animate-scan {
-      animation: scanline 2.6s ease-in-out infinite;
-    }
   </style>
   <script>
     if ('serviceWorker' in navigator) {
@@ -75,7 +70,7 @@
       </div>
 
       <div class="text-center pb-4">
-        <p class="text-[11px] text-blue-300">Segurança Integrada • Estoque APP</p>
+        <p class="text-[11px] text-blue-300">Sincronização em Nuvem • Estoque APP</p>
       </div>
     </div>
 
@@ -105,7 +100,7 @@
               <h2 id="user-greeting" class="text-sm font-semibold text-white">André Luiz</h2>
             </div>
           </div>
-          <span class="text-[11px] bg-white/10 px-2.5 py-1 rounded-full text-blue-100">Loja Principal</span>
+          <span class="text-[11px] bg-white/10 px-2.5 py-1 rounded-full text-blue-100">Nuvem Firebase</span>
         </div>
 
         <div class="relative">
@@ -130,7 +125,7 @@
             </div>
             <i data-lucide="shield" class="w-4 h-4 text-teal-400"></i>
           </div>
-          <p class="text-[11px] text-slate-300 mb-3">Controle total ativo. Gerencie itens e aprove solicitações na aba Perfil.</p>
+          <p class="text-[11px] text-slate-300 mb-3">Sincronização na nuvem ativa. Aprove solicitações na aba Perfil.</p>
           <div class="grid grid-cols-2 gap-2">
             <button onclick="openProductModal()" class="bg-[#2563EB] hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo Produto
@@ -331,7 +326,7 @@
       </main>
     </div>
 
-    <!-- TELA 5: PERFIL (COM BOTÃO DE SOLICITAÇÃO PARA CONVIDADO E APROVAÇÃO PARA ADM) -->
+    <!-- TELA 5: PERFIL -->
     <div id="screen-perfil" class="screen hidden flex-1 flex flex-col overflow-hidden">
       <header class="bg-[#0F294A] text-white px-5 pt-6 pb-6 rounded-b-[24px] shrink-0">
         <h1 class="text-xl font-bold mb-4">Perfil & Conta</h1>
@@ -363,9 +358,7 @@
         <div id="admin-approval-section" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
           <h3 class="text-sm font-bold text-slate-800">🛡️ Aprovar Solicitações de ADM</h3>
           <p class="text-xs text-slate-500">Usuários solicitando acesso de Administrador:</p>
-          <div id="pending-users-list" class="space-y-2">
-            <!-- Lista gerada via JS -->
-          </div>
+          <div id="pending-users-list" class="space-y-2"></div>
         </div>
 
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
@@ -501,6 +494,21 @@
   </div>
 
   <script>
+    // CONFIGURAÇÃO OFICIAL DO FIREBASE (EXTRAÍDA DO SEU PAINEL)[span_1](start_span)[span_1](end_span)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAEDLmsOKOD3gK9oGiGy...",
+      authDomain: "estoque-app-4f2c8.firebaseapp.com",
+      databaseURL: "https://estoque-app-4f2c8-default-rtdb.firebaseio.com",
+      projectId: "estoque-app-4f2c8",
+      storageBucket: "estoque-app-4f2c8.appspot.com",
+      messagingSenderId: "837817850733",
+      appId: "1:837817850733:web:74246a4...",
+      measurementId: "G-3RCWBPHLGV"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const DEFAULT_PRODUCTS = [
       { id: 'p1', name: 'Fone Bluetooth JBL Tune', sku: 'ELE-0482', category: 'Eletrônicos', qty: 142, minQty: 20, price: 299.00, icon: '🎧' },
       { id: 'p2', name: 'Mochila Tech Impermeável', sku: 'ACS-0193', category: 'Acessórios', qty: 8, minQty: 15, price: 189.90, icon: '🎒' },
@@ -517,6 +525,7 @@
 
     let products = JSON.parse(localStorage.getItem('estoqueapp_products')) || DEFAULT_PRODUCTS;
     let movements = JSON.parse(localStorage.getItem('estoqueapp_movements')) || DEFAULT_MOVEMENTS;
+    let usersDb = JSON.parse(localStorage.getItem('estoqueapp_users_db')) || [];
     let userName = localStorage.getItem('estoqueapp_user') || 'André Luiz';
     let userEmail = localStorage.getItem('estoqueapp_user_email') || 'andre@email.com';
     let userRole = localStorage.getItem('estoqueapp_user_role') || 'admin';
@@ -530,12 +539,45 @@
     let authMode = 'login';
     let myPieChart = null;
 
+    // SINCRONIZAÇÃO EM TEMPO REAL COM O FIREBASE
+    db.ref('estoque_compartilhado').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        if (data.products) { products = data.products; localStorage.setItem('estoqueapp_products', JSON.stringify(products)); }
+        if (data.movements) { movements = data.movements; localStorage.setItem('estoqueapp_movements', JSON.stringify(movements)); }
+        if (data.users) { usersDb = data.users; localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb)); }
+        
+        // Atualiza a sessão atual caso o usuário tenha sido aprovado como ADM na nuvem
+        const session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
+        if (session) {
+          const updated = usersDb.find(u => u.email === session.email);
+          if (updated && updated.role !== session.role) {
+            localStorage.setItem('estoqueapp_logged_session', JSON.stringify(updated));
+            userName = updated.name;
+            userEmail = updated.email;
+            userRole = updated.role;
+            checkAuthSession();
+          }
+        }
+        refreshAllViews();
+      }
+    });
+
     function saveState() {
       localStorage.setItem('estoqueapp_products', JSON.stringify(products));
       localStorage.setItem('estoqueapp_movements', JSON.stringify(movements));
+      localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb));
       localStorage.setItem('estoqueapp_user', userName);
       localStorage.setItem('estoqueapp_user_email', userEmail);
       localStorage.setItem('estoqueapp_user_role', userRole);
+
+      // Envia os dados atualizados para a nuvem
+      db.ref('estoque_compartilhado').set({
+        products: products,
+        movements: movements,
+        users: usersDb
+      });
+
       refreshAllViews();
     }
 
@@ -569,23 +611,24 @@
       const pass = document.getElementById('auth-pass').value.trim();
       if (!email || !pass) { showToast('Preencha e-mail e senha!'); return; }
 
-      let users = JSON.parse(localStorage.getItem('estoqueapp_users_db')) || [];
-
       if (authMode === 'register') {
         const name = document.getElementById('auth-name').value.trim();
         if (!name) { showToast('Informe seu nome!'); return; }
-        if (users.find(u => u.email === email)) { showToast('E-mail já cadastrado!'); return; }
+        if (usersDb.find(u => u.email === email)) { showToast('E-mail já cadastrado!'); return; }
 
         const newUser = { name, email, pass, role: 'convidado', requestedAdmin: false };
-        users.push(newUser);
-        localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
+        usersDb.push(newUser);
         loginActiveUser(newUser);
+        saveState();
         showToast('Cadastro realizado como Convidado!');
       } else {
-        const found = users.find(u => u.email === email && u.pass === pass);
+        const found = usersDb.find(u => u.email === email && u.pass === pass);
         if (!found) {
           if (email === 'admin@estoque.com' && pass === '123456') {
-            loginActiveUser({ name: 'André Luiz', email, pass, role: 'admin', requestedAdmin: false });
+            const defaultAdmin = { name: 'André Luiz', email, pass, role: 'admin', requestedAdmin: false };
+            if (!usersDb.find(u => u.email === email)) usersDb.push(defaultAdmin);
+            loginActiveUser(defaultAdmin);
+            saveState();
             return;
           }
           showToast('E-mail ou senha incorretos!');
@@ -600,7 +643,6 @@
       userName = user.name;
       userEmail = user.email;
       userRole = user.role || 'convidado';
-      saveState();
       checkAuthSession();
       showToast(`Bem-vindo, ${userName}!`);
     }
@@ -640,10 +682,10 @@
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-amber-300';
           
           if (session.requestedAdmin) {
-            document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Sua solicitação de acesso de Administrador já foi enviada e aguarda aprovação.';
+            document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Sua solicitação de Administrador foi enviada.';
             guestRequestSection.classList.add('hidden');
           } else {
-            document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Para gerenciar o estoque, clique no botão abaixo para solicitar permissão de ADM.';
+            document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Clique abaixo para solicitar permissão de ADM.';
           }
         } else {
           if (btnAddProd) btnAddProd.classList.remove('hidden');
@@ -653,7 +695,7 @@
 
           document.getElementById('user-role-badge').textContent = '🛡️ Administrador';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-teal-300';
-          document.getElementById('profile-role-desc').textContent = 'Você está logado como ADMINISTRADOR. Você possui controle total e pode aprovar novos convidados abaixo.';
+          document.getElementById('profile-role-desc').textContent = 'Você está logado como ADMINISTRADOR. Controle total e aprovação de convidados ativos.';
           renderPendingUsers();
         }
 
@@ -662,11 +704,9 @@
     }
 
     function requestAdminAccess() {
-      let users = JSON.parse(localStorage.getItem('estoqueapp_users_db')) || [];
-      const user = users.find(u => u.email === userEmail);
+      const user = usersDb.find(u => u.email === userEmail);
       if (user) {
         user.requestedAdmin = true;
-        localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
       }
       
       let session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
@@ -675,14 +715,14 @@
         localStorage.setItem('estoqueapp_logged_session', JSON.stringify(session));
       }
 
+      saveState();
       showToast('Solicitação enviada ao Administrador!');
       checkAuthSession();
     }
 
     function renderPendingUsers() {
-      let users = JSON.parse(localStorage.getItem('estoqueapp_users_db')) || [];
       const pendingList = document.getElementById('pending-users-list');
-      const requesters = users.filter(u => u.role === 'convidado' && u.requestedAdmin);
+      const requesters = usersDb.filter(u => u.role === 'convidado' && u.requestedAdmin);
 
       if (requesters.length === 0) {
         pendingList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhuma solicitação pendente no momento.</p>`;
@@ -703,12 +743,11 @@
     }
 
     function promoteToAdmin(email) {
-      let users = JSON.parse(localStorage.getItem('estoqueapp_users_db')) || [];
-      const user = users.find(u => u.email === email);
+      const user = usersDb.find(u => u.email === email);
       if (user) {
         user.role = 'admin';
         user.requestedAdmin = false;
-        localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
+        saveState();
         showToast(`Usuário ${user.name} promovido a Administrador!`);
         renderPendingUsers();
       }
@@ -724,9 +763,7 @@
 
     function resetAppDatabase() {
       if (!checkAdminPermission()) return;
-      if (confirm('Tem certeza que deseja apagar todos os produtos e resetar o app para o padrão?')) {
-        localStorage.removeItem('estoqueapp_products');
-        localStorage.removeItem('estoqueapp_movements');
+      if (confirm('Tem certeza que deseja resetar os dados na nuvem para o padrão?')) {
         products = [...DEFAULT_PRODUCTS];
         movements = [...DEFAULT_MOVEMENTS];
         saveState();
