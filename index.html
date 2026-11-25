@@ -464,7 +464,7 @@
       </button>
     </nav>
 
-    <!-- WHATSAPP-STYLE POP-UP NOTIFICATION (FLUTUANTE NO TOPO) -->
+    <!-- WHATSAPP-STYLE POP-UP NOTIFICATION -->
     <div id="whatsapp-popup" class="hidden absolute top-4 inset-x-4 bg-slate-900/95 text-white p-4 rounded-2xl shadow-2xl border border-blue-500/30 z-[100] popup-anim backdrop-blur-md">
       <div class="flex items-start gap-3">
         <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
@@ -489,7 +489,7 @@
       </div>
     </div>
 
-    <!-- MODAL DE SOLICITAÇÃO DE MATERIAL (PARA TÉCNICOS) -->
+    <!-- MODAL DE SOLICITAÇÃO DE MATERIAL -->
     <div id="request-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4">
       <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-4">
         <div class="flex items-center justify-between">
@@ -685,17 +685,15 @@
     let cameraStream = null;
     let authMode = 'login';
     let myPieChart = null;
-    let lastKnownRequestCount = requests.length;
 
-    // GERADOR DE SOM SINTETIZADO (WEB AUDIO API - NUNCA FALHA E NÃO PRECISA DE ARQUIVO EXTERNO)
     function playNotificationSound() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Nota D5
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // Nota A5
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
         gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
         osc.connect(gain);
@@ -703,7 +701,7 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.4);
       } catch (e) {
-        console.log('Áudio bloqueado pelo navegador até interação.');
+        console.log('Áudio bloqueado.');
       }
     }
 
@@ -718,7 +716,6 @@
           requests = data.requests;
           localStorage.setItem('estoqueapp_requests', JSON.stringify(requests));
           
-          // SE FOR ADMIN E HOUVER NOVA SOLICITAÇÃO PENDENTE EM TEMPO REAL
           if (userRole === 'admin' && requests.length > oldLen) {
             const latest = requests[0];
             if (latest && latest.status === 'pendente') {
@@ -760,7 +757,7 @@
       document.getElementById('popup-title').textContent = `${req.requesterName} (${req.requesterRole}):`;
       document.getElementById('popup-desc').textContent = `${req.productName} • Qtde: +${req.qty} un. (${req.obs})`;
       document.getElementById('whatsapp-popup').classList.remove('hidden');
-      setTimeout(() => closeWhatsappPopup(), 7000); // Some após 7 segundos
+      setTimeout(() => closeWhatsappPopup(), 7000);
     }
 
     function closeWhatsappPopup() {
@@ -934,7 +931,7 @@
         } else if (userRole === 'convidado') {
           if (btnAddProd) btnAddProd.classList.add('hidden');
           if (adminPanel) adminPanel.classList.add('hidden');
-          if (techPanel) techPanel.classList.add('hidden');
+          if (techPanel) adminPanel.classList.add('hidden');
           if (adminReqSection) adminReqSection.classList.add('hidden');
           if (adminUserTab) adminUserTab.classList.add('hidden');
           if (guestRequestSection) guestRequestSection.classList.remove('hidden');
@@ -943,10 +940,9 @@
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-amber-300';
           document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO (apenas visualização).';
         } else {
-          // ADMIN
           if (btnAddProd) btnAddProd.classList.remove('hidden');
           if (adminPanel) adminPanel.classList.remove('hidden');
-          if (techPanel) techPanel.classList.add('hidden');
+          if (techPanel) adminPanel.classList.add('hidden');
           if (adminReqSection) adminReqSection.classList.remove('hidden');
           if (adminUserTab) adminUserTab.classList.remove('hidden');
           if (guestRequestSection) guestRequestSection.classList.add('hidden');
@@ -1014,7 +1010,7 @@
       }
 
       container.innerHTML = pending.map(r => `
-        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 space-y-2">
+        <div id="req-card-${r.id}" class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 space-y-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
               <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-900 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-100">${r.icon}</span>
@@ -1028,10 +1024,10 @@
           <p class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-xl">Info: ${r.obs}</p>
           <p class="text-[10px] text-slate-400">Data/Hora: ${r.date}</p>
           <div class="flex gap-2 pt-1 border-t border-slate-100">
-            <button onclick="approveRequest('${r.id}')" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center justify-center gap-1 transition">
+            <button id="btn-approve-${r.id}" onclick="approveRequest('${r.id}')" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center justify-center gap-1 transition">
               <i data-lucide="check" class="w-3.5 h-3.5"></i> Aprovar e Dar Baixa
             </button>
-            <button onclick="rejectRequest('${r.id}')" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold transition">
+            <button id="btn-reject-${r.id}" onclick="rejectRequest('${r.id}')" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold transition">
               Rejeitar
             </button>
           </div>
@@ -1040,13 +1036,25 @@
       lucide.createIcons();
     }
 
+    // CORREÇÃO: BLOQUEIA DUPLO CLIQUE INSTANTANEAMENTE
     function approveRequest(reqId) {
       if (!checkAdminPermission()) return;
+      
       const req = requests.find(r => r.id === reqId);
-      if (!req) return;
+      if (!req || req.status !== 'pendente') return;
+
+      // Trava os botões visualmente de imediato para evitar múltiplos cliques
+      const btnApprove = document.getElementById(`btn-approve-${reqId}`);
+      const btnReject = document.getElementById(`btn-reject-${reqId}`);
+      if (btnApprove) { btnApprove.disabled = true; btnApprove.textContent = 'Processando...'; }
+      if (btnReject) { btnReject.disabled = true; }
 
       const prod = products.find(p => p.id === req.productId);
-      if (!prod) { showToast('Equipamento não encontrado no estoque!'); return; }
+      if (!prod) { 
+        showToast('Equipamento não encontrado no estoque!'); 
+        refreshAllViews();
+        return; 
+      }
 
       prod.qty = Math.max(0, prod.qty - req.qty);
       req.status = 'aprovado';
@@ -1070,13 +1078,19 @@
     function rejectRequest(reqId) {
       if (!checkAdminPermission()) return;
       const req = requests.find(r => r.id === reqId);
-      if (req) {
-        req.status = 'rejeitado';
-        req.approvedBy = userName;
-        req.approvedAt = getFormattedTimestamp();
-        saveState();
-        showToast('Solicitação rejeitada.');
-      }
+      if (!req || req.status !== 'pendente') return;
+
+      const btnApprove = document.getElementById(`btn-approve-${reqId}`);
+      const btnReject = document.getElementById(`btn-reject-${reqId}`);
+      if (btnApprove) { btnApprove.disabled = true; }
+      if (btnReject) { btnReject.disabled = true; btnReject.textContent = 'Rejeitando...'; }
+
+      req.status = 'rejeitado';
+      req.approvedBy = userName;
+      req.approvedAt = getFormattedTimestamp();
+      
+      saveState();
+      showToast('Solicitação rejeitada.');
     }
 
     function renderManagementLists() {
@@ -1551,7 +1565,6 @@
       const rows = movements.map(m => `"${m.date}","${m.type}","${m.productName}",${m.qty},"${m.details || ''}"`);
       const blob = new Blob([headers.concat(rows).join('\n')], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
-      a.href = URL.dataObjectURL ? URL.createObjectURL(blob) : '#';
       a.href = URL.createObjectURL(blob);
       a.download = 'relatorio_telecom.csv';
       a.click();
