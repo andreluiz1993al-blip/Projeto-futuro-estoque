@@ -125,7 +125,7 @@
             </div>
             <i data-lucide="shield" class="w-4 h-4 text-teal-400"></i>
           </div>
-          <p class="text-[11px] text-slate-300 mb-3">Sincronização na nuvem ativa. Aprove solicitações na aba Perfil.</p>
+          <p class="text-[11px] text-slate-300 mb-3">Sincronização na nuvem ativa. Gerencie acessos na aba Perfil.</p>
           <div class="grid grid-cols-2 gap-2">
             <button onclick="openProductModal()" class="bg-[#2563EB] hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo Produto
@@ -346,19 +346,27 @@
           <h3 class="text-sm font-bold text-slate-800">Permissões da Conta</h3>
           <p id="profile-role-desc" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 font-medium"></p>
           
-          <!-- BOTÃO PARA CONVIDADO SOLICITAR ACESSO (SEMPRE VISÍVEL ATÉ APROVAR) -->
+          <!-- BOTÃO PARA CONVIDADO SOLICITAR ACESSO -->
           <div id="guest-request-section" class="hidden pt-2">
             <button onclick="requestAdminAccess()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center justify-center gap-2 transition shadow-sm">
-              <i data-lucide="send" class="w-4 h-4"></i> Solicitar Acesso de Administrador (Enviar Novamente)
+              <i data-lucide="send" class="w-4 h-4"></i> Solicitar Acesso de Administrador
             </button>
           </div>
         </div>
 
-        <!-- PAINEL DE APROVAÇÃO (APARECE APENAS PARA O ADM) -->
-        <div id="admin-approval-section" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
-          <h3 class="text-sm font-bold text-slate-800">🛡️ Aprovar Solicitações de ADM</h3>
-          <p class="text-xs text-slate-500">Usuários solicitando acesso de Administrador:</p>
-          <div id="pending-users-list" class="space-y-2"></div>
+        <!-- PAINEL DE GESTÃO DE USUÁRIOS (APENAS PARA O ADM) -->
+        <div id="admin-approval-section" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">🛡️ Aprovar Solicitações de ADM</h3>
+            <p class="text-xs text-slate-500 mb-2">Convidados solicitando acesso:</p>
+            <div id="pending-users-list" class="space-y-2"></div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100">
+            <h3 class="text-sm font-bold text-slate-800">👥 Gerenciamento de Usuários</h3>
+            <p class="text-xs text-slate-500 mb-2">Bloquear, suspender ou remover cadastros:</p>
+            <div id="all-users-management-list" class="space-y-2"></div>
+          </div>
         </div>
 
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
@@ -550,12 +558,23 @@
         const session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
         if (session) {
           const updated = usersDb.find(u => u.email === session.email);
-          if (updated && updated.role !== session.role) {
-            localStorage.setItem('estoqueapp_logged_session', JSON.stringify(updated));
-            userName = updated.name;
-            userEmail = updated.email;
-            userRole = updated.role;
-            checkAuthSession();
+          if (updated) {
+            if (updated.status === 'bloqueado' || updated.status === 'suspenso') {
+              alert(`Sua conta foi ${updated.status} pelo administrador.`);
+              logoutUser();
+              return;
+            }
+            if (updated.role !== session.role) {
+              localStorage.setItem('estoqueapp_logged_session', JSON.stringify(updated));
+              userName = updated.name;
+              userEmail = updated.email;
+              userRole = updated.role;
+              checkAuthSession();
+            }
+          } else {
+            alert('Sua conta foi removida pelo administrador.');
+            logoutUser();
+            return;
           }
         }
         refreshAllViews();
@@ -597,7 +616,7 @@
     function switchAuthMode(mode) {
       authMode = mode;
       const isReg = mode === 'register';
-      document.getElementById('auth-subtitle').textContent = isReg ? 'Novas contas começam como convidado' : 'Faça login com seu e-mail';
+      document.getElementById('auth-subtitle').textContent = isReg ? 'Novas contas entram como convidados' : 'Faça login com seu e-mail';
       document.getElementById('auth-submit-btn').textContent = isReg ? 'Cadastrar Convidado' : 'Entrar na Conta';
       document.getElementById('register-fields').classList.toggle('hidden', !isReg);
       document.getElementById('tab-login-btn').className = `py-2 rounded-lg transition ${!isReg ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`;
@@ -614,7 +633,7 @@
         if (!name) { showToast('Informe seu nome!'); return; }
         if (usersDb.find(u => u.email === email)) { showToast('E-mail já cadastrado!'); return; }
 
-        const newUser = { name, email, pass, role: 'convidado', requestedAdmin: true }; // Já entra solicitando para garantir visibilidade
+        const newUser = { name, email, pass, role: 'convidado', requestedAdmin: true, status: 'ativo' };
         usersDb.push(newUser);
         loginActiveUser(newUser);
         saveState();
@@ -623,7 +642,7 @@
         const found = usersDb.find(u => u.email === email && u.pass === pass);
         if (!found) {
           if (email === 'admin@estoque.com' && pass === '123456') {
-            const defaultAdmin = { name: 'André Luiz', email, pass, role: 'admin', requestedAdmin: false };
+            const defaultAdmin = { name: 'André Luiz', email, pass, role: 'admin', requestedAdmin: false, status: 'ativo' };
             if (!usersDb.find(u => u.email === email)) usersDb.push(defaultAdmin);
             loginActiveUser(defaultAdmin);
             saveState();
@@ -632,6 +651,12 @@
           showToast('E-mail ou senha incorretos!');
           return;
         }
+
+        if (found.status === 'bloqueado' || found.status === 'suspenso') {
+          showToast(`Conta com acesso ${found.status}! Contate o admin.`);
+          return;
+        }
+
         loginActiveUser(found);
       }
     }
@@ -674,11 +699,11 @@
           if (btnAddProd) btnAddProd.classList.add('hidden');
           if (adminPanel) adminPanel.classList.add('hidden');
           if (approvalSection) approvalSection.classList.add('hidden');
-          if (guestRequestSection) guestRequestSection.classList.remove('hidden'); // SEMPRE VISÍVEL PARA O CONVIDADO
+          if (guestRequestSection) guestRequestSection.classList.remove('hidden');
           
           document.getElementById('user-role-badge').textContent = '👀 Convidado (Leitura)';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-amber-300';
-          document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Clique no botão abaixo quantas vezes quiser para solicitar permissão de ADM.';
+          document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Clique no botão abaixo para solicitar permissão de ADM.';
         } else {
           if (btnAddProd) btnAddProd.classList.remove('hidden');
           if (adminPanel) adminPanel.classList.remove('hidden');
@@ -687,8 +712,8 @@
 
           document.getElementById('user-role-badge').textContent = '🛡️ Administrador';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-teal-300';
-          document.getElementById('profile-role-desc').textContent = 'Você está logado como ADMINISTRADOR. Controle total e aprovação de convidados ativos.';
-          renderPendingUsers();
+          document.getElementById('profile-role-desc').textContent = 'Você está logado como ADMINISTRADOR. Controle total e gestão de cadastros.';
+          renderManagementLists();
         }
 
         switchTab('inicio');
@@ -700,7 +725,7 @@
       if (user) {
         user.requestedAdmin = true;
       } else {
-        usersDb.push({ name: userName, email: userEmail, role: 'convidado', requestedAdmin: true });
+        usersDb.push({ name: userName, email: userEmail, role: 'convidado', requestedAdmin: true, status: 'ativo' });
       }
       
       let session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
@@ -714,26 +739,68 @@
       checkAuthSession();
     }
 
-    function renderPendingUsers() {
+    function renderManagementLists() {
+      // 1. Lista de pendentes para ADM
       const pendingList = document.getElementById('pending-users-list');
-      const requesters = usersDb.filter(u => u.role === 'convidado' && u.requestedAdmin);
+      const requesters = usersDb.filter(u => u.role === 'convidado' && u.requestedAdmin && u.status === 'ativo');
 
       if (requesters.length === 0) {
-        pendingList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhuma solicitação pendente no momento.</p>`;
+        pendingList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhuma solicitação pendente.</p>`;
+      } else {
+        pendingList.innerHTML = requesters.map(g => `
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
+            <div class="min-w-0 pr-2">
+              <p class="text-xs font-bold text-slate-800 truncate">${g.name}</p>
+              <p class="text-[10px] text-slate-500 truncate">${g.email}</p>
+            </div>
+            <button onclick="promoteToAdmin('${g.email}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg shrink-0 transition">
+              Aprovar ADM
+            </button>
+          </div>
+        `).join('');
+      }
+
+      // 2. Lista de gerenciamento completo (bloquear, suspender, remover qualquer usuário)
+      const allUsersList = document.getElementById('all-users-management-list');
+      // Não mostra o próprio admin logado na lista de exclusão/bloqueio próprio
+      const managedUsers = usersDb.filter(u => u.email !== userEmail);
+
+      if (managedUsers.length === 0) {
+        allUsersList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhum outro usuário cadastrado.</p>`;
         return;
       }
 
-      pendingList.innerHTML = requesters.map(g => `
-        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
-          <div class="min-w-0 pr-2">
-            <p class="text-xs font-bold text-slate-800 truncate">${g.name}</p>
-            <p class="text-[10px] text-slate-500 truncate">${g.email}</p>
+      allUsersList.innerHTML = managedUsers.map(u => {
+        const isBlocked = u.status === 'bloqueado';
+        const isSuspended = u.status === 'suspenso';
+        
+        let statusBadge = `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded">Ativo (${u.role})</span>`;
+        if (isBlocked) statusBadge = `<span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded">Bloqueado</span>`;
+        if (isSuspended) statusBadge = `<span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded">Suspenso</span>`;
+
+        return `
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="min-w-0 pr-2">
+                <p class="text-xs font-bold text-slate-800 truncate">${u.name}</p>
+                <p class="text-[10px] text-slate-500 truncate">${u.email}</p>
+              </div>
+              <div>${statusBadge}</div>
+            </div>
+            <div class="flex flex-wrap gap-1.5 pt-1 border-t border-slate-200/60">
+              ${isBlocked ? 
+                `<button onclick="setUserStatus('${u.email}', 'ativo')" class="bg-emerald-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg">Desbloquear</button>` :
+                `<button onclick="setUserStatus('${u.email}', 'bloqueado')" class="bg-slate-700 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg">Bloquear</button>`
+              }
+              ${isSuspended ? 
+                `<button onclick="setUserStatus('${u.email}', 'ativo')" class="bg-emerald-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg">Reativar</button>` :
+                `<button onclick="setUserStatus('${u.email}', 'suspenso')" class="bg-amber-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg">Suspender</button>`
+              }
+              <button onclick="removeUser('${u.email}')" class="bg-rose-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg ml-auto">Remover</button>
+            </div>
           </div>
-          <button onclick="promoteToAdmin('${g.email}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg shrink-0 transition">
-            Aprovar ADM
-          </button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function promoteToAdmin(email) {
@@ -743,7 +810,26 @@
         user.requestedAdmin = false;
         saveState();
         showToast(`Usuário ${user.name} promovido a Administrador!`);
-        renderPendingUsers();
+        renderManagementLists();
+      }
+    }
+
+    function setUserStatus(email, status) {
+      const user = usersDb.find(u => u.email === email);
+      if (user) {
+        user.status = status;
+        saveState();
+        showToast(`Status do usuário alterado para: ${status}`);
+        renderManagementLists();
+      }
+    }
+
+    function removeUser(email) {
+      if (confirm(`Tem certeza que deseja remover o cadastro de ${email}?`)) {
+        usersDb = usersDb.filter(u => u.email !== email);
+        saveState();
+        showToast('Usuário removido com sucesso!');
+        renderManagementLists();
       }
     }
 
@@ -786,7 +872,7 @@
       } else if (tabName === 'relatorios') {
         setTimeout(renderChart, 100);
       } else if (tabName === 'perfil' && userRole === 'admin') {
-        renderPendingUsers();
+        renderManagementLists();
       } else if (cameraStream) {
         stopCamera();
       }
