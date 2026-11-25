@@ -18,11 +18,6 @@
     html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: #E2E8F0; position: fixed; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    @keyframes slideIn {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .popup-anim { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
   <script>
     if ('serviceWorker' in navigator) {
@@ -464,31 +459,6 @@
       </button>
     </nav>
 
-    <!-- WHATSAPP-STYLE POP-UP NOTIFICATION -->
-    <div id="whatsapp-popup" class="hidden absolute top-4 inset-x-4 bg-slate-900/95 text-white p-4 rounded-2xl shadow-2xl border border-blue-500/30 z-[100] popup-anim backdrop-blur-md">
-      <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
-          <i data-lucide="bell-ring" class="w-5 h-5"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center justify-between mb-0.5">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Nova Solicitação de Material</h4>
-            <span id="popup-time" class="text-[10px] text-slate-400">Agora</span>
-          </div>
-          <p id="popup-title" class="text-sm font-bold text-white truncate">Técnico solicitou ONU Huawei</p>
-          <p id="popup-desc" class="text-xs text-slate-300 mt-0.5">Quantidade: +2 un. • OS #49201</p>
-        </div>
-        <button onclick="closeWhatsappPopup()" class="text-slate-400 hover:text-white p-1">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-      <div class="mt-3 flex gap-2">
-        <button onclick="goToRequestsAndClose()" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow">
-          <i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver Solicitações
-        </button>
-      </div>
-    </div>
-
     <!-- MODAL DE SOLICITAÇÃO DE MATERIAL -->
     <div id="request-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4">
       <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-4">
@@ -634,10 +604,10 @@
       </div>
     </div>
 
-    <!-- TOAST -->
-    <div id="toast" class="hidden absolute top-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg z-50 flex items-center gap-2 whitespace-nowrap">
-      <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
-      <span id="toast-msg">Salvo com sucesso!</span>
+    <!-- TOAST DE NOTIFICAÇÃO LEVE (SEM TRAVAMENTOS) -->
+    <div id="toast" class="hidden absolute top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-medium px-4 py-3 rounded-2xl shadow-xl z-50 flex items-center gap-2.5 max-w-[360px] border border-slate-700">
+      <i data-lucide="bell-ring" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+      <span id="toast-msg" class="truncate">Nova atualização recebida!</span>
     </div>
 
   </div>
@@ -705,7 +675,7 @@
       }
     }
 
-    // LISTENER EM TEMPO REAL CORRIGIDO E FORÇANDO O RENDER DA TELA ATIVA
+    // LISTENER EM TEMPO REAL ESTÁVEL E LEVE
     db.ref('estoque_compartilhado').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -726,7 +696,7 @@
           if (userRole === 'admin' && requests.length > oldLen) {
             const latest = requests[0];
             if (latest && latest.status === 'pendente') {
-              showWhatsappPopup(latest);
+              showToast(`Nova solicitação de ${latest.requesterName}: ${latest.productName} (+${latest.qty} un.)`);
               playNotificationSound();
             }
           }
@@ -737,44 +707,16 @@
           localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb)); 
         }
         
-        const session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
-        if (session) {
-          const updated = usersDb.find(u => u.email === session.email);
-          if (updated) {
-            if (updated.status === 'bloqueado' || updated.status === 'suspenso') {
-              alert(`Sua conta foi ${updated.status} pelo administrador.`);
-              logoutUser();
-              return;
-            }
-            if (updated.role !== session.role) {
-              localStorage.setItem('estoqueapp_logged_session', JSON.stringify(updated));
-              userName = updated.name;
-              userEmail = updated.email;
-              userRole = updated.role;
-              checkAuthSession();
-            }
-          }
-        }
-        
-        // Executa a atualização de todas as views imediatamente
         refreshAllViews();
       }
     });
 
-    function showWhatsappPopup(req) {
-      document.getElementById('popup-title').textContent = `${req.requesterName} (${req.requesterRole}):`;
-      document.getElementById('popup-desc').textContent = `${req.productName} • Qtde: +${req.qty} un. (${req.obs})`;
-      document.getElementById('whatsapp-popup').classList.remove('hidden');
-      setTimeout(() => closeWhatsappPopup(), 7000);
-    }
-
-    function closeWhatsappPopup() {
-      document.getElementById('whatsapp-popup').classList.add('hidden');
-    }
-
-    function goToRequestsAndClose() {
-      closeWhatsappPopup();
-      switchTab('inicio');
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 4000);
+      lucide.createIcons();
     }
 
     function saveState() {
@@ -829,13 +771,6 @@
 
     function getInitials(name) {
       return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'AL';
-    }
-
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      document.getElementById('toast-msg').textContent = msg;
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 2600);
     }
 
     function switchAuthMode(mode) {
@@ -1047,7 +982,6 @@
       lucide.createIcons();
     }
 
-    // APROVAÇÃO RÁPIDA COM ATUALIZAÇÃO IMEDIATA
     function approveRequest(reqId) {
       if (!checkAdminPermission()) return;
       
@@ -1056,8 +990,10 @@
 
       const cardEl = document.getElementById(`req-card-${reqId}`);
       if (cardEl) {
-        cardEl.style.opacity = '0.4';
-        cardEl.style.pointerEvents = 'none';
+        cardEl.style.transition = 'all 0.3s ease';
+        cardEl.style.transform = 'scale(0.9)';
+        cardEl.style.opacity = '0';
+        setTimeout(() => cardEl.remove(), 300);
       }
 
       const prod = products.find(p => p.id === req.productId);
@@ -1093,8 +1029,10 @@
 
       const cardEl = document.getElementById(`req-card-${reqId}`);
       if (cardEl) {
-        cardEl.style.opacity = '0.4';
-        cardEl.style.pointerEvents = 'none';
+        cardEl.style.transition = 'all 0.3s ease';
+        cardEl.style.transform = 'scale(0.9)';
+        cardEl.style.opacity = '0';
+        setTimeout(() => cardEl.remove(), 300);
       }
 
       req.status = 'rejeitado';
@@ -1604,7 +1542,6 @@
       showToast('Relatório CSV exportado!');
     }
 
-    // FORÇA A ATUALIZAÇÃO SEGURA DE TODAS AS TELAS ATIVAS
     function refreshAllViews() {
       renderHome();
       renderCategoryTabs();
