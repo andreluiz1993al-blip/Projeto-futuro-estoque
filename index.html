@@ -36,7 +36,7 @@
 
   <div id="app" class="w-full max-w-[420px] min-h-screen sm:min-h-[844px] sm:h-[844px] bg-[#F4F6F9] sm:rounded-[38px] sm:shadow-2xl sm:border-[8px] sm:border-[#1E293B] overflow-hidden flex flex-col relative">
 
-    <!-- TELA DE LOGIN / AUTENTICAÇÃO COM SELEÇÃO DE PERFIL -->
+    <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
     <div id="screen-auth" class="screen hidden absolute inset-0 bg-[#0F294A] text-white p-6 justify-between overflow-hidden z-50 flex flex-col">
       <div class="pt-8 text-center">
         <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4 border border-white/20 shadow-lg">
@@ -69,12 +69,11 @@
           <input id="auth-pass" type="password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-600" />
         </div>
 
-        <!-- SELETOR DE PERFIL -->
-        <div id="role-select-box">
+        <div>
           <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipo de Acesso</label>
           <select id="auth-role" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:border-blue-600">
-            <option value="convidado">👀 Convidado (Apenas Visualizar)</option>
             <option value="admin">🛡️ Administrador (Controle Total)</option>
+            <option value="convidado">👀 Convidado (Apenas Visualizar)</option>
           </select>
         </div>
 
@@ -84,7 +83,7 @@
       </div>
 
       <div class="text-center pb-4">
-        <p class="text-[11px] text-blue-300">Compartilhado em rede • Estoque APP</p>
+        <p class="text-[11px] text-blue-300">Estoque Compartilhado • Estoque APP</p>
       </div>
     </div>
 
@@ -110,7 +109,7 @@
               <span id="user-initials">AL</span>
             </div>
             <div>
-              <p id="user-role-badge" class="text-[10px] uppercase font-bold tracking-wider text-teal-300">Convidado</p>
+              <p id="user-role-badge" class="text-[10px] uppercase font-bold tracking-wider text-teal-300">Administrador</p>
               <h2 id="user-greeting" class="text-sm font-semibold text-white">André Luiz</h2>
             </div>
           </div>
@@ -129,6 +128,27 @@
       </header>
 
       <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-24 space-y-5">
+        
+        <!-- PAINEL EXCLUSIVO DO ADMINISTRADOR -->
+        <section id="admin-exclusive-panel" class="hidden bg-slate-900 text-white p-4 rounded-2xl shadow-md border border-slate-800">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <h3 class="text-xs font-extrabold uppercase tracking-wider text-teal-300">Painel Exclusivo ADM</h3>
+            </div>
+            <i data-lucide="shield" class="w-4 h-4 text-teal-400"></i>
+          </div>
+          <p class="text-[11px] text-slate-300 mb-3">Gerenciamento total ativo. Você pode cadastrar itens, ajustar preços e zerar o banco.</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="openProductModal()" class="bg-[#2563EB] hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo Produto
+            </button>
+            <button onclick="resetAppDatabase()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Resetar Dados
+            </button>
+          </div>
+        </section>
+
         <section>
           <h3 class="text-[15px] font-bold text-slate-800 mb-3">Resumo Geral</h3>
           <div class="grid grid-cols-3 gap-2.5">
@@ -161,8 +181,7 @@
           </div>
         </section>
 
-        <!-- AÇÕES RÁPIDAS (Bloqueadas para convidados) -->
-        <section id="quick-actions-section">
+        <section>
           <h3 class="text-[15px] font-bold text-slate-800 mb-3">Ações Rápidas</h3>
           <div class="grid grid-cols-3 gap-3">
             <button onclick="checkAdminPermission() && openMovementModal('entrada')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
@@ -183,7 +202,7 @@
               <div class="w-10 h-10 rounded-full bg-blue-50 text-[#0F294A] flex items-center justify-center">
                 <i data-lucide="scan-barcode" class="w-5 h-5"></i>
               </div>
-              <span class="text-xs font-semibold text-slate-700">Ver Estoque</span>
+              <span class="text-xs font-semibold text-slate-700">Consultar</span>
             </button>
           </div>
         </section>
@@ -227,13 +246,12 @@
 
       <main id="estoque-list" class="flex-1 overflow-y-auto no-scrollbar px-5 py-4 pb-24 space-y-3"></main>
 
-      <!-- Botão de Novo Produto (Apenas Admin) -->
       <button id="btn-add-product" onclick="openProductModal()" class="hidden absolute bottom-20 right-5 w-14 h-14 rounded-full bg-[#2563EB] hover:bg-blue-700 active:scale-95 text-white shadow-lg shadow-blue-600/30 flex items-center justify-center transition z-20">
         <i data-lucide="plus" class="w-7 h-7"></i>
       </button>
     </div>
 
-    <!-- TELA 3: LEITOR -->
+    <!-- TELA 3: LEITOR / CONSULTA -->
     <div id="screen-leitor" class="screen hidden flex-1 flex flex-col bg-slate-900 overflow-hidden relative">
       <header class="bg-[#0F294A] text-white px-5 pt-6 pb-4 flex items-center justify-between shrink-0 z-10">
         <h1 class="text-lg font-bold">Leitor / Consulta</h1>
@@ -338,7 +356,7 @@
 
       <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-24 space-y-4">
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
-          <h3 class="text-sm font-bold text-slate-800">Seu Perfil Atual</h3>
+          <h3 class="text-sm font-bold text-slate-800">Permissões da Conta</h3>
           <p id="profile-role-desc" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 font-medium"></p>
         </div>
 
@@ -375,7 +393,7 @@
       </button>
     </nav>
 
-    <!-- MODAL ENTRADA/SAÍDA (Apenas Admin) -->
+    <!-- MODAL ENTRADA/SAÍDA -->
     <div id="movement-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-4">
       <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-4">
         <div class="flex items-center justify-between">
@@ -406,7 +424,7 @@
       </div>
     </div>
 
-    <!-- MODAL PRODUTO (Apenas Admin) -->
+    <!-- MODAL PRODUTO -->
     <div id="product-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-4">
       <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-3.5 max-h-[90%] overflow-y-auto">
         <div class="flex items-center justify-between">
@@ -493,7 +511,7 @@
     let movements = JSON.parse(localStorage.getItem('estoqueapp_movements')) || DEFAULT_MOVEMENTS;
     let userName = localStorage.getItem('estoqueapp_user') || 'André Luiz';
     let userEmail = localStorage.getItem('estoqueapp_user_email') || 'andre@email.com';
-    let userRole = localStorage.getItem('estoqueapp_user_role') || 'admin'; // 'admin' ou 'convidado'
+    let userRole = localStorage.getItem('estoqueapp_user_role') || 'admin';
 
     let currentCategory = 'Todos';
     let onlyLowStock = false;
@@ -557,11 +575,17 @@
         loginActiveUser(newUser);
       } else {
         const found = users.find(u => u.email === email && u.pass === pass);
-        if (!found && email === 'admin@estoque.com' && pass === '123456') {
-          loginActiveUser({ name: 'André Luiz (Admin)', email, pass, role: 'admin' });
+        if (!found) {
+          // Permite login rápido com qualquer e-mail/senha novos caso o banco esteja vazio, respeitando o cargo escolhido
+          const quickUser = { name: email.split('@')[0], email, pass, role };
+          users.push(quickUser);
+          localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
+          loginActiveUser(quickUser);
           return;
         }
-        if (!found) { showToast('E-mail ou senha incorretos!'); return; }
+        // Atualiza o perfil escolhido no momento do login
+        found.role = role;
+        localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
         loginActiveUser(found);
       }
     }
@@ -570,7 +594,7 @@
       localStorage.setItem('estoqueapp_logged_session', JSON.stringify(user));
       userName = user.name;
       userEmail = user.email;
-      userRole = user.role || 'convidado';
+      userRole = user.role || 'admin';
       saveState();
       checkAuthSession();
       showToast(`Bem-vindo, ${userName} (${userRole.toUpperCase()})!`);
@@ -587,6 +611,7 @@
       const authScreen = document.getElementById('screen-auth');
       const bottomNav = document.querySelector('nav');
       const btnAddProd = document.getElementById('btn-add-product');
+      const adminPanel = document.getElementById('admin-exclusive-panel');
 
       if (!session) {
         authScreen.classList.remove('hidden');
@@ -596,16 +621,17 @@
         if (bottomNav) bottomNav.classList.remove('hidden');
         userName = session.name;
         userEmail = session.email;
-        userRole = session.role || 'convidado';
+        userRole = session.role || 'admin';
 
-        // Restringe botões de edição para convidados
         if (userRole === 'convidado') {
           if (btnAddProd) btnAddProd.classList.add('hidden');
+          if (adminPanel) adminPanel.classList.add('hidden');
           document.getElementById('user-role-badge').textContent = '👀 Convidado (Leitura)';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-amber-300';
           document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Você pode consultar o estoque em tempo real, relatórios e o leitor, mas não pode alterar ou cadastrar produtos.';
         } else {
           if (btnAddProd) btnAddProd.classList.remove('hidden');
+          if (adminPanel) adminPanel.classList.remove('hidden');
           document.getElementById('user-role-badge').textContent = '🛡️ Administrador';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-teal-300';
           document.getElementById('profile-role-desc').textContent = 'Você está logado como ADMINISTRADOR. Você possui controle total sobre o estoque, cadastros, entradas e saídas.';
@@ -621,6 +647,18 @@
         return false;
       }
       return true;
+    }
+
+    function resetAppDatabase() {
+      if (!checkAdminPermission()) return;
+      if (confirm('Tem certeza que deseja apagar todos os produtos e resetar o app para o padrão?')) {
+        localStorage.removeItem('estoqueapp_products');
+        localStorage.removeItem('estoqueapp_movements');
+        products = [...DEFAULT_PRODUCTS];
+        movements = [...DEFAULT_MOVEMENTS];
+        saveState();
+        showToast('Banco de dados resetado!');
+      }
     }
 
     function switchTab(tabName) {
