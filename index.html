@@ -705,6 +705,7 @@
       }
     }
 
+    // ESCUTA EM TEMPO REAL DO FIREBASE COM ATUALIZAÇÃO AUTOMÁTICA DA TELA
     db.ref('estoque_compartilhado').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -743,10 +744,6 @@
               userRole = updated.role;
               checkAuthSession();
             }
-          } else {
-            alert('Sua conta foi removida pelo administrador.');
-            logoutUser();
-            return;
           }
         }
         refreshAllViews();
@@ -931,7 +928,7 @@
         } else if (userRole === 'convidado') {
           if (btnAddProd) btnAddProd.classList.add('hidden');
           if (adminPanel) adminPanel.classList.add('hidden');
-          if (techPanel) adminPanel.classList.add('hidden');
+          if (techPanel) techPanel.classList.add('hidden');
           if (adminReqSection) adminReqSection.classList.add('hidden');
           if (adminUserTab) adminUserTab.classList.add('hidden');
           if (guestRequestSection) guestRequestSection.classList.remove('hidden');
@@ -1036,14 +1033,13 @@
       lucide.createIcons();
     }
 
-    // APROVAÇÃO ULTRA RÁPIDA (REMOÇÃO IMEDIATA DA TELA ANTES DO SYNC)
+    // APROVAÇÃO ULTRA RÁPIDA COM FEEDBACK VISUAL IMEDIATO
     function approveRequest(reqId) {
       if (!checkAdminPermission()) return;
       
       const req = requests.find(r => r.id === reqId);
       if (!req || req.status !== 'pendente') return;
 
-      // Trava e oculta o card instantaneamente para feedback imediato
       const cardEl = document.getElementById(`req-card-${reqId}`);
       if (cardEl) {
         cardEl.style.opacity = '0.4';
