@@ -942,7 +942,7 @@
         } else {
           if (btnAddProd) btnAddProd.classList.remove('hidden');
           if (adminPanel) adminPanel.classList.remove('hidden');
-          if (techPanel) adminPanel.classList.add('hidden');
+          if (techPanel) techPanel.classList.add('hidden');
           if (adminReqSection) adminReqSection.classList.remove('hidden');
           if (adminUserTab) adminUserTab.classList.remove('hidden');
           if (guestRequestSection) guestRequestSection.classList.add('hidden');
@@ -1024,10 +1024,10 @@
           <p class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-xl">Info: ${r.obs}</p>
           <p class="text-[10px] text-slate-400">Data/Hora: ${r.date}</p>
           <div class="flex gap-2 pt-1 border-t border-slate-100">
-            <button id="btn-approve-${r.id}" onclick="approveRequest('${r.id}')" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center justify-center gap-1 transition">
+            <button id="btn-approve-${r.id}" onclick="approveRequest('${r.id}')" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold flex items-center justify-center gap-1 transition">
               <i data-lucide="check" class="w-3.5 h-3.5"></i> Aprovar e Dar Baixa
             </button>
-            <button id="btn-reject-${r.id}" onclick="rejectRequest('${r.id}')" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold transition">
+            <button id="btn-reject-${r.id}" onclick="rejectRequest('${r.id}')" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 text-xs font-semibold transition">
               Rejeitar
             </button>
           </div>
@@ -1036,18 +1036,19 @@
       lucide.createIcons();
     }
 
-    // CORREÇÃO: BLOQUEIA DUPLO CLIQUE INSTANTANEAMENTE
+    // APROVAÇÃO ULTRA RÁPIDA (REMOÇÃO IMEDIATA DA TELA ANTES DO SYNC)
     function approveRequest(reqId) {
       if (!checkAdminPermission()) return;
       
       const req = requests.find(r => r.id === reqId);
       if (!req || req.status !== 'pendente') return;
 
-      // Trava os botões visualmente de imediato para evitar múltiplos cliques
-      const btnApprove = document.getElementById(`btn-approve-${reqId}`);
-      const btnReject = document.getElementById(`btn-reject-${reqId}`);
-      if (btnApprove) { btnApprove.disabled = true; btnApprove.textContent = 'Processando...'; }
-      if (btnReject) { btnReject.disabled = true; }
+      // Trava e oculta o card instantaneamente para feedback imediato
+      const cardEl = document.getElementById(`req-card-${reqId}`);
+      if (cardEl) {
+        cardEl.style.opacity = '0.4';
+        cardEl.style.pointerEvents = 'none';
+      }
 
       const prod = products.find(p => p.id === req.productId);
       if (!prod) { 
@@ -1080,10 +1081,11 @@
       const req = requests.find(r => r.id === reqId);
       if (!req || req.status !== 'pendente') return;
 
-      const btnApprove = document.getElementById(`btn-approve-${reqId}`);
-      const btnReject = document.getElementById(`btn-reject-${reqId}`);
-      if (btnApprove) { btnApprove.disabled = true; }
-      if (btnReject) { btnReject.disabled = true; btnReject.textContent = 'Rejeitando...'; }
+      const cardEl = document.getElementById(`req-card-${reqId}`);
+      if (cardEl) {
+        cardEl.style.opacity = '0.4';
+        cardEl.style.pointerEvents = 'none';
+      }
 
       req.status = 'rejeitado';
       req.approvedBy = userName;
