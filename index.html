@@ -36,14 +36,14 @@
 
   <div id="app" class="w-full max-w-[420px] min-h-screen sm:min-h-[844px] sm:h-[844px] bg-[#F4F6F9] sm:rounded-[38px] sm:shadow-2xl sm:border-[8px] sm:border-[#1E293B] overflow-hidden flex flex-col relative">
 
-    <!-- TELA DE LOGIN / AUTENTICAÇÃO (CADASTRO SEM ESCOLHA DE ADM) -->
+    <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
     <div id="screen-auth" class="screen hidden absolute inset-0 bg-[#0F294A] text-white p-6 justify-between overflow-hidden z-50 flex flex-col">
       <div class="pt-8 text-center">
         <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4 border border-white/20 shadow-lg">
           <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
         </div>
         <h1 class="text-2xl font-extrabold tracking-tight">Estoque APP</h1>
-        <p id="auth-subtitle" class="text-xs text-blue-200 mt-1">Cadastros entram como convidados até aprovação do ADM</p>
+        <p id="auth-subtitle" class="text-xs text-blue-200 mt-1">Cadastros entram como convidados</p>
       </div>
 
       <div class="bg-white text-slate-800 p-6 rounded-3xl shadow-2xl space-y-4">
@@ -130,7 +130,7 @@
             </div>
             <i data-lucide="shield" class="w-4 h-4 text-teal-400"></i>
           </div>
-          <p class="text-[11px] text-slate-300 mb-3">Você possui controle total. Gerencie produtos e aprove novos convidados na aba Perfil.</p>
+          <p class="text-[11px] text-slate-300 mb-3">Controle total ativo. Gerencie itens e aprove solicitações na aba Perfil.</p>
           <div class="grid grid-cols-2 gap-2">
             <button onclick="openProductModal()" class="bg-[#2563EB] hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo Produto
@@ -331,7 +331,7 @@
       </main>
     </div>
 
-    <!-- TELA 5: PERFIL (COM PAINEL DE APROVAÇÃO DE CONVIDADOS PARA O ADM) -->
+    <!-- TELA 5: PERFIL (COM BOTÃO DE SOLICITAÇÃO PARA CONVIDADO E APROVAÇÃO PARA ADM) -->
     <div id="screen-perfil" class="screen hidden flex-1 flex flex-col overflow-hidden">
       <header class="bg-[#0F294A] text-white px-5 pt-6 pb-6 rounded-b-[24px] shrink-0">
         <h1 class="text-xl font-bold mb-4">Perfil & Conta</h1>
@@ -350,12 +350,19 @@
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
           <h3 class="text-sm font-bold text-slate-800">Permissões da Conta</h3>
           <p id="profile-role-desc" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 font-medium"></p>
+          
+          <!-- BOTÃO PARA CONVIDADO SOLICITAR ACESSO -->
+          <div id="guest-request-section" class="hidden pt-2">
+            <button onclick="requestAdminAccess()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center justify-center gap-2 transition shadow-sm">
+              <i data-lucide="send" class="w-4 h-4"></i> Solicitar Acesso de Administrador
+            </button>
+          </div>
         </div>
 
         <!-- PAINEL DE APROVAÇÃO (APARECE APENAS PARA O ADM) -->
         <div id="admin-approval-section" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
-          <h3 class="text-sm font-bold text-slate-800">🛡️ Aprovar Convidados para Administrador</h3>
-          <p class="text-xs text-slate-500">Usuários cadastrados aguardando promoção para ADM:</p>
+          <h3 class="text-sm font-bold text-slate-800">🛡️ Aprovar Solicitações de ADM</h3>
+          <p class="text-xs text-slate-500">Usuários solicitando acesso de Administrador:</p>
           <div id="pending-users-list" class="space-y-2">
             <!-- Lista gerada via JS -->
           </div>
@@ -569,8 +576,7 @@
         if (!name) { showToast('Informe seu nome!'); return; }
         if (users.find(u => u.email === email)) { showToast('E-mail já cadastrado!'); return; }
 
-        // TODO NOVO CADASTRO ENTRA SEMPRE COMO CONVIDADO (FORÇADO)
-        const newUser = { name, email, pass, role: 'convidado' };
+        const newUser = { name, email, pass, role: 'convidado', requestedAdmin: false };
         users.push(newUser);
         localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
         loginActiveUser(newUser);
@@ -579,7 +585,7 @@
         const found = users.find(u => u.email === email && u.pass === pass);
         if (!found) {
           if (email === 'admin@estoque.com' && pass === '123456') {
-            loginActiveUser({ name: 'André Luiz', email, pass, role: 'admin' });
+            loginActiveUser({ name: 'André Luiz', email, pass, role: 'admin', requestedAdmin: false });
             return;
           }
           showToast('E-mail ou senha incorretos!');
@@ -612,6 +618,7 @@
       const btnAddProd = document.getElementById('btn-add-product');
       const adminPanel = document.getElementById('admin-exclusive-panel');
       const approvalSection = document.getElementById('admin-approval-section');
+      const guestRequestSection = document.getElementById('guest-request-section');
 
       if (!session) {
         authScreen.classList.remove('hidden');
@@ -627,13 +634,23 @@
           if (btnAddProd) btnAddProd.classList.add('hidden');
           if (adminPanel) adminPanel.classList.add('hidden');
           if (approvalSection) approvalSection.classList.add('hidden');
+          if (guestRequestSection) guestRequestSection.classList.remove('hidden');
+          
           document.getElementById('user-role-badge').textContent = '👀 Convidado (Leitura)';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-amber-300';
-          document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Para ter acesso de Administrador, solicite a um ADM aprovar sua conta na aba Perfil dele.';
+          
+          if (session.requestedAdmin) {
+            document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Sua solicitação de acesso de Administrador já foi enviada e aguarda aprovação.';
+            guestRequestSection.classList.add('hidden');
+          } else {
+            document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO. Para gerenciar o estoque, clique no botão abaixo para solicitar permissão de ADM.';
+          }
         } else {
           if (btnAddProd) btnAddProd.classList.remove('hidden');
           if (adminPanel) adminPanel.classList.remove('hidden');
           if (approvalSection) approvalSection.classList.remove('hidden');
+          if (guestRequestSection) guestRequestSection.classList.add('hidden');
+
           document.getElementById('user-role-badge').textContent = '🛡️ Administrador';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-teal-300';
           document.getElementById('profile-role-desc').textContent = 'Você está logado como ADMINISTRADOR. Você possui controle total e pode aprovar novos convidados abaixo.';
@@ -644,24 +661,42 @@
       }
     }
 
+    function requestAdminAccess() {
+      let users = JSON.parse(localStorage.getItem('estoqueapp_users_db')) || [];
+      const user = users.find(u => u.email === userEmail);
+      if (user) {
+        user.requestedAdmin = true;
+        localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
+      }
+      
+      let session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
+      if (session) {
+        session.requestedAdmin = true;
+        localStorage.setItem('estoqueapp_logged_session', JSON.stringify(session));
+      }
+
+      showToast('Solicitação enviada ao Administrador!');
+      checkAuthSession();
+    }
+
     function renderPendingUsers() {
       let users = JSON.parse(localStorage.getItem('estoqueapp_users_db')) || [];
       const pendingList = document.getElementById('pending-users-list');
-      const guests = users.filter(u => u.role === 'convidado');
+      const requesters = users.filter(u => u.role === 'convidado' && u.requestedAdmin);
 
-      if (guests.length === 0) {
-        pendingList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhum convidado pendente de aprovação.</p>`;
+      if (requesters.length === 0) {
+        pendingList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhuma solicitação pendente no momento.</p>`;
         return;
       }
 
-      pendingList.innerHTML = guests.map(g => `
+      pendingList.innerHTML = requesters.map(g => `
         <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
           <div class="min-w-0 pr-2">
             <p class="text-xs font-bold text-slate-800 truncate">${g.name}</p>
             <p class="text-[10px] text-slate-500 truncate">${g.email}</p>
           </div>
           <button onclick="promoteToAdmin('${g.email}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg shrink-0 transition">
-            Tornar ADM
+            Aprovar ADM
           </button>
         </div>
       `).join('');
@@ -672,6 +707,7 @@
       const user = users.find(u => u.email === email);
       if (user) {
         user.role = 'admin';
+        user.requestedAdmin = false;
         localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
         showToast(`Usuário ${user.name} promovido a Administrador!`);
         renderPendingUsers();
