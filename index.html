@@ -18,6 +18,11 @@
     html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: #E2E8F0; position: fixed; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .popup-anim { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
   <script>
     if ('serviceWorker' in navigator) {
@@ -124,7 +129,7 @@
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
             <input
               type="text"
-              placeholder="Pesquisar ONU, Huawei, Intelbras..."
+              placeholder="Pesquisar Huawei, Intelbras, cabo..."
               oninput="handleHomeSearch(this.value)"
               class="w-full bg-white text-slate-800 placeholder-slate-400 text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none shadow-sm"
             />
@@ -408,7 +413,7 @@
             </div>
           </div>
 
-          <!-- ABA EXCLUSIVA DO ADM PARA APROVAR CADASTROS DE TÉCNICOS/ADM -->
+          <!-- ABA EXCLUSIVA DO ADM PARA APROVAR CADASTROS -->
           <div id="admin-user-approval-tab" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-4">
             <div>
               <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
@@ -458,6 +463,31 @@
         <span class="text-[10px] font-semibold">Perfil</span>
       </button>
     </nav>
+
+    <!-- WHATSAPP-STYLE POP-UP NOTIFICATION (FLUTUANTE NO TOPO) -->
+    <div id="whatsapp-popup" class="hidden absolute top-4 inset-x-4 bg-slate-900/95 text-white p-4 rounded-2xl shadow-2xl border border-blue-500/30 z-[100] popup-anim backdrop-blur-md">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
+          <i data-lucide="bell-ring" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-0.5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Nova Solicitação de Material</h4>
+            <span id="popup-time" class="text-[10px] text-slate-400">Agora</span>
+          </div>
+          <p id="popup-title" class="text-sm font-bold text-white truncate">Técnico solicitou ONU Huawei</p>
+          <p id="popup-desc" class="text-xs text-slate-300 mt-0.5">Quantidade: +2 un. • OS #49201</p>
+        </div>
+        <button onclick="closeWhatsappPopup()" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="mt-3 flex gap-2">
+        <button onclick="goToRequestsAndClose()" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow">
+          <i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver Solicitações
+        </button>
+      </div>
+    </div>
 
     <!-- MODAL DE SOLICITAÇÃO DE MATERIAL (PARA TÉCNICOS) -->
     <div id="request-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4">
@@ -526,7 +556,7 @@
       </div>
     </div>
 
-    <!-- MODAL PRODUTO / EQUIPAMENTO (COM ÍCONES DE MARCAS DE TELECOM) -->
+    <!-- MODAL PRODUTO / EQUIPAMENTO -->
     <div id="product-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-[360px] rounded-3xl p-5 shadow-2xl space-y-3 max-h-[85vh] overflow-y-auto no-scrollbar">
         <div class="flex items-center justify-between sticky top-0 bg-white py-1 z-10 border-b border-slate-100">
@@ -538,26 +568,26 @@
 
         <input type="hidden" id="prod-edit-id" />
 
-        <!-- SELETOR DE ÍCONES / MARCAS DE TELECOM -->
+        <!-- SELETOR DE MARCAS / ÍCONES -->
         <div>
           <label class="block text-xs font-bold text-blue-700 mb-1.5">Escolha a Marca / Ícone do Equipamento:</label>
           <div class="grid grid-cols-5 gap-2 bg-blue-50/60 p-2.5 rounded-2xl border border-blue-100">
-            <button type="button" onclick="selectPresetIcon('HW')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-blue-900 shadow-xs hover:bg-blue-100 transition" title="Huawei">HW<span class="text-[8px] font-normal text-slate-500">Huawei</span></button>
-            <button type="button" onclick="selectPresetIcon('IT')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-teal-800 shadow-xs hover:bg-blue-100 transition" title="Intelbras">IT<span class="text-[8px] font-normal text-slate-500">Intelbras</span></button>
-            <button type="button" onclick="selectPresetIcon('ZTE')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-red-700 shadow-xs hover:bg-blue-100 transition" title="ZTE">ZTE<span class="text-[8px] font-normal text-slate-500">ZTE</span></button>
-            <button type="button" onclick="selectPresetIcon('FH')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-indigo-700 shadow-xs hover:bg-blue-100 transition" title="FiberHome">FH<span class="text-[8px] font-normal text-slate-500">FiberH</span></button>
-            <button type="button" onclick="selectPresetIcon('TP')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-green-700 shadow-xs hover:bg-blue-100 transition" title="TP-Link">TP<span class="text-[8px] font-normal text-slate-500">TP-Link</span></button>
-            <button type="button" onclick="selectPresetIcon('NK')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-blue-700 shadow-xs hover:bg-blue-100 transition" title="Nokia">NK<span class="text-[8px] font-normal text-slate-500">Nokia</span></button>
-            <button type="button" onclick="selectPresetIcon('🧵')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition" title="Cabo Fibra">🧵</button>
-            <button type="button" onclick="selectPresetIcon('🔌')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition" title="Splitter / Conector">🔌</button>
-            <button type="button" onclick="selectPresetIcon('📦')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition" title="CTO / Caixa">📦</button>
-            <button type="button" onclick="selectPresetIcon('🌐')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition" title="Rede / Roteador">🌐</button>
+            <button type="button" onclick="selectPresetIcon('HW')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-blue-900 shadow-xs hover:bg-blue-100 transition">HW<span class="text-[8px] font-normal text-slate-500">Huawei</span></button>
+            <button type="button" onclick="selectPresetIcon('IT')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-teal-800 shadow-xs hover:bg-blue-100 transition">IT<span class="text-[8px] font-normal text-slate-500">Intelbras</span></button>
+            <button type="button" onclick="selectPresetIcon('ZTE')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-red-700 shadow-xs hover:bg-blue-100 transition">ZTE<span class="text-[8px] font-normal text-slate-500">ZTE</span></button>
+            <button type="button" onclick="selectPresetIcon('FH')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-indigo-700 shadow-xs hover:bg-blue-100 transition">FH<span class="text-[8px] font-normal text-slate-500">FiberH</span></button>
+            <button type="button" onclick="selectPresetIcon('TP')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-green-700 shadow-xs hover:bg-blue-100 transition">TP<span class="text-[8px] font-normal text-slate-500">TP-Link</span></button>
+            <button type="button" onclick="selectPresetIcon('NK')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-blue-700 shadow-xs hover:bg-blue-100 transition">NK<span class="text-[8px] font-normal text-slate-500">Nokia</span></button>
+            <button type="button" onclick="selectPresetIcon('🧵')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">🧵</button>
+            <button type="button" onclick="selectPresetIcon('🔌')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">🔌</button>
+            <button type="button" onclick="selectPresetIcon('📦')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">📦</button>
+            <button type="button" onclick="selectPresetIcon('🌐')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">🌐</button>
           </div>
         </div>
 
         <div class="grid grid-cols-4 gap-2.5">
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Ícone / Sigla</label>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Ícone</label>
             <input id="prod-icon-input" type="text" value="HW" class="w-full text-center text-sm bg-slate-50 border border-slate-200 rounded-xl py-2.5 font-bold uppercase" />
           </div>
           <div class="col-span-3">
@@ -628,7 +658,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // CATALOGO PADRÃO TELECOM ATUALIZADO COM MARCAS REAIS
     const DEFAULT_PRODUCTS = [
       { id: 't1', name: 'ONU Huawei EchoLife EG8145V5', sku: 'ONT-HW-5V', category: 'Equipamentos ONU/ONT', qty: 28, minQty: 8, price: 189.90, icon: 'HW' },
       { id: 't2', name: 'ONT Intelbras Gigabit GF 1200', sku: 'ONT-IT-GF12', category: 'Equipamentos ONU/ONT', qty: 35, minQty: 10, price: 155.00, icon: 'IT' },
@@ -656,13 +685,49 @@
     let cameraStream = null;
     let authMode = 'login';
     let myPieChart = null;
+    let lastKnownRequestCount = requests.length;
+
+    // GERADOR DE SOM SINTETIZADO (WEB AUDIO API - NUNCA FALHA E NÃO PRECISA DE ARQUIVO EXTERNO)
+    function playNotificationSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Nota D5
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // Nota A5
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } catch (e) {
+        console.log('Áudio bloqueado pelo navegador até interação.');
+      }
+    }
 
     db.ref('estoque_compartilhado').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
         if (data.products) { products = data.products; localStorage.setItem('estoqueapp_products', JSON.stringify(products)); }
         if (data.movements) { movements = data.movements; localStorage.setItem('estoqueapp_movements', JSON.stringify(movements)); }
-        if (data.requests) { requests = data.requests; localStorage.setItem('estoqueapp_requests', JSON.stringify(requests)); }
+        
+        if (data.requests) {
+          const oldLen = requests.length;
+          requests = data.requests;
+          localStorage.setItem('estoqueapp_requests', JSON.stringify(requests));
+          
+          // SE FOR ADMIN E HOUVER NOVA SOLICITAÇÃO PENDENTE EM TEMPO REAL
+          if (userRole === 'admin' && requests.length > oldLen) {
+            const latest = requests[0];
+            if (latest && latest.status === 'pendente') {
+              showWhatsappPopup(latest);
+              playNotificationSound();
+            }
+          }
+        }
+
         if (data.users) { usersDb = data.users; localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb)); }
         
         const session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
@@ -690,6 +755,22 @@
         refreshAllViews();
       }
     });
+
+    function showWhatsappPopup(req) {
+      document.getElementById('popup-title').textContent = `${req.requesterName} (${req.requesterRole}):`;
+      document.getElementById('popup-desc').textContent = `${req.productName} • Qtde: +${req.qty} un. (${req.obs})`;
+      document.getElementById('whatsapp-popup').classList.remove('hidden');
+      setTimeout(() => closeWhatsappPopup(), 7000); // Some após 7 segundos
+    }
+
+    function closeWhatsappPopup() {
+      document.getElementById('whatsapp-popup').classList.add('hidden');
+    }
+
+    function goToRequestsAndClose() {
+      closeWhatsappPopup();
+      switchTab('inicio');
+    }
 
     function saveState() {
       localStorage.setItem('estoqueapp_products', JSON.stringify(products));
@@ -882,12 +963,10 @@
       }
     }
 
-    // FUNÇÃO PARA SELECIONAR MARCA/ÍCONE PRONTO
     function selectPresetIcon(iconCode) {
       document.getElementById('prod-icon-input').value = iconCode;
     }
 
-    // SOLICITAÇÕES DE MATERIAIS (TÉCNICO -> ADM)
     function openRequestModal() {
       document.getElementById('req-product-select').innerHTML = products.map(p => `<option value="${p.id}">[${p.icon || 'HW'}] ${p.name} (Disp: ${p.qty})</option>`).join('');
       document.getElementById('request-modal').classList.remove('hidden');
@@ -1000,7 +1079,6 @@
       }
     }
 
-    // APROVAÇÃO DE TÉCNICOS / ADM NA ABA DE PERFIL
     function renderManagementLists() {
       const pendingList = document.getElementById('pending-users-list');
       const requesters = usersDb.filter(u => u.requestedAdmin && u.status === 'ativo');
@@ -1473,6 +1551,7 @@
       const rows = movements.map(m => `"${m.date}","${m.type}","${m.productName}",${m.qty},"${m.details || ''}"`);
       const blob = new Blob([headers.concat(rows).join('\n')], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
+      a.href = URL.dataObjectURL ? URL.createObjectURL(blob) : '#';
       a.href = URL.createObjectURL(blob);
       a.download = 'relatorio_telecom.csv';
       a.click();
