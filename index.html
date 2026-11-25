@@ -22,26 +22,26 @@ header{background:#0B2241;color:#fff;padding:16px 18px;display:flex;align-items:
 .kpi strong{font-size:1.1rem;display:block}
 .kpi span{font-size:.62rem;opacity:.85}
 .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.act{background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:600;font-size:.82rem;color:#374151}
+.act{background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:600;font-size:.82rem;color:#374151;cursor:pointer}
 .box{background:#fff;border-radius:14px;padding:6px 14px;border:1px solid #E5E7EB}
 .h-item{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #F3F4F6}
 .h-item:last-child{border:none}
 .chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px}
-.chip{padding:6px 14px;border-radius:20px;border:none;background:transparent;color:#6B7280;font-weight:600;font-size:.84rem}
+.chip{padding:6px 14px;border-radius:20px;border:none;background:transparent;color:#6B7280;font-weight:600;font-size:.84rem;cursor:pointer}
 .chip.on{background:#DBEAFE;color:#1D4ED8}
-.p-card{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border:1px solid #E5E7EB}
+.p-card{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border:1px solid #E5E7EB;cursor:pointer}
 .p-left{display:flex;gap:12px;align-items:center}
 .thumb{width:48px;height:48px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
 .pill{padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700}
 .ok{background:#CCFBF1;color:#0F766E}.low{background:#FEE2E2;color:#B91C1C}
-.fab{position:fixed;bottom:80px;right:18px;width:52px;height:52px;border-radius:50%;background:#2563EB;color:#fff;border:none;font-size:1.7rem;box-shadow:0 4px 12px rgba(37,99,235,.4)}
+.fab{position:fixed;bottom:80px;right:18px;width:52px;height:52px;border-radius:50%;background:#2563EB;color:#fff;border:none;font-size:1.7rem;box-shadow:0 4px 12px rgba(37,99,235,.4);cursor:pointer}
 .cam{position:relative;width:100%;height:200px;border-radius:16px;overflow:hidden;background:#0F172A;margin-bottom:14px;display:flex;align-items:center;justify-content:center}
 .cam video{width:100%;height:100%;object-fit:cover}
 .frame{position:absolute;width:210px;height:120px;border:2px solid #fff;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
 .card{background:#fff;border-radius:16px;padding:16px;border:1px solid #E5E7EB;margin-bottom:12px}
-.btn{width:100%;padding:13px;border-radius:12px;border:none;background:#2563EB;color:#fff;font-weight:700;font-size:.95rem;margin-top:10px}
+.btn{width:100%;padding:13px;border-radius:12px;border:none;background:#2563EB;color:#fff;font-weight:700;font-size:.95rem;margin-top:10px;cursor:pointer}
 nav{position:fixed;bottom:0;left:0;right:0;height:66px;background:#fff;border-top:1px solid #E5E7EB;display:grid;grid-template-columns:repeat(5,1fr);z-index:60}
-nav button{border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.7rem;color:#6B7280;gap:3px}
+nav button{border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.7rem;color:#6B7280;gap:3px;cursor:pointer}
 nav button.on{color:#2563EB;font-weight:700}
 .modal{display:none;position:fixed;inset:0;background:rgba(11,34,65,.65);align-items:center;justify-content:center;padding:16px;z-index:100}
 .modal.on{display:flex}
@@ -64,14 +64,14 @@ nav button.on{color:#2563EB;font-weight:700}
   <input class="srch" placeholder="🔍 Pesquisar produtos, SKU ou categoria..." onkeyup="if(this.value.length>1){go('stock');document.getElementById('qStock').value=this.value;drawStock()}">
   <div class="lbl">Resumo Geral</div>
   <div class="kpis">
-    <div class="kpi" style="background:#2A8C82"><small>Total de Itens</small><strong id="kTot">271</strong><span>+12% semana</span></div>
-    <div class="kpi" style="background:#DC6B5A"><small>Estoque Baixo</small><strong id="kLow">2 itens</strong><span>Atenção</span></div>
-    <div class="kpi" style="background:#2463EB"><small>Valor Estoque</small><strong id="kVal">R$ 86.631</strong><span>Ativo</span></div>
+    <div class="kpi" style="background:#2A8C82"><small>Total de Itens</small><strong id="kTot">0</strong><span>+12% semana</span></div>
+    <div class="kpi" style="background:#DC6B5A"><small>Estoque Baixo</small><strong id="kLow">0 itens</strong><span>Atenção</span></div>
+    <div class="kpi" style="background:#2463EB"><small>Valor Estoque</small><strong id="kVal">R$ 0</strong><span>Ativo</span></div>
   </div>
   <div class="lbl">Ações Rápidas</div>
   <div class="acts">
-    <button class="act" onclick="openM()"><span style="color:#2563EB;font-size:1.3rem">⊕</span>Entrada</button>
-    <button class="act" onclick="openM()"><span style="color:#2563EB;font-size:1.3rem">⊖</span>Saída</button>
+    <button class="act" onclick="openMov('in')"><span style="color:#2563EB;font-size:1.3rem">⊕</span>Entrada</button>
+    <button class="act" onclick="openMov('out')"><span style="color:#2563EB;font-size:1.3rem">⊖</span>Saída</button>
     <button class="act" onclick="go('scan')"><span style="color:#2563EB;font-size:1.3rem">📷</span>Ler Código</button>
   </div>
   <div class="lbl">Movimentações Recentes</div>
@@ -87,7 +87,7 @@ nav button.on{color:#2563EB;font-weight:700}
     <button class="chip" onclick="setCat('Vestuário',this)">Vestuário</button>
   </div>
   <div id="pList"></div>
-  <button class="fab" onclick="openM()">+</button>
+  <button class="fab" onclick="openNew()">+</button>
 </section>
 
 <section id="s-scan" class="scr">
@@ -95,7 +95,7 @@ nav button.on{color:#2563EB;font-weight:700}
   <div class="card">
     <div style="display:flex;justify-content:space-between;margin-bottom:10px">
       <strong>Produto Identificado</strong>
-      <span onclick="simScan()" style="color:#2563EB;font-size:.82rem;font-weight:600;cursor:pointer">Simular ↻</span>
+      <span onclick="simScan()" style="color:#2563EB;font-size:.82rem;font-weight:600;cursor:pointer">Trocar item ↻</span>
     </div>
     <div style="display:flex;gap:12px;align-items:center;padding-bottom:12px;border-bottom:1px solid #E5E7EB">
       <div class="thumb" id="scIcon">⌨️</div>
@@ -105,7 +105,7 @@ nav button.on{color:#2563EB;font-weight:700}
       <div><small style="color:#6B7280;display:block">Em Estoque:</small><strong id="scQty">42 un.</strong></div>
       <div style="display:flex;align-items:center;gap:12px">
         <button onclick="chgD(-1)" style="width:30px;height:30px;border-radius:50%;border:1px solid #E5E7EB;background:#fff">−</button>
-        <strong id="scDelta">15</strong>
+        <strong id="scDelta">1</strong>
         <button onclick="chgD(1)" style="width:30px;height:30px;border-radius:50%;border:1px solid #E5E7EB;background:#fff">+</button>
       </div>
     </div>
@@ -140,18 +140,14 @@ nav button.on{color:#2563EB;font-weight:700}
   <button id="n-prof" onclick="go('prof')"><span>👤</span>Perfil</button>
 </nav>
 
-<div class="modal" id="mod">
+<div class="modal" id="modProd">
   <div class="m-box">
-    <h4 style="margin-bottom:10px">Novo Produto</h4>
+    <h4 id="mTitle" style="margin-bottom:10px">Novo Produto</h4>
+    <input type="hidden" id="mId">
     <input id="mN" placeholder="Nome do Produto">
     <input id="mS" placeholder="SKU (Ex: ELE-0482)">
     <select id="mC"><option>Eletrônicos</option><option>Acessórios</option><option>Vestuário</option></select>
-    <input id="mQ" type="number" value="10" placeholder="Quantidade">
-    <input id="mP" type="number" value="199.90" step="0.01" placeholder="Preço">
-    <button class="btn" onclick="saveM()">Salvar</button>
-    <button class="btn" style="background:#E5E7EB;color:#111" onclick="closeM()">Cancelar</button>
-  </div>
-</div>
-
-<script>
-let prods=JSON.parse(localStorage.getItem("ep_p"))||[
+    <input id="mQ" type="number" placeholder="Quantidade">
+    <input id="mP" type="number" step="0.01" placeholder="Preço">
+    <button class="btn" onclick="saveProd()">Salvar</button>
+    <button class="btn" id="btnDel" style="background:#DC2626;display:none" onclick="delProd()">Excluir Produto</button>
