@@ -1,27 +1,16 @@
+
 {
-  "id": "/Projeto-futuro-estoque/",
   "name": "EstoquePro",
   "short_name": "EstoquePro",
-  "description": "Gestão de Estoque e Leitura de Código de Barras",
-  "start_url": "/Projeto-futuro-estoque/index.html",
-  "scope": "/Projeto-futuro-estoque/",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0B2241",
-  "theme_color": "#0B2241",
-  "orientation": "portrait",
-  "categories": ["business", "productivity"],
+  "background_color": "#0F294A",
+  "theme_color": "#0F294A",
   "icons": [
     {
-      "src": "/Projeto-futuro-estoque/launchericon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/Projeto-futuro-estoque/launchericon-512x512.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/2897/2897785.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
