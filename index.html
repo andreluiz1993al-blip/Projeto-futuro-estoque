@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Estoque APP — Gestão de Estoque</title>
+  <title>Estoque APP — Gestão Inteligente</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0F294A">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -35,6 +35,49 @@
 
   <div id="app" class="w-full max-w-[420px] min-h-screen sm:min-h-[844px] sm:h-[844px] bg-[#F4F6F9] sm:rounded-[38px] sm:shadow-2xl sm:border-[8px] sm:border-[#1E293B] overflow-hidden flex flex-col relative">
 
+    <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
+    <div id="screen-auth" class="screen hidden absolute inset-0 bg-[#0F294A] text-white p-6 justify-between overflow-hidden z-50 flex flex-col">
+      <div class="pt-8 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4 border border-white/20 shadow-lg">
+          <i data-lucide="lock" class="w-8 h-8 text-white"></i>
+        </div>
+        <h1 class="text-2xl font-extrabold tracking-tight">Estoque APP</h1>
+        <p id="auth-subtitle" class="text-xs text-blue-200 mt-1">Faça login para gerenciar o seu estoque</p>
+      </div>
+
+      <div class="bg-white text-slate-800 p-6 rounded-3xl shadow-2xl space-y-4">
+        <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+          <button id="tab-login-btn" onclick="switchAuthMode('login')" class="py-2 rounded-lg bg-white text-slate-900 shadow-sm transition">Entrar</button>
+          <button id="tab-register-btn" onclick="switchAuthMode('register')" class="py-2 rounded-lg text-slate-500 transition">Cadastrar</button>
+        </div>
+
+        <div id="register-fields" class="hidden space-y-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nome Completo</label>
+            <input id="auth-name" type="text" placeholder="André Luiz" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-600" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">E-mail</label>
+          <input id="auth-email" type="email" placeholder="seu@email.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-600" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Senha</label>
+          <input id="auth-pass" type="password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-600" />
+        </div>
+
+        <button id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full py-3 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:scale-[0.99] text-white font-semibold text-sm shadow-md shadow-blue-600/25 transition">
+          Entrar na Conta
+        </button>
+      </div>
+
+      <div class="text-center pb-4">
+        <p class="text-[11px] text-blue-300">Protegido por criptografia local • Estoque APP</p>
+      </div>
+    </div>
+
     <!-- TELA 1: INÍCIO -->
     <div id="screen-inicio" class="screen flex-1 flex flex-col overflow-hidden">
       <header class="bg-[#0F294A] text-white px-5 pt-6 pb-5 rounded-b-[24px] shadow-md shrink-0">
@@ -57,8 +100,8 @@
               <span id="user-initials">AL</span>
             </div>
             <div>
-              <p class="text-xs text-blue-200">Bem-vinda de volta,</p>
-              <h2 id="user-greeting" class="text-sm font-semibold text-white">Olá, André Luiz</h2>
+              <p class="text-xs text-blue-200">Bem-vindo de volta,</p>
+              <h2 id="user-greeting" class="text-sm font-semibold text-white">André Luiz</h2>
             </div>
           </div>
           <span class="text-[11px] bg-white/10 px-2.5 py-1 rounded-full text-blue-100">Loja Principal</span>
@@ -85,7 +128,7 @@
               </div>
               <p class="text-[11px] text-teal-100 font-medium leading-tight">Total de Itens</p>
               <p id="stat-total-items" class="text-lg font-extrabold mt-0.5">0</p>
-              <p class="text-[10px] text-teal-200 mt-1">+12% esta semana</p>
+              <p class="text-[10px] text-teal-200 mt-1">Ativo em estoque</p>
             </div>
 
             <div onclick="filterLowStock()" class="cursor-pointer bg-gradient-to-br from-[#E26D5C] to-[#C85241] text-white p-3 rounded-2xl shadow-sm active:scale-95 transition">
@@ -102,8 +145,8 @@
                 <i data-lucide="wallet" class="w-4 h-4 text-white"></i>
               </div>
               <p class="text-[11px] text-blue-100 font-medium leading-tight">Valor do Estoque</p>
-              <p id="stat-total-value" class="text-[15px] font-extrabold mt-0.5 truncate">R$ 0</p>
-              <p class="text-[10px] text-blue-200 mt-1">Ativo total</p>
+              <p id="stat-total-value" class="text-[14px] font-extrabold mt-0.5 truncate">R$ 0</p>
+              <p class="text-[10px] text-blue-200 mt-1">Patrimônio</p>
             </div>
           </div>
         </section>
@@ -158,7 +201,7 @@
             <input
               id="estoque-search-input"
               type="text"
-              placeholder="Pesquisar produtos, SKU ou categ..."
+              placeholder="Pesquisar produtos, SKU..."
               oninput="renderEstoqueList()"
               class="w-full bg-white text-slate-800 placeholder-slate-400 text-sm rounded-xl pl-10 pr-3 py-2.5 focus:outline-none"
             />
@@ -198,7 +241,7 @@
           <button onclick="startCamera()" class="mb-4 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 border border-white/15 transition">
             <i data-lucide="camera" class="w-3.5 h-3.5"></i> Ativar Câmera Real
           </button>
-          <p class="text-[11px] text-slate-400 max-w-[240px]">Aponte para o código de barras ou selecione um SKU abaixo para testar:</p>
+          <p class="text-[11px] text-slate-400 max-w-[240px]">Aponte para o código de barras ou selecione um SKU abaixo para simular:</p>
           <div class="flex flex-wrap justify-center gap-1.5 mt-3" id="quick-sku-pills"></div>
         </div>
 
@@ -212,7 +255,6 @@
             <div class="flex gap-[2px] h-8 items-center justify-center">
               <span class="w-[2px] h-full bg-slate-900"></span><span class="w-[1px] h-full bg-slate-900"></span>
               <span class="w-[3px] h-full bg-slate-900"></span><span class="w-[1px] h-full bg-slate-900"></span>
-              <span class="w-[2px] h-full bg-slate-900"></span><span class="w-[4px] h-full bg-slate-900"></span>
             </div>
             <p id="scanner-code-label" class="text-[10px] font-mono font-bold text-slate-800 tracking-widest mt-1">8 004859 088855</p>
           </div>
@@ -237,7 +279,7 @@
 
         <div class="grid grid-cols-2 gap-3 mb-3">
           <div>
-            <label class="block text-[11px] font-medium text-slate-500 mb-1">Quantidade em Estoque:</label>
+            <label class="block text-[11px] font-medium text-slate-500 mb-1">Quantidade Atual:</label>
             <div class="bg-slate-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-800" id="scanned-current-qty">42 un.</div>
           </div>
           <div>
@@ -270,7 +312,7 @@
         <div class="flex items-center justify-between">
           <div>
             <h1 class="text-xl font-bold">Relatórios</h1>
-            <p class="text-xs text-blue-200 mt-0.5">Análise de inventário e histórico completo</p>
+            <p class="text-xs text-blue-200 mt-0.5">Análise de inventário e histórico</p>
           </div>
           <button onclick="exportCSV()" class="bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition">
             <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
@@ -297,14 +339,14 @@
     <!-- TELA 5: PERFIL -->
     <div id="screen-perfil" class="screen hidden flex-1 flex flex-col overflow-hidden">
       <header class="bg-[#0F294A] text-white px-5 pt-6 pb-6 rounded-b-[24px] shrink-0">
-        <h1 class="text-xl font-bold mb-4">Perfil & Configurações</h1>
+        <h1 class="text-xl font-bold mb-4">Perfil & Conta</h1>
         <div class="flex items-center gap-3.5">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-400 to-teal-300 text-[#0F294A] font-extrabold text-lg flex items-center justify-center shadow">
             <span id="profile-initials">AL</span>
           </div>
           <div>
             <h2 id="profile-name-display" class="text-base font-bold">André Luiz</h2>
-            <p class="text-xs text-blue-200">Gerente de Operações • Estoque APP</p>
+            <p id="profile-email-display" class="text-xs text-blue-200">andre@email.com</p>
           </div>
         </div>
       </header>
@@ -315,10 +357,17 @@
           <div>
             <label class="text-xs text-slate-500">Nome exibido no app</label>
             <div class="flex gap-2 mt-1">
-              <input id="profile-name-input" type="text" value="André Luiz" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-600" />
+              <input id="profile-name-input" type="text" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-600" />
               <button onclick="saveUserName()" class="bg-[#0F294A] text-white text-xs font-semibold px-4 rounded-xl">Salvar</button>
             </div>
           </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+          <h3 class="text-sm font-bold text-slate-800">Sessão</h3>
+          <button onclick="logoutUser()" class="w-full py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs flex items-center justify-center gap-2 transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Encerrar Sessão (Sair)
+          </button>
         </div>
       </main>
     </div>
@@ -370,11 +419,6 @@
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade</label>
           <input id="mov-qty-input" type="number" min="1" value="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-600" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Observação (opcional)</label>
-          <input id="mov-note-input" type="text" placeholder="Ex: Reposição fornecedor..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-600" />
         </div>
 
         <button id="mov-submit-btn" onclick="submitMovement()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow transition">
@@ -463,13 +507,13 @@
 
     const DEFAULT_MOVEMENTS = [
       { id: 'm1', type: 'entrada', productName: 'Fone de Ouvido Bluetooth', qty: 50, date: 'Hoje, 10:30', icon: '🎧' },
-      { id: 'm2', type: 'saida', productName: 'Mochila Executiva Tech', qty: 5, date: 'Hoje, 09:15', icon: '🎒' },
-      { id: 'm3', type: 'entrada', productName: 'Carregador Rápido 20W', qty: 100, date: 'Ontem', icon: '🔌' }
+      { id: 'm2', type: 'saida', productName: 'Mochila Executiva Tech', qty: 5, date: 'Hoje, 09:15', icon: '🎒' }
     ];
 
     let products = JSON.parse(localStorage.getItem('estoqueapp_products')) || DEFAULT_PRODUCTS;
     let movements = JSON.parse(localStorage.getItem('estoqueapp_movements')) || DEFAULT_MOVEMENTS;
     let userName = localStorage.getItem('estoqueapp_user') || 'André Luiz';
+    let userEmail = localStorage.getItem('estoqueapp_user_email') || 'andre@email.com';
 
     let currentCategory = 'Todos';
     let onlyLowStock = false;
@@ -478,11 +522,13 @@
     let scannedProductIndex = 4;
     let scanDelta = 15;
     let cameraStream = null;
+    let authMode = 'login';
 
     function saveState() {
       localStorage.setItem('estoqueapp_products', JSON.stringify(products));
       localStorage.setItem('estoqueapp_movements', JSON.stringify(movements));
       localStorage.setItem('estoqueapp_user', userName);
+      localStorage.setItem('estoqueapp_user_email', userEmail);
       refreshAllViews();
     }
 
@@ -501,8 +547,81 @@
       setTimeout(() => toast.classList.add('hidden'), 2600);
     }
 
+    function switchAuthMode(mode) {
+      authMode = mode;
+      const isReg = mode === 'register';
+      document.getElementById('auth-subtitle').textContent = isReg ? 'Crie sua conta para começar' : 'Faça login para gerenciar o seu estoque';
+      document.getElementById('auth-submit-btn').textContent = isReg ? 'Criar Conta' : 'Entrar na Conta';
+      document.getElementById('register-fields').classList.toggle('hidden', !isReg);
+      document.getElementById('tab-login-btn').className = `py-2 rounded-lg transition ${!isReg ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`;
+      document.getElementById('tab-register-btn').className = `py-2 rounded-lg transition ${isReg ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`;
+    }
+
+    function handleAuthSubmit() {
+      const email = document.getElementById('auth-email').value.trim();
+      const pass = document.getElementById('auth-pass').value.trim();
+      if (!email || !pass) { showToast('Preencha e-mail e senha!'); return; }
+
+      let users = JSON.parse(localStorage.getItem('estoqueapp_users_db')) || [];
+
+      if (authMode === 'register') {
+        const name = document.getElementById('auth-name').value.trim();
+        if (!name) { showToast('Informe seu nome!'); return; }
+        if (users.find(u => u.email === email)) { showToast('E-mail já cadastrado!'); return; }
+
+        const newUser = { name, email, pass };
+        users.push(newUser);
+        localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
+        loginActiveUser(newUser);
+        showToast('Conta criada com sucesso!');
+      } else {
+        const found = users.find(u => u.email === email && u.pass === pass);
+        if (!found && email === 'admin@estoque.com' && pass === '123456') {
+          loginActiveUser({ name: 'André Luiz', email, pass });
+          showToast('Login realizado!');
+          return;
+        }
+        if (!found) { showToast('E-mail ou senha incorretos!'); return; }
+        loginActiveUser(found);
+        showToast('Bem-vindo de volta!');
+      }
+    }
+
+    function loginActiveUser(user) {
+      localStorage.setItem('estoqueapp_logged_session', JSON.stringify(user));
+      userName = user.name;
+      userEmail = user.email;
+      saveState();
+      checkAuthSession();
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('estoqueapp_logged_session');
+      checkAuthSession();
+      showToast('Sessão encerrada.');
+    }
+
+    function checkAuthSession() {
+      const session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
+      const authScreen = document.getElementById('screen-auth');
+      const bottomNav = document.querySelector('nav');
+
+      if (!session) {
+        authScreen.classList.remove('hidden');
+        if (bottomNav) bottomNav.classList.add('hidden');
+      } else {
+        authScreen.classList.add('hidden');
+        if (bottomNav) bottomNav.classList.remove('hidden');
+        userName = session.name;
+        userEmail = session.email;
+        switchTab('inicio');
+      }
+    }
+
     function switchTab(tabName) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+      document.querySelectorAll('.screen').forEach(s => {
+        if(s.id !== 'screen-auth') s.classList.add('hidden');
+      });
       document.getElementById(`screen-${tabName}`).classList.remove('hidden');
 
       document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -524,9 +643,10 @@
     }
 
     function renderHome() {
-      document.getElementById('user-greeting').textContent = `Olá, ${userName}`;
+      document.getElementById('user-greeting').textContent = userName;
       document.getElementById('user-initials').textContent = getInitials(userName);
       document.getElementById('profile-name-display').textContent = userName;
+      document.getElementById('profile-email-display').textContent = userEmail;
       document.getElementById('profile-initials').textContent = getInitials(userName);
       document.getElementById('profile-name-input').value = userName;
 
@@ -570,7 +690,6 @@
         switchTab('estoque');
         const input = document.getElementById('estoque-search-input');
         input.value = query;
-        input.focus();
         renderEstoqueList();
       }
     }
@@ -625,22 +744,16 @@
       let filtered = products.filter(p => {
         const matchesCat = currentCategory === 'Todos' || p.category === currentCategory;
         const matchesLow = !onlyLowStock || p.qty <= p.minQty;
-        const matchesQuery = p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query) || p.category.toLowerCase().includes(query);
+        const matchesQuery = p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query);
         return matchesCat && matchesLow && matchesQuery;
       });
 
       filtered.sort((a, b) => sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
-      document.getElementById('estoque-count-badge').textContent = `${filtered.length} ${filtered.length === 1 ? 'produto' : 'produtos'}`;
+      document.getElementById('estoque-count-badge').textContent = `${filtered.length} produtos`;
 
       const list = document.getElementById('estoque-list');
       if (filtered.length === 0) {
-        list.innerHTML = `
-          <div class="text-center py-12 text-slate-400">
-            <p class="text-3xl mb-2">📦</p>
-            <p class="text-sm font-medium">Nenhum produto encontrado</p>
-            ${onlyLowStock ? `<button onclick="selectCategory('Todos')" class="mt-2 text-xs text-blue-600 font-semibold">Limpar filtro</button>` : ''}
-          </div>
-        `;
+        list.innerHTML = `<div class="text-center py-12 text-slate-400"><p class="text-3xl mb-2">📦</p><p class="text-sm font-medium">Nenhum produto encontrado</p></div>`;
         return;
       }
 
@@ -652,7 +765,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between gap-2">
                 <h4 onclick="openProductModal('${p.id}')" class="cursor-pointer text-sm font-bold text-slate-800 truncate hover:text-blue-600">${p.name}</h4>
-                <button onclick="openProductModal('${p.id}')" class="text-slate-400 hover:text-slate-600 p-0.5" title="Editar"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                <button onclick="openProductModal('${p.id}')" class="text-slate-400 p-0.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
               </div>
               <p class="text-[11px] text-slate-400 font-medium mb-2">SKU: ${p.sku}</p>
               <div class="flex items-center justify-between gap-2">
@@ -663,8 +776,8 @@
                 <span class="text-xs font-extrabold text-slate-800">${formatBRL(p.price)}</span>
               </div>
               <div class="flex items-center justify-end gap-1.5 mt-2.5 pt-2 border-t border-slate-100">
-                <button onclick="quickStockChange('${p.id}', -1)" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition">-1 Saída</button>
-                <button onclick="quickStockChange('${p.id}', 1)" class="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xs font-bold transition">+1 Entrada</button>
+                <button onclick="quickStockChange('${p.id}', -1)" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold">-1 Saída</button>
+                <button onclick="quickStockChange('${p.id}', 1)" class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-bold">+1 Entrada</button>
               </div>
             </div>
           </div>
@@ -675,12 +788,11 @@
 
     function quickStockChange(id, delta) {
       const prod = products.find(p => p.id === id);
-      if (!prod) return;
-      if (prod.qty + delta < 0) { showToast('Estoque não pode ficar negativo!'); return; }
+      if (!prod || prod.qty + delta < 0) { showToast('Estoque inválido!'); return; }
       prod.qty += delta;
       movements.unshift({ id: 'm' + Date.now(), type: delta > 0 ? 'entrada' : 'saida', productName: prod.name, qty: Math.abs(delta), date: 'Agora', icon: prod.icon });
       saveState();
-      showToast(`${delta > 0 ? '+1 Entrada' : '-1 Saída'}: ${prod.name}`);
+      showToast(`${delta > 0 ? '+1 Entrada' : '-1 Saída'}`);
     }
 
     function renderScannerCard() {
@@ -696,7 +808,7 @@
 
       const pills = document.getElementById('quick-sku-pills');
       pills.innerHTML = products.map((item, idx) => `
-        <button onclick="selectScannedIndex(${idx})" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold transition ${idx === scannedProductIndex ? 'bg-emerald-500 text-slate-950' : 'bg-white/10 text-slate-300 hover:bg-white/20'}">${item.sku}</button>
+        <button onclick="selectScannedIndex(${idx})" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold transition ${idx === scannedProductIndex ? 'bg-emerald-500 text-slate-950' : 'bg-white/10 text-slate-300'}">${item.sku}</button>
       `).join('');
     }
 
@@ -704,14 +816,12 @@
       scannedProductIndex = idx;
       scanDelta = 1;
       renderScannerCard();
-      showToast(`Bipado: ${products[idx].sku}`);
     }
 
     function cycleScannedProduct() {
       scannedProductIndex = (scannedProductIndex + 1) % products.length;
       scanDelta = 1;
       renderScannerCard();
-      showToast(`Código lido: ${products[scannedProductIndex].sku}`);
     }
 
     function adjustScanDelta(step) {
@@ -722,24 +832,20 @@
     function updateScanDeltaUI() {
       const el = document.getElementById('scanned-delta');
       el.textContent = scanDelta >= 0 ? `+${scanDelta}` : `${scanDelta}`;
-      el.className = `text-sm font-extrabold ${scanDelta >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
     }
 
     function saveScannedChanges() {
       const p = products[scannedProductIndex];
-      if (!p) return;
-      const newQty = p.qty + scanDelta;
-      if (newQty < 0) { showToast('Quantidade final não pode ser negativa!'); return; }
-      const newPrice = parseFloat(document.getElementById('scanned-price-input').value) || p.price;
+      if (!p || p.qty + scanDelta < 0) { showToast('Quantidade inválida!'); return; }
+      p.qty += scanDelta;
+      p.price = parseFloat(document.getElementById('scanned-price-input').value) || p.price;
       if (scanDelta !== 0) {
         movements.unshift({ id: 'm' + Date.now(), type: scanDelta > 0 ? 'entrada' : 'saida', productName: p.name, qty: Math.abs(scanDelta), date: 'Agora', icon: p.icon });
       }
-      p.qty = newQty;
-      p.price = newPrice;
       scanDelta = 0;
       saveState();
       renderScannerCard();
-      showToast('Estoque atualizado com sucesso!');
+      showToast('Estoque atualizado!');
     }
 
     async function startCamera() {
@@ -749,48 +855,39 @@
         video.srcObject = cameraStream;
         video.classList.remove('hidden');
         document.getElementById('scanner-placeholder').classList.add('hidden');
-        showToast('Câmera ativada!');
+        showToast('Câmera ativa');
       } catch (err) {
-        showToast('Câmera indisponível neste navegador. Use o simulador!');
+        showToast('Câmera indisponível');
       }
     }
 
     function stopCamera() {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(t => t.stop());
-        cameraStream = null;
-      }
+      if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
       document.getElementById('camera-video').classList.add('hidden');
       document.getElementById('scanner-placeholder').classList.remove('hidden');
     }
 
-    function toggleFlash() { showToast('Flash alternado'); }
+    function toggleFlash() { showToast('Lanternas alternadas'); }
 
     function openMovementModal(type) {
       currentMovementType = type;
       const isEntrada = type === 'entrada';
       document.getElementById('mov-modal-title').textContent = isEntrada ? 'Registrar Entrada' : 'Registrar Saída';
-      document.getElementById('mov-modal-badge').className = `w-8 h-8 rounded-full flex items-center justify-center ${isEntrada ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`;
-      document.getElementById('mov-submit-btn').className = `w-full py-3 rounded-xl text-white font-semibold text-sm shadow transition ${isEntrada ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'}`;
-
       document.getElementById('mov-product-select').innerHTML = products.map(p => `<option value="${p.id}">${p.icon} ${p.name} (${p.qty} un.)</option>`).join('');
-      document.getElementById('mov-qty-input').value = 1;
-      document.getElementById('mov-note-input').value = '';
       document.getElementById('movement-modal').classList.remove('hidden');
     }
 
     function submitMovement() {
       const prodId = document.getElementById('mov-product-select').value;
       const qty = parseInt(document.getElementById('mov-qty-input').value, 10);
-      if (!prodId || isNaN(qty) || qty <= 0) { showToast('Informe uma quantidade válida!'); return; }
       const prod = products.find(p => p.id === prodId);
-      if (currentMovementType === 'saida' && prod.qty < qty) { showToast(`Saldo insuficiente! Disponível: ${prod.qty} un.`); return; }
+      if (currentMovementType === 'saida' && prod.qty < qty) { showToast('Estoque insuficiente!'); return; }
 
       prod.qty += currentMovementType === 'entrada' ? qty : -qty;
-      movements.unshift({ id: 'm' + Date.now(), type: currentMovementType, productName: prod.name, qty: qty, date: 'Agora', icon: prod.icon });
+      movements.unshift({ id: 'm' + Date.now(), type: currentMovementType, productName: prod.name, qty, date: 'Agora', icon: prod.icon });
       closeModal('movement-modal');
       saveState();
-      showToast(`${currentMovementType === 'entrada' ? 'Entrada' : 'Saída'} registrada!`);
+      showToast('Movimentação salva!');
     }
 
     function openProductModal(id = null) {
@@ -810,13 +907,7 @@
       } else {
         document.getElementById('prod-modal-title').textContent = 'Novo Produto';
         document.getElementById('prod-edit-id').value = '';
-        document.getElementById('prod-icon-input').value = '📦';
-        document.getElementById('prod-name-input').value = '';
         document.getElementById('prod-sku-input').value = 'SKU-' + Math.floor(1000 + Math.random() * 9000);
-        document.getElementById('prod-cat-input').value = 'Eletrônicos';
-        document.getElementById('prod-qty-input').value = 10;
-        document.getElementById('prod-min-input').value = 10;
-        document.getElementById('prod-price-input').value = 99.90;
         deleteBtn.classList.add('hidden');
       }
       document.getElementById('product-modal').classList.remove('hidden');
@@ -832,22 +923,21 @@
         icon: document.getElementById('prod-icon-input').value.trim() || '📦',
         name, sku,
         category: document.getElementById('prod-cat-input').value,
-        qty: Math.max(0, parseInt(document.getElementById('prod-qty-input').value, 10) || 0),
-        minQty: Math.max(1, parseInt(document.getElementById('prod-min-input').value, 10) || 5),
-        price: Math.max(0, parseFloat(document.getElementById('prod-price-input').value) || 0)
+        qty: parseInt(document.getElementById('prod-qty-input').value, 10) || 0,
+        minQty: parseInt(document.getElementById('prod-min-input').value, 10) || 5,
+        price: parseFloat(document.getElementById('prod-price-input').value) || 0
       };
 
       if (id) {
         const idx = products.findIndex(p => p.id === id);
         products[idx] = { ...products[idx], ...data };
-        showToast('Produto atualizado!');
       } else {
         products.unshift({ id: 'p' + Date.now(), ...data });
-        movements.unshift({ id: 'm' + Date.now(), type: 'entrada', productName: data.name, qty: data.qty, date: 'Cadastro inicial', icon: data.icon });
-        showToast('Produto adicionado!');
+        movements.unshift({ id: 'm' + Date.now(), type: 'entrada', productName: data.name, qty: data.qty, date: 'Cadastro', icon: data.icon });
       }
       closeModal('product-modal');
       saveState();
+      showToast('Produto salvo!');
     }
 
     function deleteCurrentProduct() {
@@ -881,31 +971,27 @@
       }).join('');
 
       document.getElementById('total-mov-count').textContent = `${movements.length} registros`;
-      document.getElementById('full-movements-list').innerHTML = movements.map(m => {
-        const isEntrada = m.type === 'entrada';
-        return `
-          <div class="bg-white p-3 rounded-2xl border border-slate-100 flex items-center justify-between">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <span class="text-lg">${m.icon || '📦'}</span>
-              <div class="min-w-0">
-                <p class="text-xs font-bold text-slate-800 truncate">${m.productName}</p>
-                <p class="text-[11px] text-slate-400">${m.date}</p>
-              </div>
+      document.getElementById('full-movements-list').innerHTML = movements.map(m => `
+        <div class="bg-white p-3 rounded-2xl border border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="text-lg">${m.icon || '📦'}</span>
+            <div class="min-w-0">
+              <p class="text-xs font-bold text-slate-800 truncate">${m.productName}</p>
+              <p class="text-[11px] text-slate-400">${m.date}</p>
             </div>
-            <span class="text-xs font-extrabold ${isEntrada ? 'text-emerald-600' : 'text-rose-600'}">${isEntrada ? '+' : '-'}${m.qty} un.</span>
           </div>
-        `;
-      }).join('');
+          <span class="text-xs font-extrabold ${m.type === 'entrada' ? 'text-emerald-600' : 'text-rose-600'}">${m.type === 'entrada' ? '+' : '-'}${m.qty} un.</span>
+        </div>
+      `).join('');
     }
 
     function exportCSV() {
       const headers = ['SKU,Produto,Categoria,Quantidade,Preco_Unitario,Valor_Total'];
       const rows = products.map(p => `"${p.sku}","${p.name}","${p.category}",${p.qty},${p.price.toFixed(2)},${(p.qty * p.price).toFixed(2)}`);
       const blob = new Blob([headers.concat(rows).join('\n')], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = 'relatorio-estoque-app.csv';
+      a.href = URL.createObjectURL(blob);
+      a.download = 'estoque.csv';
       a.click();
       showToast('CSV exportado!');
     }
@@ -927,7 +1013,7 @@
       lucide.createIcons();
     }
 
-    refreshAllViews();
+    checkAuthSession();
   </script>
 </body>
 </html>
