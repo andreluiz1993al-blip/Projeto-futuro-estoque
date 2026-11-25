@@ -124,7 +124,7 @@
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
             <input
               type="text"
-              placeholder="Pesquisar ONU, cabo drop, splitter..."
+              placeholder="Pesquisar ONU, Huawei, Intelbras..."
               oninput="handleHomeSearch(this.value)"
               class="w-full bg-white text-slate-800 placeholder-slate-400 text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none shadow-sm"
             />
@@ -133,7 +133,7 @@
 
         <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-8 space-y-5">
           
-          <!-- PAINEL EXCLUSIVO DO ADMINISTRADOR (SEM ZERAR ESTOQUE) -->
+          <!-- PAINEL EXCLUSIVO DO ADMINISTRADOR -->
           <section id="admin-exclusive-panel" class="hidden bg-slate-900 text-white p-4 rounded-2xl shadow-md border border-slate-800">
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center gap-2">
@@ -157,7 +157,7 @@
               </div>
               <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium">Equipe Técnica</span>
             </div>
-            <p class="text-xs text-blue-100">Precisa de ONU, cabos drop, conectores ou DIO para instalação? Solicite ao ADM.</p>
+            <p class="text-xs text-blue-100">Precisa de ONU Huawei, Intelbras, cabos drop ou conectores? Solicite ao ADM.</p>
             <button onclick="openRequestModal()" class="w-full bg-white text-blue-900 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow hover:bg-blue-50 transition">
               <i data-lucide="send" class="w-4 h-4"></i> Solicitar Materiais de Telecom
             </button>
@@ -260,7 +260,7 @@
               <input
                 id="estoque-search-input"
                 type="text"
-                placeholder="Pesquisar ONU, cabo, conector..."
+                placeholder="Pesquisar Huawei, Intelbras, cabo..."
                 oninput="renderEstoqueList()"
                 class="w-full bg-white text-slate-800 placeholder-slate-400 text-sm rounded-xl pl-10 pr-3 py-2.5 focus:outline-none"
               />
@@ -314,17 +314,17 @@
           </div>
 
           <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100 mb-4">
-            <div id="scanned-icon-box" class="w-12 h-12 rounded-xl bg-blue-100 text-[#0F294A] flex items-center justify-center text-2xl shrink-0">🛜</div>
+            <div id="scanned-icon-box" class="w-12 h-12 rounded-xl bg-blue-100 text-[#0F294A] flex items-center justify-center text-xl shrink-0 font-bold">HW</div>
             <div class="flex-1 min-w-0">
-              <h4 id="scanned-name" class="text-sm font-bold text-slate-800 truncate">ONU Gigabit XPON</h4>
-              <p id="scanned-sku" class="text-xs text-slate-500">SKU: ONU-1001</p>
+              <h4 id="scanned-name" class="text-sm font-bold text-slate-800 truncate">ONT Huawei EchoLife</h4>
+              <p id="scanned-sku" class="text-xs text-slate-500">SKU: ONT-HW-5V</p>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-3 mb-3">
             <div>
               <label class="block text-[11px] font-medium text-slate-500 mb-1">Disponíveis:</label>
-              <div class="bg-slate-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-800" id="scanned-current-qty">42 un.</div>
+              <div class="bg-slate-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-800" id="scanned-current-qty">28 un.</div>
             </div>
             <div>
               <label class="block text-[11px] font-medium text-slate-500 mb-1">Valor Unitário:</label>
@@ -480,12 +480,12 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade</label>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Quantidade</label>
           <input id="req-qty-input" type="number" min="1" value="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-600" />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Motivo / Endereço / O.S. (Opcional)</label>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Motivo / Endereço / O.S. (Opcional)</label>
           <input id="req-obs-input" type="text" placeholder="Ex: Instalação cliente OS #49201" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-600" />
         </div>
 
@@ -516,7 +516,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade</label>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Quantidade</label>
           <input id="mov-qty-input" type="number" min="1" value="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-600" />
         </div>
 
@@ -526,7 +526,7 @@
       </div>
     </div>
 
-    <!-- MODAL PRODUTO / EQUIPAMENTO (COM SELETOR DE ÍCONES EM DESTAQUE) -->
+    <!-- MODAL PRODUTO / EQUIPAMENTO (COM ÍCONES DE MARCAS DE TELECOM) -->
     <div id="product-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-[360px] rounded-3xl p-5 shadow-2xl space-y-3 max-h-[85vh] overflow-y-auto no-scrollbar">
         <div class="flex items-center justify-between sticky top-0 bg-white py-1 z-10 border-b border-slate-100">
@@ -538,38 +538,38 @@
 
         <input type="hidden" id="prod-edit-id" />
 
-        <!-- SELETOR RÁPIDO DE ÍCONES DE TELECOM -->
+        <!-- SELETOR DE ÍCONES / MARCAS DE TELECOM (HUAWEI, INTELBRAS, ZTE, FIBERHOME, TP-LINK, ETC.) -->
         <div>
-          <label class="block text-xs font-bold text-blue-700 mb-1.5">Escolha o Ícone do Equipamento:</label>
+          <label class="block text-xs font-bold text-blue-700 mb-1.5">Escolha a Marca / Ícone do Equipamento:</label>
           <div class="grid grid-cols-5 gap-2 bg-blue-50/60 p-2.5 rounded-2xl border border-blue-100">
-            <button type="button" onclick="selectPresetIcon('🛜')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">🛜</button>
-            <button type="button" onclick="selectPresetIcon('📡')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">📡</button>
-            <button type="button" onclick="selectPresetIcon('🧵')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">🧵</button>
-            <button type="button" onclick="selectPresetIcon('🧶')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">🧶</button>
-            <button type="button" onclick="selectPresetIcon('🔌')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">🔌</button>
-            <button type="button" onclick="selectPresetIcon('📌')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">📌</button>
-            <button type="button" onclick="selectPresetIcon('📦')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">📦</button>
-            <button type="button" onclick="selectPresetIcon('🌐')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">🌐</button>
-            <button type="button" onclick="selectPresetIcon('⚡')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">⚡</button>
-            <button type="button" onclick="selectPresetIcon('🛠️')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition">🛠️</button>
+            <button type="button" onclick="selectPresetIcon('HW')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-blue-900 shadow-xs hover:bg-blue-100 transition" title="Huawei">HW<span class="text-[8px] font-normal text-slate-500">Huawei</span></button>
+            <button type="button" onclick="selectPresetIcon('IT')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-teal-800 shadow-xs hover:bg-blue-100 transition" title="Intelbras">IT<span class="text-[8px] font-normal text-slate-500">Intelbras</span></button>
+            <button type="button" onclick="selectPresetIcon('ZTE')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-red-700 shadow-xs hover:bg-blue-100 transition" title="ZTE">ZTE<span class="text-[8px] font-normal text-slate-500">ZTE</span></button>
+            <button type="button" onclick="selectPresetIcon('FH')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-indigo-700 shadow-xs hover:bg-blue-100 transition" title="FiberHome">FH<span class="text-[8px] font-normal text-slate-500">FiberH</span></button>
+            <button type="button" onclick="selectPresetIcon('TP')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-green-700 shadow-xs hover:bg-blue-100 transition" title="TP-Link">TP<span class="text-[8px] font-normal text-slate-500">TP-Link</span></button>
+            <button type="button" onclick="selectPresetIcon('NK')" class="h-10 rounded-xl bg-white border border-blue-200 flex flex-col items-center justify-center text-[10px] font-bold text-blue-700 shadow-xs hover:bg-blue-100 transition" title="Nokia">NK<span class="text-[8px] font-normal text-slate-500">Nokia</span></button>
+            <button type="button" onclick="selectPresetIcon('🧵')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition" title="Cabo Fibra">🧵</button>
+            <button type="button" onclick="selectPresetIcon('🔌')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition" title="Splitter / Conector">🔌</button>
+            <button type="button" onclick="selectPresetIcon('📦')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition" title="CTO / Caixa">📦</button>
+            <button type="button" onclick="selectPresetIcon('🌐')" class="h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-xl shadow-xs hover:bg-blue-100 transition" title="Rede / Roteador">🌐</button>
           </div>
         </div>
 
         <div class="grid grid-cols-4 gap-2.5">
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Ícone Atual</label>
-            <input id="prod-icon-input" type="text" value="🛜" class="w-full text-center text-xl bg-slate-50 border border-slate-200 rounded-xl py-2 font-bold" />
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Ícone / Sigla</label>
+            <input id="prod-icon-input" type="text" value="HW" class="w-full text-center text-sm bg-slate-50 border border-slate-200 rounded-xl py-2.5 font-bold uppercase" />
           </div>
           <div class="col-span-3">
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nome do Equipamento *</label>
-            <input id="prod-name-input" type="text" placeholder="Ex: ONU XPON Gigabit" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm" />
+            <input id="prod-name-input" type="text" placeholder="Ex: ONU Huawei EG8145V5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2.5">
           <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Código SKU *</label>
-            <input id="prod-sku-input" type="text" placeholder="ONU-0100" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm uppercase" />
+            <input id="prod-sku-input" type="text" placeholder="ONT-HW-01" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm uppercase" />
           </div>
           <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Categoria</label>
@@ -593,7 +593,7 @@
           </div>
           <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Preço (R$)</label>
-            <input id="prod-price-input" type="number" step="0.01" min="0" value="149.90" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold" />
+            <input id="prod-price-input" type="number" step="0.01" min="0" value="189.90" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold" />
           </div>
         </div>
 
@@ -628,17 +628,16 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // CATALOGO PADRÃO TELECOM (FIBRA, ONU, ETC.)
+    // CATALOGO PADRÃO TELECOM ATUALIZADO COM MARCAS REAIS
     const DEFAULT_PRODUCTS = [
-      { id: 't1', name: 'ONU Giga XPON Wi-Fi Dual Band', sku: 'ONU-XPON-01', category: 'Equipamentos ONU/ONT', qty: 45, minQty: 10, price: 165.00, icon: '🛜' },
-      { id: 't2', name: 'ONT Huawei EchoLife EG8145V5', sku: 'ONT-HW-5V', category: 'Equipamentos ONU/ONT', qty: 28, minQty: 8, price: 189.90, icon: '📡' },
-      { id: 't3', name: 'Cabo Drop Compacto 1FO (Bobina 1km)', sku: 'CABO-DROP-1FO', category: 'Cabos e Fibras', qty: 12, minQty: 3, price: 480.00, icon: '🧵' },
-      { id: 't4', name: 'Cabo Drop Autossustentado 2FO', sku: 'CABO-DROP-2FO', category: 'Cabos e Fibras', qty: 8, minQty: 3, price: 620.00, icon: '🧶' },
+      { id: 't1', name: 'ONU Huawei EchoLife EG8145V5', sku: 'ONT-HW-5V', category: 'Equipamentos ONU/ONT', qty: 28, minQty: 8, price: 189.90, icon: 'HW' },
+      { id: 't2', name: 'ONT Intelbras Gigabit GF 1200', sku: 'ONT-IT-GF12', category: 'Equipamentos ONU/ONT', qty: 35, minQty: 10, price: 155.00, icon: 'IT' },
+      { id: 't3', name: 'ONU ZTE F670L Dual Band Wi-Fi', sku: 'ONT-ZTE-670', category: 'Equipamentos ONU/ONT', qty: 20, minQty: 5, price: 175.00, icon: 'ZTE' },
+      { id: 't4', name: 'Cabo Drop Compacto 1FO (Bobina 1km)', sku: 'CABO-DROP-1FO', category: 'Cabos e Fibras', qty: 12, minQty: 3, price: 480.00, icon: '🧵' },
       { id: 't5', name: 'Splitter PLC 1x8 Mini SC/APC', sku: 'SPL-1X8-APC', category: 'Conectividade e Passivos', qty: 60, minQty: 15, price: 28.50, icon: '🔌' },
-      { id: 't6', name: 'Splitter PLC 1x16 SC/APC', sku: 'SPL-1X16-APC', category: 'Conectividade e Passivos', qty: 24, minQty: 10, price: 45.00, icon: '🔌' },
-      { id: 't7', name: 'Conector Mecânico Fast Connector SC/APC', sku: 'FAST-CON-APC', category: 'Conectividade e Passivos', qty: 350, minQty: 50, price: 4.20, icon: '📌' },
-      { id: 't8', name: 'Caixa de Atendimento CTO 16 Portas', sku: 'CTO-16P-SC', category: 'Conectividade e Passivos', qty: 15, minQty: 5, price: 135.00, icon: '📦' },
-      { id: 't9', name: 'Roteador Wi-Fi 6 Gigabit Mesh', sku: 'ROTEADOR-AX1500', category: 'Equipamentos ONU/ONT', qty: 18, minQty: 5, price: 250.00, icon: '🌐' }
+      { id: 't6', name: 'Conector Mecânico Fast Connector SC/APC', sku: 'FAST-CON-APC', category: 'Conectividade e Passivos', qty: 350, minQty: 50, price: 4.20, icon: '🔌' },
+      { id: 't7', name: 'Caixa de Atendimento CTO 16 Portas', sku: 'CTO-16P-SC', category: 'Conectividade e Passivos', qty: 15, minQty: 5, price: 135.00, icon: '📦' },
+      { id: 't8', name: 'Roteador Wi-Fi 6 TP-Link Archer AX1500', sku: 'ROTEADOR-TP-AX', category: 'Equipamentos ONU/ONT', qty: 18, minQty: 5, price: 250.00, icon: 'TP' }
     ];
 
     let products = JSON.parse(localStorage.getItem('estoqueapp_products')) || DEFAULT_PRODUCTS;
@@ -883,14 +882,14 @@
       }
     }
 
-    // FUNÇÃO PARA SELECIONAR ÍCONE PRONTO NO MODAL
-    function selectPresetIcon(iconEmoji) {
-      document.getElementById('prod-icon-input').value = iconEmoji;
+    // FUNÇÃO PARA SELECIONAR MARCA/ÍCONE PRONTO
+    function selectPresetIcon(iconCode) {
+      document.getElementById('prod-icon-input').value = iconCode;
     }
 
     // SOLICITAÇÕES DE MATERIAIS (TÉCNICO -> ADM)
     function openRequestModal() {
-      document.getElementById('req-product-select').innerHTML = products.map(p => `<option value="${p.id}">${p.icon} ${p.name} (Disp: ${p.qty})</option>`).join('');
+      document.getElementById('req-product-select').innerHTML = products.map(p => `<option value="${p.id}">[${p.icon || 'HW'}] ${p.name} (Disp: ${p.qty})</option>`).join('');
       document.getElementById('request-modal').classList.remove('hidden');
     }
 
@@ -906,7 +905,7 @@
         id: 'req_' + Date.now(),
         productId: prod.id,
         productName: prod.name,
-        icon: prod.icon || '🛜',
+        icon: prod.icon || 'HW',
         qty: qty,
         requesterName: userName,
         requesterEmail: userEmail,
@@ -939,7 +938,7 @@
         <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 space-y-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-              <span class="text-xl">${r.icon}</span>
+              <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-900 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-100">${r.icon}</span>
               <div>
                 <p class="text-xs font-bold text-slate-800">${r.productName} <span class="text-blue-600 font-extrabold">(+${r.qty} un.)</span></p>
                 <p class="text-[10px] text-slate-500">Técnico: <span class="font-semibold text-slate-700">${r.requesterName}</span> (${r.requesterRole})</p>
@@ -1127,8 +1126,8 @@
           return `
             <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
               <div class="flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 rounded-xl ${isEntrada ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} flex items-center justify-center text-lg shrink-0">
-                  ${m.icon || (isEntrada ? '📥' : '📤')}
+                <div class="w-10 h-10 rounded-xl ${isEntrada ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} flex items-center justify-center text-xs font-bold shrink-0 border border-slate-100">
+                  ${m.icon || 'HW'}
                 </div>
                 <div class="min-w-0">
                   <p class="text-xs font-bold ${isEntrada ? 'text-emerald-700' : 'text-rose-700'}">${isEntrada ? 'Entrada' : 'Baixa'}</p>
@@ -1214,7 +1213,7 @@
 
       const list = document.getElementById('estoque-list');
       if (filtered.length === 0) {
-        list.innerHTML = `<div class="text-center py-12 text-slate-400"><p class="text-3xl mb-2">🛜</p><p class="text-sm font-medium">Nenhum equipamento encontrado</p></div>`;
+        list.innerHTML = `<div class="text-center py-12 text-slate-400"><p class="text-3xl mb-2">📡</p><p class="text-sm font-medium">Nenhum equipamento encontrado</p></div>`;
         return;
       }
 
@@ -1224,7 +1223,7 @@
         const badge = getStockBadge(p);
         return `
           <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3.5">
-            <div onclick="${isAdmin ? `openProductModal('${p.id}')` : `showToast('Apenas administradores podem editar.')`}" class="cursor-pointer w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-2xl shrink-0">${p.icon || '🛜'}</div>
+            <div onclick="${isAdmin ? `openProductModal('${p.id}')` : `showToast('Apenas administradores podem editar.')`}" class="cursor-pointer w-14 h-14 rounded-2xl bg-blue-50/80 border border-blue-100 text-blue-900 font-extrabold text-sm flex items-center justify-center shrink-0 shadow-xs">${p.icon || 'HW'}</div>
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between gap-2">
                 <h4 onclick="${isAdmin ? `openProductModal('${p.id}')` : `showToast('Apenas administradores podem editar.')`}" class="cursor-pointer text-sm font-bold text-slate-800 truncate hover:text-blue-600">${p.name}</h4>
@@ -1265,7 +1264,7 @@
       if (products.length === 0) return;
       if (scannedProductIndex >= products.length) scannedProductIndex = 0;
       const p = products[scannedProductIndex];
-      document.getElementById('scanned-icon-box').textContent = p.icon || '🛜';
+      document.getElementById('scanned-icon-box').textContent = p.icon || 'HW';
       document.getElementById('scanned-name').textContent = p.name;
       document.getElementById('scanned-sku').textContent = `SKU: ${p.sku}`;
       document.getElementById('scanned-current-qty').textContent = `${p.qty} un.`;
@@ -1308,7 +1307,7 @@
       currentMovementType = type;
       const isEntrada = type === 'entrada';
       document.getElementById('mov-modal-title').textContent = isEntrada ? 'Registrar Entrada' : 'Registrar Baixa';
-      document.getElementById('mov-product-select').innerHTML = products.map(p => `<option value="${p.id}">${p.icon} ${p.name} (${p.qty} un.)</option>`).join('');
+      document.getElementById('mov-product-select').innerHTML = products.map(p => `<option value="${p.id}">[${p.icon || 'HW'}] ${p.name} (${p.qty} un.)</option>`).join('');
       document.getElementById('movement-modal').classList.remove('hidden');
     }
 
@@ -1333,7 +1332,7 @@
         const p = products.find(item => item.id === id);
         document.getElementById('prod-modal-title').textContent = 'Editar Equipamento';
         document.getElementById('prod-edit-id').value = p.id;
-        document.getElementById('prod-icon-input').value = p.icon || '🛜';
+        document.getElementById('prod-icon-input').value = p.icon || 'HW';
         document.getElementById('prod-name-input').value = p.name;
         document.getElementById('prod-sku-input').value = p.sku;
         document.getElementById('prod-cat-input').value = p.category;
@@ -1344,7 +1343,8 @@
       } else {
         document.getElementById('prod-modal-title').textContent = 'Novo Equipamento';
         document.getElementById('prod-edit-id').value = '';
-        document.getElementById('prod-sku-input').value = 'TEL-' + Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('prod-sku-input').value = 'ONT-' + Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('prod-icon-input').value = 'HW';
         deleteBtn.classList.add('hidden');
       }
       document.getElementById('product-modal').classList.remove('hidden');
@@ -1358,7 +1358,7 @@
       if (!name || !sku) { showToast('Preencha nome e SKU!'); return; }
 
       const data = {
-        icon: document.getElementById('prod-icon-input').value.trim() || '🛜',
+        icon: document.getElementById('prod-icon-input').value.trim().toUpperCase() || 'HW',
         name, sku,
         category: document.getElementById('prod-cat-input').value,
         qty: parseInt(document.getElementById('prod-qty-input').value, 10) || 0,
@@ -1453,7 +1453,7 @@
         movList.innerHTML = movements.map(m => `
           <div class="bg-white p-3 rounded-2xl border border-slate-100 flex items-center justify-between">
             <div class="flex items-center gap-2.5 min-w-0">
-              <span class="text-lg">${m.icon || '🛜'}</span>
+              <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-900 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-100">${m.icon || 'HW'}</span>
               <div class="min-w-0">
                 <p class="text-xs font-bold text-slate-800 truncate">${m.productName}</p>
                 ${m.details ? `<p class="text-[10px] text-slate-500 truncate">${m.details}</p>` : ''}
