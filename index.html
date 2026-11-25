@@ -74,312 +74,315 @@
       </div>
     </div>
 
-    <!-- TELA 1: INÍCIO -->
-    <div id="screen-inicio" class="screen flex-1 flex flex-col overflow-hidden">
-      <header class="bg-[#0F294A] text-white px-5 pt-6 pb-5 rounded-b-[24px] shadow-md shrink-0">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center border border-white/20">
-              <i data-lucide="package" class="w-5 h-5 text-white"></i>
-            </div>
-            <span class="text-xl font-bold tracking-tight">Estoque APP</span>
-          </div>
-          <button onclick="openNotifications()" class="relative p-2 rounded-full hover:bg-white/10 transition">
-            <i data-lucide="bell" class="w-5 h-5 text-white"></i>
-            <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-[#0F294A]"></span>
-          </button>
-        </div>
+    <!-- ÁREA DAS TELAS (COM ESPAÇO INFERIOR PARA A BARRA FIXA) -->
+    <div class="flex-1 flex flex-col relative overflow-hidden pb-16">
 
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-400 to-teal-300 flex items-center justify-center text-[#0F294A] font-bold text-sm shadow">
-              <span id="user-initials">AL</span>
+      <!-- TELA 1: INÍCIO -->
+      <div id="screen-inicio" class="screen flex-1 flex flex-col overflow-hidden">
+        <header class="bg-[#0F294A] text-white px-5 pt-6 pb-5 rounded-b-[24px] shadow-md shrink-0">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center border border-white/20">
+                <i data-lucide="package" class="w-5 h-5 text-white"></i>
+              </div>
+              <span class="text-xl font-bold tracking-tight">Estoque APP</span>
             </div>
-            <div>
-              <p id="user-role-badge" class="text-[10px] uppercase font-bold tracking-wider text-teal-300">Administrador</p>
-              <h2 id="user-greeting" class="text-sm font-semibold text-white">André Luiz</h2>
-            </div>
-          </div>
-          <span class="text-[11px] bg-white/10 px-2.5 py-1 rounded-full text-blue-100">Nuvem Firebase</span>
-        </div>
-
-        <div class="relative">
-          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-          <input
-            type="text"
-            placeholder="Pesquisar produtos, SKU ou categoria..."
-            oninput="handleHomeSearch(this.value)"
-            class="w-full bg-white text-slate-800 placeholder-slate-400 text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none shadow-sm"
-          />
-        </div>
-      </header>
-
-      <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-24 space-y-5">
-        
-        <!-- PAINEL EXCLUSIVO DO ADMINISTRADOR -->
-        <section id="admin-exclusive-panel" class="hidden bg-slate-900 text-white p-4 rounded-2xl shadow-md border border-slate-800">
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <h3 class="text-xs font-extrabold uppercase tracking-wider text-teal-300">Painel Exclusivo ADM</h3>
-            </div>
-            <i data-lucide="shield" class="w-4 h-4 text-teal-400"></i>
-          </div>
-          <p class="text-[11px] text-slate-300 mb-3">Sincronização na nuvem ativa. Gerencie acessos na aba Perfil.</p>
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="openProductModal()" class="bg-[#2563EB] hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo Produto
-            </button>
-            <button onclick="resetAppDatabase()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
-              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Resetar Dados
+            <button onclick="openNotifications()" class="relative p-2 rounded-full hover:bg-white/10 transition">
+              <i data-lucide="bell" class="w-5 h-5 text-white"></i>
+              <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-[#0F294A]"></span>
             </button>
           </div>
-        </section>
 
-        <section>
-          <h3 class="text-[15px] font-bold text-slate-800 mb-3">Resumo Geral</h3>
-          <div class="grid grid-cols-3 gap-2.5">
-            <div onclick="switchTab('estoque')" class="cursor-pointer bg-gradient-to-br from-[#2B8A7E] to-[#1F6E64] text-white p-3 rounded-2xl shadow-sm active:scale-95 transition">
-              <div class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mb-2">
-                <i data-lucide="boxes" class="w-4 h-4 text-white"></i>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-400 to-teal-300 flex items-center justify-center text-[#0F294A] font-bold text-sm shadow">
+                <span id="user-initials">AL</span>
               </div>
-              <p class="text-[11px] text-teal-100 font-medium leading-tight">Total de Itens</p>
-              <p id="stat-total-items" class="text-lg font-extrabold mt-0.5">0</p>
-              <p class="text-[10px] text-teal-200 mt-1">Ativo em estoque</p>
+              <div>
+                <p id="user-role-badge" class="text-[10px] uppercase font-bold tracking-wider text-teal-300">Administrador</p>
+                <h2 id="user-greeting" class="text-sm font-semibold text-white">André Luiz</h2>
+              </div>
             </div>
-
-            <div onclick="filterLowStock()" class="cursor-pointer bg-gradient-to-br from-[#E26D5C] to-[#C85241] text-white p-3 rounded-2xl shadow-sm active:scale-95 transition">
-              <div class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mb-2">
-                <i data-lucide="alert-triangle" class="w-4 h-4 text-white"></i>
-              </div>
-              <p class="text-[11px] text-rose-100 font-medium leading-tight">Estoque Baixo</p>
-              <p id="stat-low-stock" class="text-lg font-extrabold mt-0.5">0 itens</p>
-              <p class="text-[10px] text-rose-100 mt-1">Reposição urgente</p>
-            </div>
-
-            <div onclick="switchTab('relatorios')" class="cursor-pointer bg-gradient-to-br from-[#2B6CB0] to-[#1E4E8C] text-white p-3 rounded-2xl shadow-sm active:scale-95 transition">
-              <div class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mb-2">
-                <i data-lucide="wallet" class="w-4 h-4 text-white"></i>
-              </div>
-              <p class="text-[11px] text-blue-100 font-medium leading-tight">Valor do Estoque</p>
-              <p id="stat-total-value" class="text-[14px] font-extrabold mt-0.5 truncate">R$ 0</p>
-              <p class="text-[10px] text-blue-200 mt-1">Patrimônio</p>
-            </div>
+            <span class="text-[11px] bg-white/10 px-2.5 py-1 rounded-full text-blue-100">Nuvem Firebase</span>
           </div>
-        </section>
 
-        <section>
-          <h3 class="text-[15px] font-bold text-slate-800 mb-3">Ações Rápidas</h3>
-          <div class="grid grid-cols-3 gap-3">
-            <button onclick="checkAdminPermission() && openMovementModal('entrada')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
-              <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-              </div>
-              <span class="text-xs font-semibold text-slate-700">Entrada</span>
-            </button>
-
-            <button onclick="checkAdminPermission() && openMovementModal('saida')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
-              <div class="w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
-                <i data-lucide="minus-circle" class="w-5 h-5"></i>
-              </div>
-              <span class="text-xs font-semibold text-slate-700">Saída</span>
-            </button>
-
-            <button onclick="switchTab('leitor')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
-              <div class="w-10 h-10 rounded-full bg-blue-50 text-[#0F294A] flex items-center justify-center">
-                <i data-lucide="scan-barcode" class="w-5 h-5"></i>
-              </div>
-              <span class="text-xs font-semibold text-slate-700">Consultar</span>
-            </button>
-          </div>
-        </section>
-
-        <section>
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-[15px] font-bold text-slate-800">Movimentações Recentes</h3>
-            <button onclick="switchTab('relatorios')" class="text-xs font-semibold text-[#2B6CB0]">Ver tudo</button>
-          </div>
-          <div id="recent-movements-list" class="space-y-2.5"></div>
-        </section>
-      </main>
-    </div>
-
-    <!-- TELA 2: ESTOQUE -->
-    <div id="screen-estoque" class="screen hidden flex-1 flex flex-col overflow-hidden">
-      <header class="bg-[#0F294A] text-white px-5 pt-6 pb-4 shrink-0">
-        <div class="flex items-center justify-between mb-4">
-          <h1 class="text-xl font-bold">Estoque Compartilhado</h1>
-          <span id="estoque-count-badge" class="text-xs bg-white/15 px-3 py-1 rounded-full font-medium">0 produtos</span>
-        </div>
-
-        <div class="flex gap-2">
-          <div class="relative flex-1">
+          <div class="relative">
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
             <input
-              id="estoque-search-input"
               type="text"
-              placeholder="Pesquisar produtos, SKU..."
-              oninput="renderEstoqueList()"
-              class="w-full bg-white text-slate-800 placeholder-slate-400 text-sm rounded-xl pl-10 pr-3 py-2.5 focus:outline-none"
+              placeholder="Pesquisar produtos, SKU ou categoria..."
+              oninput="handleHomeSearch(this.value)"
+              class="w-full bg-white text-slate-800 placeholder-slate-400 text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none shadow-sm"
             />
           </div>
-          <button onclick="toggleSortOrder()" title="Ordenar" class="bg-white text-slate-700 px-3 rounded-xl flex items-center justify-center hover:bg-slate-100 transition">
-            <i data-lucide="arrow-up-down" class="w-4 h-4"></i>
-          </button>
-        </div>
-      </header>
+        </header>
 
-      <div class="bg-white border-b border-slate-200 px-4 flex gap-5 overflow-x-auto no-scrollbar shrink-0" id="category-tabs"></div>
-
-      <main id="estoque-list" class="flex-1 overflow-y-auto no-scrollbar px-5 py-4 pb-24 space-y-3"></main>
-
-      <button id="btn-add-product" onclick="openProductModal()" class="hidden absolute bottom-20 right-5 w-14 h-14 rounded-full bg-[#2563EB] hover:bg-blue-700 active:scale-95 text-white shadow-lg shadow-blue-600/30 flex items-center justify-center transition z-20">
-        <i data-lucide="plus" class="w-7 h-7"></i>
-      </button>
-    </div>
-
-    <!-- TELA 3: LEITOR / CONSULTA -->
-    <div id="screen-leitor" class="screen hidden flex-1 flex flex-col bg-slate-900 overflow-hidden relative">
-      <header class="bg-[#0F294A] text-white px-5 pt-6 pb-4 flex items-center justify-between shrink-0 z-10">
-        <h1 class="text-lg font-bold">Leitor / Consulta</h1>
-        <div class="flex items-center gap-3">
-          <button onclick="toggleFlash()" id="flash-btn" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition" title="Lanterna">
-            <i data-lucide="zap" class="w-4 h-4 text-white"></i>
-          </button>
-          <button onclick="switchTab('inicio')" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition" title="Fechar">
-            <i data-lucide="x" class="w-4 h-4 text-white"></i>
-          </button>
-        </div>
-      </header>
-
-      <div class="relative flex-1 bg-slate-950 flex flex-col items-center justify-center overflow-hidden">
-        <video id="camera-video" autoplay playsinline class="hidden w-full h-full object-cover opacity-80"></video>
-        <div id="scanner-placeholder" class="absolute inset-0 bg-[radial-gradient(circle_at_center,#1e293b_0%,#090d16_100%)] flex flex-col items-center justify-center p-6 text-center">
-          <button onclick="startCamera()" class="mb-4 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 border border-white/15 transition">
-            <i data-lucide="camera" class="w-3.5 h-3.5"></i> Ativar Câmera
-          </button>
-          <p class="text-[11px] text-slate-400 max-w-[240px]">Selecione um SKU abaixo para consultar o item:</p>
-          <div class="flex flex-wrap justify-center gap-1.5 mt-3" id="quick-sku-pills"></div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-t-[26px] p-5 pb-24 shadow-2xl z-20 shrink-0">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-sm font-bold text-slate-800">Produto Consultado</span>
-        </div>
-
-        <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100 mb-4">
-          <div id="scanned-icon-box" class="w-12 h-12 rounded-xl bg-blue-100 text-[#0F294A] flex items-center justify-center text-2xl shrink-0">⌨️</div>
-          <div class="flex-1 min-w-0">
-            <h4 id="scanned-name" class="text-sm font-bold text-slate-800 truncate">Teclado Mecânico</h4>
-            <p id="scanned-sku" class="text-xs text-slate-500">SKU: TEC-2041</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 mb-3">
-          <div>
-            <label class="block text-[11px] font-medium text-slate-500 mb-1">Quantidade em Estoque:</label>
-            <div class="bg-slate-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-800" id="scanned-current-qty">42 un.</div>
-          </div>
-          <div>
-            <label class="block text-[11px] font-medium text-slate-500 mb-1">Preço:</label>
-            <div class="bg-slate-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-800" id="scanned-price-display">R$ 0,00</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TELA 4: RELATÓRIOS -->
-    <div id="screen-relatorios" class="screen hidden flex-1 flex flex-col overflow-hidden">
-      <header class="bg-[#0F294A] text-white px-5 pt-6 pb-5 rounded-b-[24px] shrink-0">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-xl font-bold">Relatórios</h1>
-            <p class="text-xs text-blue-200 mt-0.5">Visão geral do inventário</p>
-          </div>
-          <button onclick="exportCSV()" class="bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
-          </button>
-        </div>
-      </header>
-
-      <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-24 space-y-5">
-        <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-          <h3 class="text-sm font-bold text-slate-800 mb-3">Distribuição por Categoria (Valor R$)</h3>
-          <div class="w-full h-64 flex items-center justify-center relative">
-            <canvas id="categoryPieChart"></canvas>
-          </div>
-        </section>
-
-        <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-          <h3 class="text-sm font-bold text-slate-800 mb-3">Valores Detalhados</h3>
-          <div id="category-breakdown" class="space-y-3"></div>
-        </section>
-
-        <section>
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-bold text-slate-800">Histórico de Movimentações</h3>
-            <span id="total-mov-count" class="text-xs text-slate-500">0 registros</span>
-          </div>
-          <div id="full-movements-list" class="space-y-2.5"></div>
-        </section>
-      </main>
-    </div>
-
-    <!-- TELA 5: PERFIL -->
-    <div id="screen-perfil" class="screen hidden flex-1 flex flex-col overflow-hidden">
-      <header class="bg-[#0F294A] text-white px-5 pt-6 pb-6 rounded-b-[24px] shrink-0">
-        <h1 class="text-xl font-bold mb-4">Perfil & Conta</h1>
-        <div class="flex items-center gap-3.5">
-          <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-400 to-teal-300 text-[#0F294A] font-extrabold text-lg flex items-center justify-center shadow">
-            <span id="profile-initials">AL</span>
-          </div>
-          <div>
-            <h2 id="profile-name-display" class="text-base font-bold">André Luiz</h2>
-            <p id="profile-email-display" class="text-xs text-blue-200">andre@email.com</p>
-          </div>
-        </div>
-      </header>
-
-      <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-24 space-y-4">
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
-          <h3 class="text-sm font-bold text-slate-800">Permissões da Conta</h3>
-          <p id="profile-role-desc" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 font-medium"></p>
+        <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-10 space-y-5">
           
-          <!-- BOTÃO PARA CONVIDADO SOLICITAR ACESSO -->
-          <div id="guest-request-section" class="hidden pt-2">
-            <button onclick="requestAdminAccess()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center justify-center gap-2 transition shadow-sm">
-              <i data-lucide="send" class="w-4 h-4"></i> Solicitar Acesso de Administrador
+          <!-- PAINEL EXCLUSIVO DO ADMINISTRADOR -->
+          <section id="admin-exclusive-panel" class="hidden bg-slate-900 text-white p-4 rounded-2xl shadow-md border border-slate-800">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-teal-300">Painel Exclusivo ADM</h3>
+              </div>
+              <i data-lucide="shield" class="w-4 h-4 text-teal-400"></i>
+            </div>
+            <p class="text-[11px] text-slate-300 mb-3">Sincronização na nuvem ativa. Gerencie cadastros na aba Perfil.</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="openProductModal()" class="bg-[#2563EB] hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo Produto
+              </button>
+              <button onclick="resetAppDatabase()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Resetar Dados
+              </button>
+            </div>
+          </section>
+
+          <section>
+            <h3 class="text-[15px] font-bold text-slate-800 mb-3">Resumo Geral</h3>
+            <div class="grid grid-cols-3 gap-2.5">
+              <div onclick="switchTab('estoque')" class="cursor-pointer bg-gradient-to-br from-[#2B8A7E] to-[#1F6E64] text-white p-3 rounded-2xl shadow-sm active:scale-95 transition">
+                <div class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mb-2">
+                  <i data-lucide="boxes" class="w-4 h-4 text-white"></i>
+                </div>
+                <p class="text-[11px] text-teal-100 font-medium leading-tight">Total de Itens</p>
+                <p id="stat-total-items" class="text-lg font-extrabold mt-0.5">0</p>
+                <p class="text-[10px] text-teal-200 mt-1">Ativo em estoque</p>
+              </div>
+
+              <div onclick="filterLowStock()" class="cursor-pointer bg-gradient-to-br from-[#E26D5C] to-[#C85241] text-white p-3 rounded-2xl shadow-sm active:scale-95 transition">
+                <div class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mb-2">
+                  <i data-lucide="alert-triangle" class="w-4 h-4 text-white"></i>
+                </div>
+                <p class="text-[11px] text-rose-100 font-medium leading-tight">Estoque Baixo</p>
+                <p id="stat-low-stock" class="text-lg font-extrabold mt-0.5">0 itens</p>
+                <p class="text-[10px] text-rose-100 mt-1">Reposição urgente</p>
+              </div>
+
+              <div onclick="switchTab('relatorios')" class="cursor-pointer bg-gradient-to-br from-[#2B6CB0] to-[#1E4E8C] text-white p-3 rounded-2xl shadow-sm active:scale-95 transition">
+                <div class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mb-2">
+                  <i data-lucide="wallet" class="w-4 h-4 text-white"></i>
+                </div>
+                <p class="text-[11px] text-blue-100 font-medium leading-tight">Valor do Estoque</p>
+                <p id="stat-total-value" class="text-[14px] font-extrabold mt-0.5 truncate">R$ 0</p>
+                <p class="text-[10px] text-blue-200 mt-1">Patrimônio</p>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h3 class="text-[15px] font-bold text-slate-800 mb-3">Ações Rápidas</h3>
+            <div class="grid grid-cols-3 gap-3">
+              <button onclick="checkAdminPermission() && openMovementModal('entrada')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                </div>
+                <span class="text-xs font-semibold text-slate-700">Entrada</span>
+              </button>
+
+              <button onclick="checkAdminPermission() && openMovementModal('saida')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
+                  <i data-lucide="minus-circle" class="w-5 h-5"></i>
+                </div>
+                <span class="text-xs font-semibold text-slate-700">Saída</span>
+              </button>
+
+              <button onclick="switchTab('leitor')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-blue-50 text-[#0F294A] flex items-center justify-center">
+                  <i data-lucide="scan-barcode" class="w-5 h-5"></i>
+                </div>
+                <span class="text-xs font-semibold text-slate-700">Consultar</span>
+              </button>
+            </div>
+          </section>
+
+          <section>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-[15px] font-bold text-slate-800">Movimentações Recentes</h3>
+              <button onclick="switchTab('relatorios')" class="text-xs font-semibold text-[#2B6CB0]">Ver tudo</button>
+            </div>
+            <div id="recent-movements-list" class="space-y-2.5"></div>
+          </section>
+        </main>
+      </div>
+
+      <!-- TELA 2: ESTOQUE -->
+      <div id="screen-estoque" class="screen hidden flex-1 flex flex-col overflow-hidden">
+        <header class="bg-[#0F294A] text-white px-5 pt-6 pb-4 shrink-0">
+          <div class="flex items-center justify-between mb-4">
+            <h1 class="text-xl font-bold">Estoque Compartilhado</h1>
+            <span id="estoque-count-badge" class="text-xs bg-white/15 px-3 py-1 rounded-full font-medium">0 produtos</span>
+          </div>
+
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <input
+                id="estoque-search-input"
+                type="text"
+                placeholder="Pesquisar produtos, SKU..."
+                oninput="renderEstoqueList()"
+                class="w-full bg-white text-slate-800 placeholder-slate-400 text-sm rounded-xl pl-10 pr-3 py-2.5 focus:outline-none"
+              />
+            </div>
+            <button onclick="toggleSortOrder()" title="Ordenar" class="bg-white text-slate-700 px-3 rounded-xl flex items-center justify-center hover:bg-slate-100 transition">
+              <i data-lucide="arrow-up-down" class="w-4 h-4"></i>
             </button>
           </div>
+        </header>
+
+        <div class="bg-white border-b border-slate-200 px-4 flex gap-5 overflow-x-auto no-scrollbar shrink-0" id="category-tabs"></div>
+
+        <main id="estoque-list" class="flex-1 overflow-y-auto no-scrollbar px-5 py-4 pb-10 space-y-3"></main>
+
+        <button id="btn-add-product" onclick="openProductModal()" class="hidden absolute bottom-4 right-5 w-14 h-14 rounded-full bg-[#2563EB] hover:bg-blue-700 active:scale-95 text-white shadow-lg shadow-blue-600/30 flex items-center justify-center transition z-20">
+          <i data-lucide="plus" class="w-7 h-7"></i>
+        </button>
+      </div>
+
+      <!-- TELA 3: LEITOR / CONSULTA -->
+      <div id="screen-leitor" class="screen hidden flex-1 flex flex-col bg-slate-900 overflow-hidden relative">
+        <header class="bg-[#0F294A] text-white px-5 pt-6 pb-4 flex items-center justify-between shrink-0 z-10">
+          <h1 class="text-lg font-bold">Leitor / Consulta</h1>
+          <div class="flex items-center gap-3">
+            <button onclick="toggleFlash()" id="flash-btn" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition" title="Lanterna">
+              <i data-lucide="zap" class="w-4 h-4 text-white"></i>
+            </button>
+            <button onclick="switchTab('inicio')" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition" title="Fechar">
+              <i data-lucide="x" class="w-4 h-4 text-white"></i>
+            </button>
+          </div>
+        </header>
+
+        <div class="relative flex-1 bg-slate-950 flex flex-col items-center justify-center overflow-hidden">
+          <video id="camera-video" autoplay playsinline class="hidden w-full h-full object-cover opacity-80"></video>
+          <div id="scanner-placeholder" class="absolute inset-0 bg-[radial-gradient(circle_at_center,#1e293b_0%,#090d16_100%)] flex flex-col items-center justify-center p-6 text-center">
+            <button onclick="startCamera()" class="mb-4 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 border border-white/15 transition">
+              <i data-lucide="camera" class="w-3.5 h-3.5"></i> Ativar Câmera
+            </button>
+            <p class="text-[11px] text-slate-400 max-w-[240px]">Selecione um SKU abaixo para consultar o item:</p>
+            <div class="flex flex-wrap justify-center gap-1.5 mt-3" id="quick-sku-pills"></div>
+          </div>
         </div>
 
-        <!-- PAINEL DE GESTÃO DE USUÁRIOS (APENAS PARA O ADM) -->
-        <div id="admin-approval-section" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-          <div>
-            <h3 class="text-sm font-bold text-slate-800">🛡️ Aprovar Solicitações de ADM</h3>
-            <p class="text-xs text-slate-500 mb-2">Convidados solicitando acesso:</p>
-            <div id="pending-users-list" class="space-y-2"></div>
+        <div class="bg-white rounded-t-[26px] p-5 pb-10 shadow-2xl z-20 shrink-0">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-bold text-slate-800">Produto Consultado</span>
           </div>
 
-          <div class="pt-3 border-t border-slate-100">
-            <h3 class="text-sm font-bold text-slate-800">👥 Gerenciamento de Usuários</h3>
-            <p class="text-xs text-slate-500 mb-2">Bloquear, suspender ou remover cadastros:</p>
-            <div id="all-users-management-list" class="space-y-2"></div>
+          <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100 mb-4">
+            <div id="scanned-icon-box" class="w-12 h-12 rounded-xl bg-blue-100 text-[#0F294A] flex items-center justify-center text-2xl shrink-0">⌨️</div>
+            <div class="flex-1 min-w-0">
+              <h4 id="scanned-name" class="text-sm font-bold text-slate-800 truncate">Teclado Mecânico</h4>
+              <p id="scanned-sku" class="text-xs text-slate-500">SKU: TEC-2041</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label class="block text-[11px] font-medium text-slate-500 mb-1">Quantidade em Estoque:</label>
+              <div class="bg-slate-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-800" id="scanned-current-qty">42 un.</div>
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-500 mb-1">Preço:</label>
+              <div class="bg-slate-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-800" id="scanned-price-display">R$ 0,00</div>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
-          <h3 class="text-sm font-bold text-slate-800">Sessão</h3>
-          <button onclick="logoutUser()" class="w-full py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs flex items-center justify-center gap-2 transition">
-            <i data-lucide="log-out" class="w-4 h-4"></i> Trocar de Conta / Sair
-          </button>
-        </div>
-      </main>
+      <!-- TELA 4: RELATÓRIOS -->
+      <div id="screen-relatorios" class="screen hidden flex-1 flex flex-col overflow-hidden">
+        <header class="bg-[#0F294A] text-white px-5 pt-6 pb-5 rounded-b-[24px] shrink-0">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-xl font-bold">Relatórios</h1>
+              <p class="text-xs text-blue-200 mt-0.5">Visão geral do inventário</p>
+            </div>
+            <button onclick="exportCSV()" class="bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
+            </button>
+          </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-10 space-y-5">
+          <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <h3 class="text-sm font-bold text-slate-800 mb-3">Distribuição por Categoria (Valor R$)</h3>
+            <div class="w-full h-64 flex items-center justify-center relative">
+              <canvas id="categoryPieChart"></canvas>
+            </div>
+          </section>
+
+          <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <h3 class="text-sm font-bold text-slate-800 mb-3">Valores Detalhados</h3>
+            <div id="category-breakdown" class="space-y-3"></div>
+          </section>
+
+          <section>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-slate-800">Histórico de Movimentações</h3>
+              <span id="total-mov-count" class="text-xs text-slate-500">0 registros</span>
+            </div>
+            <div id="full-movements-list" class="space-y-2.5"></div>
+          </section>
+        </main>
+      </div>
+
+      <!-- TELA 5: PERFIL -->
+      <div id="screen-perfil" class="screen hidden flex-1 flex flex-col overflow-hidden">
+        <header class="bg-[#0F294A] text-white px-5 pt-6 pb-6 rounded-b-[24px] shrink-0">
+          <h1 class="text-xl font-bold mb-4">Perfil & Conta</h1>
+          <div class="flex items-center gap-3.5">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-400 to-teal-300 text-[#0F294A] font-extrabold text-lg flex items-center justify-center shadow">
+              <span id="profile-initials">AL</span>
+            </div>
+            <div>
+              <h2 id="profile-name-display" class="text-base font-bold">André Luiz</h2>
+              <p id="profile-email-display" class="text-xs text-blue-200">andre@email.com</p>
+            </div>
+          </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-10 space-y-4">
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">Permissões da Conta</h3>
+            <p id="profile-role-desc" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 font-medium"></p>
+            
+            <div id="guest-request-section" class="hidden pt-2">
+              <button onclick="requestAdminAccess()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center justify-center gap-2 transition shadow-sm">
+                <i data-lucide="send" class="w-4 h-4"></i> Solicitar Acesso de Administrador
+              </button>
+            </div>
+          </div>
+
+          <div id="admin-approval-section" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">🛡️ Aprovar Solicitações de ADM</h3>
+              <p class="text-xs text-slate-500 mb-2">Convidados solicitando acesso:</p>
+              <div id="pending-users-list" class="space-y-2"></div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100">
+              <h3 class="text-sm font-bold text-slate-800">👥 Gerenciamento de Usuários</h3>
+              <p class="text-xs text-slate-500 mb-2">Bloquear, suspender ou remover cadastros:</p>
+              <div id="all-users-management-list" class="space-y-2"></div>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">Sessão</h3>
+            <button onclick="logoutUser()" class="w-full py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs flex items-center justify-center gap-2 transition">
+              <i data-lucide="log-out" class="w-4 h-4"></i> Trocar de Conta / Sair
+            </button>
+          </div>
+        </main>
+      </div>
+
     </div>
 
-    <!-- BARRA INFERIOR -->
-    <nav class="bg-white border-t border-slate-200 px-2 py-2 flex items-center justify-around shrink-0 z-30">
+    <!-- BARRA INFERIOR FIXA NO RODAPÉ -->
+    <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-2 py-2 flex items-center justify-around h-16 shrink-0 z-30 shadow-lg">
       <button onclick="switchTab('inicio')" data-tab="inicio" class="nav-btn flex flex-col items-center gap-1 py-1 px-3 text-[#2563EB]">
         <i data-lucide="home" class="w-5 h-5"></i>
         <span class="text-[10px] font-semibold">Início</span>
@@ -547,7 +550,6 @@
     let authMode = 'login';
     let myPieChart = null;
 
-    // SINCRONIZAÇÃO EM TEMPO REAL COM O FIREBASE
     db.ref('estoque_compartilhado').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -616,7 +618,7 @@
     function switchAuthMode(mode) {
       authMode = mode;
       const isReg = mode === 'register';
-      document.getElementById('auth-subtitle').textContent = isReg ? 'Novas contas entram como convidados' : 'Faça login com seu e-mail';
+      document.getElementById('auth-subtitle').textContent = isReg ? 'Novas contas começam como convidados' : 'Faça login com seu e-mail';
       document.getElementById('auth-submit-btn').textContent = isReg ? 'Cadastrar Convidado' : 'Entrar na Conta';
       document.getElementById('register-fields').classList.toggle('hidden', !isReg);
       document.getElementById('tab-login-btn').className = `py-2 rounded-lg transition ${!isReg ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`;
@@ -672,6 +674,7 @@
 
     function logoutUser() {
       localStorage.removeItem('estoqueapp_logged_session');
+      localStorage.removeItem('estoqueapp_current_tab');
       checkAuthSession();
       showToast('Sessão encerrada.');
     }
@@ -716,7 +719,9 @@
           renderManagementLists();
         }
 
-        switchTab('inicio');
+        // Restaura a última aba aberta ou vai para 'inicio'
+        const savedTab = localStorage.getItem('estoqueapp_current_tab') || 'inicio';
+        switchTab(savedTab, false);
       }
     }
 
@@ -740,7 +745,6 @@
     }
 
     function renderManagementLists() {
-      // 1. Lista de pendentes para ADM
       const pendingList = document.getElementById('pending-users-list');
       const requesters = usersDb.filter(u => u.role === 'convidado' && u.requestedAdmin && u.status === 'ativo');
 
@@ -760,9 +764,7 @@
         `).join('');
       }
 
-      // 2. Lista de gerenciamento completo (bloquear, suspender, remover qualquer usuário)
       const allUsersList = document.getElementById('all-users-management-list');
-      // Não mostra o próprio admin logado na lista de exclusão/bloqueio próprio
       const managedUsers = usersDb.filter(u => u.email !== userEmail);
 
       if (managedUsers.length === 0) {
@@ -851,11 +853,17 @@
       }
     }
 
-    function switchTab(tabName) {
+    // ALTERNA AS ABAS E SALVA A ATUAL NO LOCALSTORAGE
+    function switchTab(tabName, save = true) {
+      if (save) {
+        localStorage.setItem('estoqueapp_current_tab', tabName);
+      }
+
       document.querySelectorAll('.screen').forEach(s => {
         if(s.id !== 'screen-auth') s.classList.add('hidden');
       });
-      document.getElementById(`screen-${tabName}`).classList.remove('hidden');
+      const targetScreen = document.getElementById(`screen-${tabName}`);
+      if (targetScreen) targetScreen.classList.remove('hidden');
 
       document.querySelectorAll('.nav-btn').forEach(btn => {
         if (btn.dataset.tab === tabName) {
