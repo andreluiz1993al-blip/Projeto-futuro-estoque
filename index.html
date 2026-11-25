@@ -18,11 +18,11 @@
     html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: #E2E8F0; position: fixed; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    @keyframes slideIn {
-      from { transform: translateY(-50px); opacity: 0; }
+    @keyframes slideDown {
+      from { transform: translateY(-100px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
-    .popup-anim { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .whatsapp-banner { animation: slideDown 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
   </style>
   <script>
     if ('serviceWorker' in navigator) {
@@ -168,14 +168,14 @@
             </button>
           </section>
 
-          <!-- SEÇÃO DE SOLICITAÇÕES DE MATERIAIS PENDENTES (PARA ADM) -->
-          <section id="admin-requests-section" class="hidden space-y-3">
+          <!-- SEÇÃO DE SOLICITAÇÕES DE MATERIAIS (ADM VÊ TODAS / TÉCNICO VÊ APENAS AS SUAS) -->
+          <section id="requests-section" class="space-y-3">
             <div class="flex items-center justify-between">
-              <h3 class="text-[15px] font-bold text-slate-800 flex items-center gap-2">
+              <h3 id="requests-section-title" class="text-[15px] font-bold text-slate-800 flex items-center gap-2">
                 📦 Solicitações de Materiais <span id="pending-req-badge" class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full">0</span>
               </h3>
             </div>
-            <div id="admin-requests-list" class="space-y-2.5"></div>
+            <div id="requests-list" class="space-y-2.5"></div>
           </section>
 
           <section>
@@ -210,17 +210,17 @@
             </div>
           </section>
 
-          <section>
-            <h3 class="text-[15px] font-bold text-slate-800 mb-3">Ações Rápidas</h3>
+          <section id="admin-quick-actions" class="hidden">
+            <h3 class="text-[15px] font-bold text-slate-800 mb-3">Ações Rápidas (Exclusivo ADM)</h3>
             <div class="grid grid-cols-3 gap-3">
-              <button onclick="checkAdminPermission() && openMovementModal('entrada')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
+              <button onclick="openMovementModal('entrada')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
                 <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
                   <i data-lucide="plus-circle" class="w-5 h-5"></i>
                 </div>
                 <span class="text-xs font-semibold text-slate-700">Entrada</span>
               </button>
 
-              <button onclick="checkAdminPermission() && openMovementModal('saida')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
+              <button onclick="openMovementModal('saida')" class="bg-white hover:bg-slate-50 active:scale-95 transition p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
                 <div class="w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
                   <i data-lucide="minus-circle" class="w-5 h-5"></i>
                 </div>
@@ -238,7 +238,7 @@
 
           <section>
             <div class="flex items-center justify-between mb-3">
-              <h3 class="text-[15px] font-bold text-slate-800">Movimentações Recentes</h3>
+              <h3 id="recent-mov-title" class="text-[15px] font-bold text-slate-800">Movimentações Recentes</h3>
               <button onclick="switchTab('relatorios')" class="text-xs font-semibold text-[#2B6CB0]">Ver tudo</button>
             </div>
             <div id="recent-movements-list" class="space-y-2.5"></div>
@@ -339,13 +339,13 @@
         </div>
       </div>
 
-      <!-- TELA 4: RELATÓRIOS -->
+      <!-- TELA 4: RELATÓRIOS (APENAS ADM) -->
       <div id="screen-relatorios" class="screen hidden absolute inset-0 flex flex-col overflow-hidden">
         <header class="bg-[#0F294A] text-white px-5 pt-6 pb-5 rounded-b-[24px] shrink-0">
           <div class="flex items-center justify-between">
             <div>
-              <h1 class="text-xl font-bold">Relatórios</h1>
-              <p class="text-xs text-blue-200 mt-0.5">Histórico de rede e movimentações</p>
+              <h1 class="text-xl font-bold">Relatórios & Auditoria</h1>
+              <p class="text-xs text-blue-200 mt-0.5">Histórico imutável de movimentações</p>
             </div>
             <div class="flex items-center gap-2">
               <button onclick="manualRefreshData()" class="p-2 rounded-full bg-white/15 hover:bg-white/25 transition" title="Atualizar Dados">
@@ -373,7 +373,7 @@
 
           <section>
             <div class="flex items-center justify-between mb-3">
-              <h3 class="text-sm font-bold text-slate-800">Histórico Completo</h3>
+              <h3 class="text-sm font-bold text-slate-800">Histórico Completo (Imutável)</h3>
               <span id="total-mov-count" class="text-xs text-slate-500">0 registros</span>
             </div>
             <div id="full-movements-list" class="space-y-2.5"></div>
@@ -454,7 +454,7 @@
         <i data-lucide="scan-line" class="w-5 h-5"></i>
         <span class="text-[10px] font-semibold">Consultar</span>
       </button>
-      <button onclick="switchTab('relatorios')" data-tab="relatorios" class="nav-btn flex flex-col items-center gap-1 py-1 px-3 text-slate-400">
+      <button id="nav-btn-relatorios" onclick="switchTab('relatorios')" data-tab="relatorios" class="nav-btn flex flex-col items-center gap-1 py-1 px-3 text-slate-400">
         <i data-lucide="trending-up" class="w-5 h-5"></i>
         <span class="text-[10px] font-semibold">Relatórios</span>
       </button>
@@ -464,26 +464,26 @@
       </button>
     </nav>
 
-    <!-- POP-UP ESTILO WHATSAPP (COM PONTEIROS LIVRES E NÃO-BLOQUEANTE) -->
-    <div id="whatsapp-popup" class="hidden absolute top-4 inset-x-4 bg-slate-900/95 text-white p-4 rounded-2xl shadow-2xl border border-blue-500/30 z-[60] popup-anim backdrop-blur-md">
-      <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
+    <!-- NOTIFICAÇÃO FLUTUANTE ESTILO WHATSAPP (TOPO) -->
+    <div id="whatsapp-popup" class="hidden absolute top-3 inset-x-3 bg-slate-900/95 text-white p-3.5 rounded-2xl shadow-2xl border border-emerald-500/40 z-[999] whatsapp-banner backdrop-blur-md">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
           <i data-lucide="bell-ring" class="w-5 h-5"></i>
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-0.5">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Nova Solicitação de Material</h4>
-            <span id="popup-time" class="text-[10px] text-slate-400">Agora</span>
+            <h4 class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">Nova Solicitação de Material</h4>
+            <span class="text-[10px] text-slate-400">Agora</span>
           </div>
-          <p id="popup-title" class="text-sm font-bold text-white truncate">Técnico solicitou ONU Huawei</p>
-          <p id="popup-desc" class="text-xs text-slate-300 mt-0.5">Quantidade: +2 un. • OS #49201</p>
+          <p id="whatsapp-popup-title" class="text-xs font-bold text-white truncate">Técnico solicitou equipamento</p>
+          <p id="whatsapp-popup-desc" class="text-[11px] text-slate-300 truncate">Quantidade e detalhes da OS</p>
         </div>
         <button onclick="closeWhatsappPopup()" class="text-slate-400 hover:text-white p-1">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
-      <div class="mt-3 flex gap-2">
-        <button onclick="goToRequestsAndClose()" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow">
+      <div class="mt-2.5 pt-2 border-t border-slate-800 flex gap-2">
+        <button onclick="goToRequestsAndClose()" class="w-full py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow">
           <i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver Solicitações
         </button>
       </div>
@@ -687,10 +687,10 @@
     let authMode = 'login';
     let myPieChart = null;
 
-    function playNotificationSound() {
+    function playNotificationSoundAndVibrate() {
       try {
         if ('vibrate' in navigator) {
-          navigator.vibrate([200, 100, 200]);
+          navigator.vibrate([250, 150, 250]);
         }
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
@@ -705,11 +705,11 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.4);
       } catch (e) {
-        console.log('Áudio/Vibração bloqueados.');
+        console.log('Áudio/Vibração restritos pelo navegador.');
       }
     }
 
-    // LISTENER EM TEMPO REAL COM POP-UP ESTILO WHATSAPP
+    // LISTENER EM TEMPO REAL
     db.ref('estoque_compartilhado').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -730,8 +730,8 @@
           if (userRole === 'admin' && requests.length > oldLen) {
             const latest = requests[0];
             if (latest && latest.status === 'pendente') {
-              showWhatsappPopup(latest);
-              playNotificationSound();
+              showWhatsappNotification(latest);
+              playNotificationSoundAndVibrate();
             }
           }
         }
@@ -745,10 +745,11 @@
       }
     });
 
-    function showWhatsappPopup(req) {
-      document.getElementById('popup-title').textContent = `${req.requesterName} (${req.requesterRole}):`;
-      document.getElementById('popup-desc').textContent = `${req.productName} • Qtde: +${req.qty} un. (${req.obs})`;
-      document.getElementById('whatsapp-popup').classList.remove('hidden');
+    function showWhatsappNotification(req) {
+      document.getElementById('whatsapp-popup-title').textContent = `${req.requesterName} (${req.requesterRole})`;
+      document.getElementById('whatsapp-popup-desc').textContent = `${req.productName} • Qtde: +${req.qty} un. (${req.obs})`;
+      const banner = document.getElementById('whatsapp-popup');
+      banner.classList.remove('hidden');
       setTimeout(() => closeWhatsappPopup(), 7000);
     }
 
@@ -790,10 +791,10 @@
           if (data.users) { usersDb = data.users; localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb)); }
         }
         refreshAllViews();
-        showToast('Dados atualizados com sucesso!');
+        showToast('Dados atualizados!');
       }).catch(() => {
         refreshAllViews();
-        showToast('Dados locais atualizados!');
+        showToast('Dados locais sincronizados!');
       });
     }
 
@@ -847,7 +848,7 @@
         usersDb.push(newUser);
         loginActiveUser(newUser);
         saveState();
-        showToast('Cadastro realizado! Aguarde liberação do ADM.');
+        showToast('Cadastro realizado! Aguarde liberação.');
       } else {
         const found = usersDb.find(u => u.email === email && u.pass === pass);
         if (!found) {
@@ -863,7 +864,7 @@
         }
 
         if (found.status === 'bloqueado' || found.status === 'suspenso') {
-          showToast(`Conta com acesso ${found.status}! Contate o admin.`);
+          showToast(`Conta com acesso ${found.status}!`);
           return;
         }
 
@@ -894,9 +895,10 @@
       const btnAddProd = document.getElementById('btn-add-product');
       const adminPanel = document.getElementById('admin-exclusive-panel');
       const techPanel = document.getElementById('tech-exclusive-panel');
-      const adminReqSection = document.getElementById('admin-requests-section');
+      const adminQuickActions = document.getElementById('admin-quick-actions');
       const adminUserTab = document.getElementById('admin-user-approval-tab');
       const guestRequestSection = document.getElementById('guest-request-section');
+      const navBtnRelatorios = document.getElementById('nav-btn-relatorios');
 
       if (!session) {
         authScreen.classList.remove('hidden');
@@ -908,45 +910,42 @@
         userEmail = session.email;
         userRole = session.role || 'convidado';
 
+        // REGRAS DE PERMISSÃO DE TELA E ABA
+        const isAdm = userRole === 'admin';
+        
+        if (btnAddProd) btnAddProd.classList.toggle('hidden', !isAdm);
+        if (adminPanel) adminPanel.classList.toggle('hidden', !isAdm);
+        if (adminQuickActions) adminQuickActions.classList.toggle('hidden', !isAdm);
+        if (adminUserTab) adminUserTab.classList.toggle('hidden', !isAdm);
+        if (navBtnRelatorios) navBtnRelatorios.classList.toggle('hidden', !isAdm); // Somente ADM vê relatórios gerais
+
         if (userRole === 'tecnico' || userRole === 'auxiliar') {
-          if (btnAddProd) btnAddProd.classList.add('hidden');
-          if (adminPanel) adminPanel.classList.add('hidden');
           if (techPanel) techPanel.classList.remove('hidden');
-          if (adminReqSection) adminReqSection.classList.add('hidden');
-          if (adminUserTab) adminUserTab.classList.add('hidden');
           if (guestRequestSection) guestRequestSection.classList.add('hidden');
 
           const roleName = userRole === 'tecnico' ? '🔧 Técnico de Fibra' : '🛠️ Auxiliar Técnico';
           document.getElementById('user-role-badge').textContent = roleName;
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-blue-200';
-          document.getElementById('profile-role-desc').textContent = `Logado como ${roleName}. Pode solicitar materiais de telecom para atendimento.`;
+          document.getElementById('profile-role-desc').textContent = `Logado como ${roleName}. Suas solicitações e status aparecem na tela inicial.`;
         } else if (userRole === 'convidado') {
-          if (btnAddProd) btnAddProd.classList.add('hidden');
-          if (adminPanel) adminPanel.classList.add('hidden');
-          if (techPanel) adminPanel.classList.add('hidden');
-          if (adminReqSection) adminReqSection.classList.add('hidden');
-          if (adminUserTab) adminUserTab.classList.add('hidden');
+          if (techPanel) techPanel.classList.add('hidden');
           if (guestRequestSection) guestRequestSection.classList.remove('hidden');
           
           document.getElementById('user-role-badge').textContent = '👀 Convidado (Leitura)';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-amber-300';
-          document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO (apenas visualização).';
+          document.getElementById('profile-role-desc').textContent = 'Você está logado como CONVIDADO (apenas visualização de estoque).';
         } else {
-          if (btnAddProd) btnAddProd.classList.remove('hidden');
-          if (adminPanel) adminPanel.classList.remove('hidden');
           if (techPanel) techPanel.classList.add('hidden');
-          if (adminReqSection) adminReqSection.classList.remove('hidden');
-          if (adminUserTab) adminUserTab.classList.remove('hidden');
           if (guestRequestSection) guestRequestSection.classList.add('hidden');
 
           document.getElementById('user-role-badge').textContent = '🛡️ Administrador';
           document.getElementById('user-role-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-teal-300';
           document.getElementById('profile-role-desc').textContent = 'Você está logado como ADMINISTRADOR da rede telecom.';
           renderManagementLists();
-          renderAdminRequests();
         }
 
-        const savedTab = localStorage.getItem('estoqueapp_current_tab') || 'inicio';
+        let savedTab = localStorage.getItem('estoqueapp_current_tab') || 'inicio';
+        if (savedTab === 'relatorios' && !isAdm) savedTab = 'inicio';
         switchTab(savedTab, false);
       }
     }
@@ -985,49 +984,77 @@
       requests.unshift(newReq);
       closeModal('request-modal');
       saveState();
-      showToast('Solicitação de material enviada ao ADM!');
+      showToast('Solicitação enviada ao ADM!');
     }
 
-    function renderAdminRequests() {
-      const container = document.getElementById('admin-requests-list');
+    // RENDERIZAÇÃO INTELIGENTE DE SOLICITAÇÕES (ADM VÊ TODAS / TÉCNICO VÊ APENAS AS SUAS)
+    function renderRequestsView() {
+      const container = document.getElementById('requests-list');
       const badge = document.getElementById('pending-req-badge');
-      const pending = requests.filter(r => r.status === 'pendente');
+      const titleEl = document.getElementById('requests-section-title');
+      if (!container || !badge) return;
 
-      if (!badge || !container) return;
+      const isAdm = userRole === 'admin';
+      
+      // Se for ADM, vê todas as pendentes. Se for técnico/auxiliar, vê apenas as suas solicitações (com o status atualizado)
+      const listToShow = isAdm 
+        ? requests.filter(r => r.status === 'pendente')
+        : requests.filter(r => r.requesterEmail === userEmail);
 
-      badge.textContent = pending.length;
+      badge.textContent = isAdm ? listToShow.length : listToShow.filter(r => r.status === 'pendente').length;
+      
+      if (titleEl) {
+        titleEl.innerHTML = isAdm 
+          ? `📦 Solicitações Pendentes da Equipe <span id="pending-req-badge" class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full">${listToShow.length}</span>`
+          : `📋 Meus Pedidos e Solicitações`;
+      }
+
       const notifDot = document.getElementById('notif-dot');
-      if (notifDot) notifDot.classList.toggle('hidden', pending.length === 0);
+      if (notifDot && isAdm) {
+        notifDot.classList.toggle('hidden', listToShow.length === 0);
+      }
 
-      if (pending.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 italic bg-white p-3 rounded-2xl border border-slate-100">Nenhuma solicitação de material pendente.</p>`;
+      if (listToShow.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic bg-white p-3 rounded-2xl border border-slate-100">${isAdm ? 'Nenhuma solicitação de material pendente.' : 'Você ainda não fez nenhuma solicitação de material.'}</p>`;
         return;
       }
 
-      container.innerHTML = pending.map(r => `
-        <div id="req-card-${r.id}" class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 space-y-2">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-900 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-100">${r.icon}</span>
-              <div>
-                <p class="text-xs font-bold text-slate-800">${r.productName} <span class="text-blue-600 font-extrabold">(+${r.qty} un.)</span></p>
-                <p class="text-[10px] text-slate-500">Técnico: <span class="font-semibold text-slate-700">${r.requesterName}</span> (${r.requesterRole})</p>
+      container.innerHTML = listToShow.map(r => {
+        let statusBadge = '';
+        if (r.status === 'pendente') statusBadge = `<span class="text-[10px] bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded">Pendente</span>`;
+        else if (r.status === 'aprovado') statusBadge = `<span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded">Aceito / Aprovado</span>`;
+        else if (r.status === 'rejeitado') statusBadge = `<span class="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded">Rejeitado</span>`;
+
+        return `
+          <div id="req-card-${r.id}" class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-900 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-100">${r.icon}</span>
+                <div>
+                  <p class="text-xs font-bold text-slate-800">${r.productName} <span class="text-blue-600 font-extrabold">(+${r.qty} un.)</span></p>
+                  ${isAdm ? `<p class="text-[10px] text-slate-500">Técnico: <span class="font-semibold text-slate-700">${r.requesterName}</span> (${r.requesterRole})</p>` : ''}
+                </div>
               </div>
+              ${statusBadge}
             </div>
-            <span class="text-[10px] bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded">Pendente</span>
+            <p class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-xl">Info: ${r.obs}</p>
+            <div class="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
+              <span>Data: ${r.date}</span>
+              ${r.approvedBy ? `<span>Avaliado por: ${r.approvedBy}</span>` : ''}
+            </div>
+            ${isAdm && r.status === 'pendente' ? `
+              <div class="flex gap-2 pt-1">
+                <button onclick="approveRequest('${r.id}')" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold flex items-center justify-center gap-1 transition">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i> Aprovar e Dar Baixa
+                </button>
+                <button onclick="rejectRequest('${r.id}')" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 text-xs font-semibold transition">
+                  Rejeitar
+                </button>
+              </div>
+            ` : ''}
           </div>
-          <p class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-xl">Info: ${r.obs}</p>
-          <p class="text-[10px] text-slate-400">Data/Hora: ${r.date}</p>
-          <div class="flex gap-2 pt-1 border-t border-slate-100">
-            <button id="btn-approve-${r.id}" onclick="approveRequest('${r.id}')" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold flex items-center justify-center gap-1 transition">
-              <i data-lucide="check" class="w-3.5 h-3.5"></i> Aprovar e Dar Baixa
-            </button>
-            <button id="btn-reject-${r.id}" onclick="rejectRequest('${r.id}')" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 text-xs font-semibold transition">
-              Rejeitar
-            </button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
       lucide.createIcons();
     }
 
@@ -1036,14 +1063,6 @@
       
       const req = requests.find(r => r.id === reqId);
       if (!req || req.status !== 'pendente') return;
-
-      const cardEl = document.getElementById(`req-card-${reqId}`);
-      if (cardEl) {
-        cardEl.style.transition = 'all 0.3s ease';
-        cardEl.style.transform = 'scale(0.9)';
-        cardEl.style.opacity = '0';
-        setTimeout(() => cardEl.remove(), 300);
-      }
 
       const prod = products.find(p => p.id === req.productId);
       if (!prod) { 
@@ -1057,6 +1076,7 @@
       req.approvedBy = userName;
       req.approvedAt = getFormattedTimestamp();
 
+      // REGISTRO IMUTÁVEL PARA RELATÓRIOS E PROVAS
       movements.unshift({
         id: 'm_' + Date.now(),
         type: 'saida',
@@ -1064,7 +1084,7 @@
         qty: req.qty,
         date: req.approvedAt,
         icon: prod.icon,
-        details: `Solicitado por ${req.requesterName} (${req.requesterRole}) • Aprovado por ${userName}`
+        details: `Solicitação aprovada • Técnico: ${req.requesterName} (${req.requesterRole}) • ADM: ${userName}`
       });
 
       saveState();
@@ -1075,14 +1095,6 @@
       if (!checkAdminPermission()) return;
       const req = requests.find(r => r.id === reqId);
       if (!req || req.status !== 'pendente') return;
-
-      const cardEl = document.getElementById(`req-card-${reqId}`);
-      if (cardEl) {
-        cardEl.style.transition = 'all 0.3s ease';
-        cardEl.style.transform = 'scale(0.9)';
-        cardEl.style.opacity = '0';
-        setTimeout(() => cardEl.remove(), 300);
-      }
 
       req.status = 'rejeitado';
       req.approvedBy = userName;
@@ -1140,7 +1152,7 @@
       if (user) {
         user.requestedAdmin = false;
         saveState();
-        showToast(`Profissional ${user.name} liberado com sucesso!`);
+        showToast(`Profissional ${user.name} liberado!`);
         renderManagementLists();
       }
     }
@@ -1158,7 +1170,7 @@
       const user = usersDb.find(u => u.email === userEmail);
       if (user) user.requestedAdmin = true;
       saveState();
-      showToast('Solicitação enviada ao Administrador!');
+      showToast('Solicitação enviada ao ADM!');
     }
 
     function checkAdminPermission() {
@@ -1170,6 +1182,11 @@
     }
 
     function switchTab(tabName, save = true) {
+      if (tabName === 'relatorios' && userRole !== 'admin') {
+        showToast('Acesso restrito a administradores.');
+        return;
+      }
+
       if (save) localStorage.setItem('estoqueapp_current_tab', tabName);
 
       document.querySelectorAll('.screen').forEach(s => {
@@ -1216,36 +1233,43 @@
         ? `R$ ${(totalValue / 1000).toFixed(1).replace('.', ',')} mil`
         : formatBRL(totalValue);
 
+      // MOVIMENTAÇÕES RECENTES (APENAS ADM VÊ TODAS / Técnico não vê movimentações globais na home)
       const recentContainer = document.getElementById('recent-movements-list');
-      if (movements.length === 0) {
-        recentContainer.innerHTML = `<p class="text-xs text-slate-400 italic bg-white p-3 rounded-2xl border border-slate-100">Nenhuma movimentação registrada.</p>`;
+      const recentTitle = document.getElementById('recent-mov-title');
+      
+      if (userRole === 'admin') {
+        if (recentTitle) recentTitle.textContent = 'Movimentações Recentes do Estoque';
+        if (movements.length === 0) {
+          recentContainer.innerHTML = `<p class="text-xs text-slate-400 italic bg-white p-3 rounded-2xl border border-slate-100">Nenhuma movimentação registrada.</p>`;
+        } else {
+          recentContainer.innerHTML = movements.slice(0, 4).map(m => {
+            const isEntrada = m.type === 'entrada';
+            return `
+              <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-10 h-10 rounded-xl ${isEntrada ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} flex items-center justify-center text-xs font-bold shrink-0 border border-slate-100">
+                    ${m.icon || 'HW'}
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold ${isEntrada ? 'text-emerald-700' : 'text-rose-700'}">${isEntrada ? 'Entrada' : 'Baixa'}</p>
+                    <p class="text-sm font-semibold text-slate-800 truncate">${m.productName}</p>
+                    ${m.details ? `<p class="text-[10px] text-slate-400 truncate">${m.details}</p>` : ''}
+                  </div>
+                </div>
+                <div class="text-right shrink-0 ml-2">
+                  <p class="text-xs font-extrabold ${isEntrada ? 'text-emerald-600' : 'text-rose-600'}">${isEntrada ? '+' : '-'}${m.qty} un.</p>
+                  <p class="text-[11px] text-slate-400 mt-0.5">${m.date}</p>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
       } else {
-        recentContainer.innerHTML = movements.slice(0, 4).map(m => {
-          const isEntrada = m.type === 'entrada';
-          return `
-            <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-              <div class="flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 rounded-xl ${isEntrada ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} flex items-center justify-center text-xs font-bold shrink-0 border border-slate-100">
-                  ${m.icon || 'HW'}
-                </div>
-                <div class="min-w-0">
-                  <p class="text-xs font-bold ${isEntrada ? 'text-emerald-700' : 'text-rose-700'}">${isEntrada ? 'Entrada' : 'Baixa'}</p>
-                  <p class="text-sm font-semibold text-slate-800 truncate">${m.productName}</p>
-                  ${m.details ? `<p class="text-[10px] text-slate-400 truncate">${m.details}</p>` : ''}
-                </div>
-              </div>
-              <div class="text-right shrink-0 ml-2">
-                <p class="text-xs font-extrabold ${isEntrada ? 'text-emerald-600' : 'text-rose-600'}">${isEntrada ? '+' : '-'}${m.qty} un.</p>
-                <p class="text-[11px] text-slate-400 mt-0.5">${m.date}</p>
-              </div>
-            </div>
-          `;
-        }).join('');
+        if (recentTitle) recentTitle.textContent = 'Avisos da Rede Telecom';
+        recentContainer.innerHTML = `<p class="text-xs text-slate-500 bg-white p-3.5 rounded-2xl border border-slate-100">💡 Dica: Use o botão acima para solicitar materiais de fibra ou verifique o status dos seus pedidos pendentes/aprovados nesta mesma tela.</p>`;
       }
 
-      if (userRole === 'admin') {
-        renderAdminRequests();
-      }
+      renderRequestsView();
     }
 
     function handleHomeSearch(query) {
@@ -1258,10 +1282,14 @@
     }
 
     function filterLowStock() {
+      if (userRole !== 'admin') {
+        showToast('Apenas administradores podem ver itens de estoque baixo.');
+        return;
+      }
       onlyLowStock = true;
       currentCategory = 'Todos';
       switchTab('estoque');
-      showToast('Exibindo equipamentos com estoque baixo');
+      showToast('Exibindo estoque baixo');
     }
 
     function openNotifications() {
@@ -1364,7 +1392,7 @@
       const prod = products.find(p => p.id === id);
       if (!prod || prod.qty + delta < 0) { showToast('Estoque inválido!'); return; }
       prod.qty += delta;
-      movements.unshift({ id: 'm' + Date.now(), type: delta > 0 ? 'entrada' : 'saida', productName: prod.name, qty: Math.abs(delta), date: getFormattedTimestamp(), icon: prod.icon, details: `Ajuste rápido por ${userName}` });
+      movements.unshift({ id: 'm' + Date.now(), type: delta > 0 ? 'entrada' : 'saida', productName: prod.name, qty: Math.abs(delta), date: getFormattedTimestamp(), icon: prod.icon, details: `Ajuste rápido por ADM (${userName})` });
       saveState();
       showToast(`${delta > 0 ? '+1 Entrada' : '-1 Baixa'}`);
     }
@@ -1417,7 +1445,6 @@
 
     async function toggleFlash() {
       if (!cameraStream) {
-        // Se a câmera não estiver ativa, tenta ativá-la primeiro para conseguir controlar o flash
         await startCamera();
       }
       
@@ -1437,10 +1464,10 @@
             showToast('Lanterna desligada!');
           }
         } else {
-          showToast('Flash não suportado neste dispositivo/navegador.');
+          showToast('Flash não suportado neste aparelho.');
         }
       } catch (err) {
-        showToast('Erro ao acionar o flash.');
+        showToast('Erro ao acionar a lanterna.');
       }
     }
 
@@ -1461,10 +1488,10 @@
       if (currentMovementType === 'saida' && prod.qty < qty) { showToast('Estoque insuficiente!'); return; }
 
       prod.qty += currentMovementType === 'entrada' ? qty : -qty;
-      movements.unshift({ id: 'm' + Date.now(), type: currentMovementType, productName: prod.name, qty, date: getFormattedTimestamp(), icon: prod.icon, details: `Lançamento por ${userName}` });
+      movements.unshift({ id: 'm' + Date.now(), type: currentMovementType, productName: prod.name, qty, date: getFormattedTimestamp(), icon: prod.icon, details: `Lançamento manual por ADM (${userName})` });
       closeModal('movement-modal');
       saveState();
-      showToast('Movimentação registrada!');
+      showToast('Movimentação registrada e imutável!');
     }
 
     function openProductModal(id = null) {
@@ -1513,7 +1540,7 @@
         products[idx] = { ...products[idx], ...data };
       } else {
         products.unshift({ id: 'p' + Date.now(), ...data });
-        movements.unshift({ id: 'm' + Date.now(), type: 'entrada', productName: data.name, qty: data.qty, date: getFormattedTimestamp(), icon: data.icon, details: `Cadastro por ${userName}` });
+        movements.unshift({ id: 'm' + Date.now(), type: 'entrada', productName: data.name, qty: data.qty, date: getFormattedTimestamp(), icon: data.icon, details: `Cadastro inicial por ADM (${userName})` });
       }
       closeModal('product-modal');
       saveState();
@@ -1589,7 +1616,7 @@
         `;
       }).join('');
 
-      document.getElementById('total-mov-count').textContent = `${movements.length} registros`;
+      document.getElementById('total-mov-count').textContent = `${movements.length} registros imutáveis`;
       
       const movList = document.getElementById('full-movements-list');
       if (movements.length === 0) {
@@ -1614,22 +1641,23 @@
     }
 
     function exportCSV() {
+      if (!checkAdminPermission()) return;
       const headers = ['Data_Hora,Tipo,Equipamento,Quantidade,Detalhes'];
       const rows = movements.map(m => `"${m.date}","${m.type}","${m.productName}",${m.qty},"${m.details || ''}"`);
       const blob = new Blob([headers.concat(rows).join('\n')], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'relatorio_telecom.csv';
+      a.download = 'relatorio_auditoria_telecom.csv';
       a.click();
-      showToast('Relatório CSV exportado!');
+      showToast('Relatório de auditoria CSV exportado!');
     }
 
     function refreshAllViews() {
       renderHome();
       renderCategoryTabs();
       renderEstoqueList();
-      renderReports();
       if (userRole === 'admin') {
+        renderReports();
         renderManagementLists();
       }
       lucide.createIcons();
