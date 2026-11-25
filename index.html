@@ -80,36 +80,6 @@
       </div>
     </div>
 
-    <!-- TELA DE VERIFICAÇÃO DE CÓDIGO (2FA / OTP POR E-MAIL) -->
-    <div id="screen-otp" class="screen hidden absolute inset-0 bg-[#0F294A] text-white p-6 justify-between overflow-hidden z-50 flex flex-col">
-      <div class="pt-8 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4 border border-white/20 shadow-lg">
-          <i data-lucide="mail-check" class="w-8 h-8 text-white"></i>
-        </div>
-        <h1 class="text-2xl font-extrabold tracking-tight">Verificação de E-mail</h1>
-        <p class="text-xs text-blue-200 mt-1">Enviamos um código de segurança de 6 dígitos para o seu e-mail.</p>
-      </div>
-
-      <div class="bg-white text-slate-800 p-6 rounded-3xl shadow-2xl space-y-4">
-        <div>
-          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Código de Acesso (6 dígitos)</label>
-          <input id="otp-input" type="text" maxlength="6" placeholder="000000" class="w-full text-center tracking-[1em] font-mono text-xl bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 focus:outline-none focus:border-blue-600" />
-        </div>
-
-        <button onclick="verifyOtpCode()" class="w-full py-3 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:scale-[0.99] text-white font-semibold text-sm shadow-md shadow-blue-600/25 transition">
-          Confirmar e Entrar
-        </button>
-
-        <div class="text-center pt-2">
-          <button onclick="resendOtpCode()" class="text-xs text-blue-600 font-semibold hover:underline">Reenviar código</button>
-        </div>
-      </div>
-
-      <div class="text-center pb-4">
-        <button onclick="backToAuth()" class="text-xs text-blue-300 hover:underline">← Voltar para o login</button>
-      </div>
-    </div>
-
     <!-- TELA 1: INÍCIO -->
     <div id="screen-inicio" class="screen flex-1 flex flex-col overflow-hidden">
       <header class="bg-[#0F294A] text-white px-5 pt-6 pb-5 rounded-b-[24px] shadow-md shrink-0">
@@ -564,9 +534,7 @@
     let scanDelta = 15;
     let cameraStream = null;
     let authMode = 'login';
-    let pendingUserSession = null;
-    let generatedOtpCode = '';
-    let myPieChart = null; // Instância do gráfico
+    let myPieChart = null;
 
     function saveState() {
       localStorage.setItem('estoqueapp_products', JSON.stringify(products));
@@ -601,6 +569,7 @@
       document.getElementById('tab-register-btn').className = `py-2 rounded-lg transition ${isReg ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`;
     }
 
+    // LOGIN DIRETO SEM CÓDIGO POR E-MAIL
     function handleAuthSubmit() {
       const email = document.getElementById('auth-email').value.trim();
       const pass = document.getElementById('auth-pass').value.trim();
@@ -616,50 +585,16 @@
         const newUser = { name, email, pass };
         users.push(newUser);
         localStorage.setItem('estoqueapp_users_db', JSON.stringify(users));
-        initiateOtpFlow(newUser);
+        loginActiveUser(newUser);
       } else {
         const found = users.find(u => u.email === email && u.pass === pass);
         if (!found && email === 'admin@estoque.com' && pass === '123456') {
-          initiateOtpFlow({ name: 'André Luiz', email, pass });
+          loginActiveUser({ name: 'André Luiz', email, pass });
           return;
         }
         if (!found) { showToast('E-mail ou senha incorretos!'); return; }
-        initiateOtpFlow(found);
+        loginActiveUser(found);
       }
-    }
-
-    function initiateOtpFlow(user) {
-      pendingUserSession = user;
-      generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
-      
-      alert(`[CÓDIGO DE ACESSO]\n\nOlá ${user.name},\nSeu código de confirmação é: ${generatedOtpCode}`);
-
-      document.getElementById('screen-auth').classList.add('hidden');
-      document.getElementById('screen-otp').classList.remove('hidden');
-      document.getElementById('otp-input').value = '';
-      document.getElementById('otp-input').focus();
-    }
-
-    function verifyOtpCode() {
-      const enteredCode = document.getElementById('otp-input').value.trim();
-      if (enteredCode !== generatedOtpCode) {
-        showToast('Código incorreto!');
-        return;
-      }
-      loginActiveUser(pendingUserSession);
-      document.getElementById('screen-otp').classList.add('hidden');
-      showToast('Autenticado com sucesso!');
-    }
-
-    function resendOtpCode() {
-      generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
-      alert(`[NOVO CÓDIGO]\nSeu novo código é: ${generatedOtpCode}`);
-      showToast('Novo código enviado!');
-    }
-
-    function backToAuth() {
-      document.getElementById('screen-otp').classList.add('hidden');
-      document.getElementById('screen-auth').classList.remove('hidden');
     }
 
     function loginActiveUser(user) {
@@ -668,6 +603,7 @@
       userEmail = user.email;
       saveState();
       checkAuthSession();
+      showToast('Login efetuado com sucesso!');
     }
 
     function logoutUser() {
@@ -679,16 +615,13 @@
     function checkAuthSession() {
       const session = JSON.parse(localStorage.getItem('estoqueapp_logged_session'));
       const authScreen = document.getElementById('screen-auth');
-      const otpScreen = document.getElementById('screen-otp');
       const bottomNav = document.querySelector('nav');
 
       if (!session) {
         authScreen.classList.remove('hidden');
-        otpScreen.classList.add('hidden');
         if (bottomNav) bottomNav.classList.add('hidden');
       } else {
         authScreen.classList.add('hidden');
-        otpScreen.classList.add('hidden');
         if (bottomNav) bottomNav.classList.remove('hidden');
         userName = session.name;
         userEmail = session.email;
@@ -698,7 +631,7 @@
 
     function switchTab(tabName) {
       document.querySelectorAll('.screen').forEach(s => {
-        if(s.id !== 'screen-auth' && s.id !== 'screen-otp') s.classList.add('hidden');
+        if(s.id !== 'screen-auth') s.classList.add('hidden');
       });
       document.getElementById(`screen-${tabName}`).classList.remove('hidden');
 
@@ -715,7 +648,7 @@
       if (tabName === 'leitor') {
         renderScannerCard();
       } else if (tabName === 'relatorios') {
-        setTimeout(renderChart, 100); // Renderiza o gráfico ao abrir relatórios
+        setTimeout(renderChart, 100);
       } else if (cameraStream) {
         stopCamera();
       }
@@ -1040,11 +973,11 @@
       if (!ctx) return;
 
       if (myPieChart) {
-        myPieChart.destroy(); // Destroi o gráfico anterior para atualizar com novos dados
+        myPieChart.destroy();
       }
 
       myPieChart = new Chart(ctx, {
-        type: 'doughnut', // Gráfico de rosca (estilo pizza moderno)
+        type: 'doughnut',
         data: {
           labels: cats,
           datasets: [{
