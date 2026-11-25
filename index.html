@@ -18,6 +18,11 @@
     html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: #E2E8F0; position: fixed; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .popup-anim { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
   <script>
     if ('serviceWorker' in navigator) {
@@ -459,6 +464,31 @@
       </button>
     </nav>
 
+    <!-- POP-UP ESTILO WHATSAPP (COM PONTEIROS LIVRES E NÃO-BLOQUEANTE) -->
+    <div id="whatsapp-popup" class="hidden absolute top-4 inset-x-4 bg-slate-900/95 text-white p-4 rounded-2xl shadow-2xl border border-blue-500/30 z-[60] popup-anim backdrop-blur-md">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
+          <i data-lucide="bell-ring" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-0.5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Nova Solicitação de Material</h4>
+            <span id="popup-time" class="text-[10px] text-slate-400">Agora</span>
+          </div>
+          <p id="popup-title" class="text-sm font-bold text-white truncate">Técnico solicitou ONU Huawei</p>
+          <p id="popup-desc" class="text-xs text-slate-300 mt-0.5">Quantidade: +2 un. • OS #49201</p>
+        </div>
+        <button onclick="closeWhatsappPopup()" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="mt-3 flex gap-2">
+        <button onclick="goToRequestsAndClose()" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow">
+          <i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver Solicitações
+        </button>
+      </div>
+    </div>
+
     <!-- MODAL DE SOLICITAÇÃO DE MATERIAL -->
     <div id="request-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4">
       <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-4">
@@ -604,10 +634,10 @@
       </div>
     </div>
 
-    <!-- TOAST DE NOTIFICAÇÃO NÃO-BLOQUEANTE -->
-    <div id="toast" class="hidden absolute top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-medium px-4 py-3 rounded-2xl shadow-2xl z-[9999] pointer-events-none flex items-center gap-2 max-w-[340px]">
-      <i data-lucide="bell" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-      <span id="toast-msg" class="truncate">Atualizado!</span>
+    <!-- TOAST -->
+    <div id="toast" class="hidden absolute top-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg z-50 flex items-center gap-2 whitespace-nowrap">
+      <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+      <span id="toast-msg">Salvo com sucesso!</span>
     </div>
 
   </div>
@@ -653,11 +683,15 @@
     let currentMovementType = 'entrada';
     let scannedProductIndex = 0;
     let cameraStream = null;
+    let flashOn = false;
     let authMode = 'login';
     let myPieChart = null;
 
     function playNotificationSound() {
       try {
+        if ('vibrate' in navigator) {
+          navigator.vibrate([200, 100, 200]);
+        }
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -671,11 +705,11 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.4);
       } catch (e) {
-        console.log('Áudio bloqueado.');
+        console.log('Áudio/Vibração bloqueados.');
       }
     }
 
-    // LISTENER EM TEMPO REAL ESTÁVEL E LEVE
+    // LISTENER EM TEMPO REAL COM POP-UP ESTILO WHATSAPP
     db.ref('estoque_compartilhado').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -696,7 +730,7 @@
           if (userRole === 'admin' && requests.length > oldLen) {
             const latest = requests[0];
             if (latest && latest.status === 'pendente') {
-              showToast(`Solicitação: ${latest.productName} (+${latest.qty})`);
+              showWhatsappPopup(latest);
               playNotificationSound();
             }
           }
@@ -711,12 +745,20 @@
       }
     });
 
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      document.getElementById('toast-msg').textContent = msg;
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 3500);
-      lucide.createIcons();
+    function showWhatsappPopup(req) {
+      document.getElementById('popup-title').textContent = `${req.requesterName} (${req.requesterRole}):`;
+      document.getElementById('popup-desc').textContent = `${req.productName} • Qtde: +${req.qty} un. (${req.obs})`;
+      document.getElementById('whatsapp-popup').classList.remove('hidden');
+      setTimeout(() => closeWhatsappPopup(), 7000);
+    }
+
+    function closeWhatsappPopup() {
+      document.getElementById('whatsapp-popup').classList.add('hidden');
+    }
+
+    function goToRequestsAndClose() {
+      closeWhatsappPopup();
+      switchTab('inicio');
     }
 
     function saveState() {
@@ -748,7 +790,7 @@
           if (data.users) { usersDb = data.users; localStorage.setItem('estoqueapp_users_db', JSON.stringify(usersDb)); }
         }
         refreshAllViews();
-        showToast('Dados atualizados!');
+        showToast('Dados atualizados com sucesso!');
       }).catch(() => {
         refreshAllViews();
         showToast('Dados locais atualizados!');
@@ -771,6 +813,13 @@
 
     function getInitials(name) {
       return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'AL';
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2600);
     }
 
     function switchAuthMode(mode) {
@@ -798,7 +847,7 @@
         usersDb.push(newUser);
         loginActiveUser(newUser);
         saveState();
-        showToast('Cadastro realizado! Aguarde liberação.');
+        showToast('Cadastro realizado! Aguarde liberação do ADM.');
       } else {
         const found = usersDb.find(u => u.email === email && u.pass === pass);
         if (!found) {
@@ -814,7 +863,7 @@
         }
 
         if (found.status === 'bloqueado' || found.status === 'suspenso') {
-          showToast(`Conta com acesso ${found.status}!`);
+          showToast(`Conta com acesso ${found.status}! Contate o admin.`);
           return;
         }
 
@@ -874,7 +923,7 @@
         } else if (userRole === 'convidado') {
           if (btnAddProd) btnAddProd.classList.add('hidden');
           if (adminPanel) adminPanel.classList.add('hidden');
-          if (techPanel) techPanel.classList.add('hidden');
+          if (techPanel) adminPanel.classList.add('hidden');
           if (adminReqSection) adminReqSection.classList.add('hidden');
           if (adminUserTab) adminUserTab.classList.add('hidden');
           if (guestRequestSection) guestRequestSection.classList.remove('hidden');
@@ -936,7 +985,7 @@
       requests.unshift(newReq);
       closeModal('request-modal');
       saveState();
-      showToast('Solicitação enviada ao ADM!');
+      showToast('Solicitação de material enviada ao ADM!');
     }
 
     function renderAdminRequests() {
@@ -998,7 +1047,7 @@
 
       const prod = products.find(p => p.id === req.productId);
       if (!prod) { 
-        showToast('Equipamento não encontrado!'); 
+        showToast('Equipamento não encontrado no estoque!'); 
         refreshAllViews();
         return; 
       }
@@ -1019,7 +1068,7 @@
       });
 
       saveState();
-      showToast('Aprovado e estoque baixado!');
+      showToast('Solicitação aprovada e estoque baixado!');
     }
 
     function rejectRequest(reqId) {
@@ -1091,7 +1140,7 @@
       if (user) {
         user.requestedAdmin = false;
         saveState();
-        showToast(`Profissional ${user.name} liberado!`);
+        showToast(`Profissional ${user.name} liberado com sucesso!`);
         renderManagementLists();
       }
     }
@@ -1109,7 +1158,7 @@
       const user = usersDb.find(u => u.email === userEmail);
       if (user) user.requestedAdmin = true;
       saveState();
-      showToast('Solicitação enviada ao ADM!');
+      showToast('Solicitação enviada ao Administrador!');
     }
 
     function checkAdminPermission() {
@@ -1212,7 +1261,7 @@
       onlyLowStock = true;
       currentCategory = 'Todos';
       switchTab('estoque');
-      showToast('Exibindo estoque baixo');
+      showToast('Exibindo equipamentos com estoque baixo');
     }
 
     function openNotifications() {
@@ -1355,12 +1404,45 @@
     }
 
     function stopCamera() {
-      if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+      if (cameraStream) { 
+        cameraStream.getTracks().forEach(t => t.stop()); 
+        cameraStream = null; 
+      }
+      flashOn = false;
+      const flashBtn = document.getElementById('flash-btn');
+      if (flashBtn) flashBtn.classList.remove('bg-amber-500', 'text-slate-950');
       document.getElementById('camera-video').classList.add('hidden');
       document.getElementById('scanner-placeholder').classList.remove('hidden');
     }
 
-    function toggleFlash() { showToast('Lanterna alternada'); }
+    async function toggleFlash() {
+      if (!cameraStream) {
+        // Se a câmera não estiver ativa, tenta ativá-la primeiro para conseguir controlar o flash
+        await startCamera();
+      }
+      
+      try {
+        const track = cameraStream.getVideoTracks()[0];
+        const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+        
+        if (capabilities.torch) {
+          flashOn = !flashOn;
+          await track.applyConstraints({ advanced: [{ torch: flashOn }] });
+          const flashBtn = document.getElementById('flash-btn');
+          if (flashOn) {
+            flashBtn.classList.add('bg-amber-500', 'text-slate-950');
+            showToast('Lanterna ligada!');
+          } else {
+            flashBtn.classList.remove('bg-amber-500', 'text-slate-950');
+            showToast('Lanterna desligada!');
+          }
+        } else {
+          showToast('Flash não suportado neste dispositivo/navegador.');
+        }
+      } catch (err) {
+        showToast('Erro ao acionar o flash.');
+      }
+    }
 
     function openMovementModal(type) {
       if (!checkAdminPermission()) return;
@@ -1539,7 +1621,7 @@
       a.href = URL.createObjectURL(blob);
       a.download = 'relatorio_telecom.csv';
       a.click();
-      showToast('Relatório exportado!');
+      showToast('Relatório CSV exportado!');
     }
 
     function refreshAllViews() {
