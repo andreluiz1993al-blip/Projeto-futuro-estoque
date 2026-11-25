@@ -8,6 +8,8 @@
   <meta name="theme-color" content="#0F294A">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Biblioteca Chart.js para os gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -336,7 +338,7 @@
       </div>
     </div>
 
-    <!-- TELA 4: RELATÓRIOS -->
+    <!-- TELA 4: RELATÓRIOS COM GRÁFICO DE PIZZA -->
     <div id="screen-relatorios" class="screen hidden flex-1 flex flex-col overflow-hidden">
       <header class="bg-[#0F294A] text-white px-5 pt-6 pb-5 rounded-b-[24px] shrink-0">
         <div class="flex items-center justify-between">
@@ -351,8 +353,17 @@
       </header>
 
       <main class="flex-1 overflow-y-auto no-scrollbar px-5 pt-5 pb-24 space-y-5">
+        
+        <!-- CARD DO GRÁFICO DE PIZZA / ROSCA -->
         <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-          <h3 class="text-sm font-bold text-slate-800 mb-3">Valor por Categoria</h3>
+          <h3 class="text-sm font-bold text-slate-800 mb-3">Distribuição por Categoria (Valor R$)</h3>
+          <div class="w-full h-64 flex items-center justify-center relative">
+            <canvas id="categoryPieChart"></canvas>
+          </div>
+        </section>
+
+        <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+          <h3 class="text-sm font-bold text-slate-800 mb-3">Valores Detalhados</h3>
           <div id="category-breakdown" class="space-y-3"></div>
         </section>
 
@@ -555,6 +566,7 @@
     let authMode = 'login';
     let pendingUserSession = null;
     let generatedOtpCode = '';
+    let myPieChart = null; // Instância do gráfico
 
     function saveState() {
       localStorage.setItem('estoqueapp_products', JSON.stringify(products));
@@ -620,8 +632,7 @@
       pendingUserSession = user;
       generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
       
-      // Exibe o código simulado via pop-up para validação imediata
-      alert(`[CÓDIGO ENVIADO POR E-MAIL]\n\nOlá ${user.name},\nSeu código de acesso temporário é: ${generatedOtpCode}`);
+      alert(`[CÓDIGO DE ACESSO]\n\nOlá ${user.name},\nSeu código de confirmação é: ${generatedOtpCode}`);
 
       document.getElementById('screen-auth').classList.add('hidden');
       document.getElementById('screen-otp').classList.remove('hidden');
@@ -703,6 +714,8 @@
 
       if (tabName === 'leitor') {
         renderScannerCard();
+      } else if (tabName === 'relatorios') {
+        setTimeout(renderChart, 100); // Renderiza o gráfico ao abrir relatórios
       } else if (cameraStream) {
         stopCamera();
       }
@@ -1017,6 +1030,46 @@
 
     function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
 
+    function renderChart() {
+      const cats = ['Eletrônicos', 'Acessórios', 'Vestuário'];
+      const catValues = cats.map(cat => {
+        return products.filter(p => p.category === cat).reduce((acc, p) => acc + (p.qty * p.price), 0);
+      });
+
+      const ctx = document.getElementById('categoryPieChart');
+      if (!ctx) return;
+
+      if (myPieChart) {
+        myPieChart.destroy(); // Destroi o gráfico anterior para atualizar com novos dados
+      }
+
+      myPieChart = new Chart(ctx, {
+        type: 'doughnut', // Gráfico de rosca (estilo pizza moderno)
+        data: {
+          labels: cats,
+          datasets: [{
+            data: catValues,
+            backgroundColor: ['#2563EB', '#2B8A7E', '#E26D5C'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                boxWidth: 12,
+                font: { size: 11, family: 'Inter' }
+              }
+            }
+          }
+        }
+      });
+    }
+
     function renderReports() {
       const cats = ['Eletrônicos', 'Acessórios', 'Vestuário'];
       const totalVal = products.reduce((acc, p) => acc + p.qty * p.price, 0) || 1;
@@ -1050,6 +1103,8 @@
           <span class="text-xs font-extrabold ${m.type === 'entrada' ? 'text-emerald-600' : 'text-rose-600'}">${m.type === 'entrada' ? '+' : '-'}${m.qty} un.</span>
         </div>
       `).join('');
+
+      renderChart();
     }
 
     function exportCSV() {
